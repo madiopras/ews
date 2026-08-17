@@ -79,6 +79,10 @@ export const TRANSLATIONS = {
       generating: "AI sedang merancang perjalanan Anda...",
       itineraryTitle: "Itinerary Anda",
       newPlan: "Rencana Baru",
+      extraContext: "Cerita tambahan untuk AI",
+      optional: "opsional, max 200 karakter",
+      extraContextPlaceholder:
+        "Contoh: liburan bareng anak umur 5 tahun, atau ingin suasana romantis untuk honeymoon",
     },
     upload: {
       dragDrop: "Seret & lepas foto di sini, atau klik untuk pilih",
@@ -249,6 +253,10 @@ export const TRANSLATIONS = {
       generating: "AI is crafting your journey...",
       itineraryTitle: "Your Itinerary",
       newPlan: "New Plan",
+      extraContext: "Extra context for AI",
+      optional: "optional, max 200 chars",
+      extraContextPlaceholder:
+        "e.g. traveling with a 5-year-old kid, or romantic honeymoon vibe",
     },
     upload: {
       dragDrop: "Drag & drop images here, or click to browse",

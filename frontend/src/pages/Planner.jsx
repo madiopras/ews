@@ -48,6 +48,15 @@ function renderMarkdown(md) {
           {line.slice(4)}
         </h4>
       );
+    } else if (line.startsWith("> ")) {
+      flushList();
+      out.push(
+        <blockquote
+          key={idx}
+          className="my-3 pl-4 border-l-4 border-sunset/60 bg-sand shadow-neu-inset rounded-r-xl py-2 pr-4 text-sm text-ink/90"
+          dangerouslySetInnerHTML={{ __html: bold(line.slice(2)) }}
+        />
+      );
     } else if (line.startsWith("- ") || line.startsWith("* ")) {
       listBuf.push(bold(line.slice(2)));
     } else if (line.trim() === "") {
@@ -71,7 +80,7 @@ export default function Planner() {
   const { t, lang } = useLang();
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [form, setForm] = useState({ days: 3, budget: 1500000, interests: ["nature"] });
+  const [form, setForm] = useState({ days: 3, budget: 1500000, interests: ["nature"], extra_context: "" });
   const [output, setOutput] = useState("");
   const [streaming, setStreaming] = useState(false);
   const [error, setError] = useState("");
@@ -249,6 +258,29 @@ export default function Planner() {
               </button>
             ))}
           </div>
+        </div>
+
+        <div className="mt-6">
+          <div className="flex items-center justify-between pl-1 mb-2">
+            <span className="text-xs text-muted2 flex items-center gap-1">
+              <Sparkles className="w-3 h-3" /> {t.planner.extraContext}{" "}
+              <span className="text-muted2/60">({t.planner.optional})</span>
+            </span>
+            <span className="text-[10px] text-muted2/70" data-testid="planner-ctx-count">
+              {form.extra_context.length}/200
+            </span>
+          </div>
+          <textarea
+            rows={3}
+            maxLength={200}
+            value={form.extra_context}
+            onChange={(e) =>
+              setForm((p) => ({ ...p, extra_context: e.target.value.slice(0, 200) }))
+            }
+            placeholder={t.planner.extraContextPlaceholder}
+            className="w-full rounded-2xl px-5 py-4 bg-sand shadow-neu-inset outline-none text-sm resize-none"
+            data-testid="planner-extra-context"
+          />
         </div>
 
         <div className="mt-8 flex flex-wrap gap-3">

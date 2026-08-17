@@ -37,17 +37,24 @@ Buat aplikasi web direktori wisata Sumatera Utara bernama Explore Wisata Sumut. 
 - [x] Batak Ulos SVG pattern backdrop on home + planner hero + footer
 
 ## Iteration 3 — Implemented (2026-02-17)
-- [x] Local Partners directory `/partners` — guide/rental mobil/homestay, public registration form `/partners/register`, admin approval workflow, filter by type
-- [x] Partners on Destination Detail — approved partners appear for each linked destination with WhatsApp click-to-chat button (`wa.me/{number}`)
-- [x] Admin Partners tab — pending list with Approve/Reject/Delete actions
-- [x] Planner Save — after AI generates itinerary, signed-in users can save with a title; stored in new `itineraries` collection
-- [x] Wishlist tabs — "Destinations" + "Trip Plans", saved itineraries expand to show markdown with delete action
-- [x] Trending Destinations — top wishlist-saved of last 30 days, aggregated from new `wishlist_events` collection, shown on homepage with rank badge
+- [x] Local Partners directory `/partners` — guide/rental mobil/homestay, public registration form, admin approval workflow, filter by type
+- [x] Partners on Destination Detail — approved partners appear with WhatsApp click-to-chat button
+- [x] Admin Partners tab — Approve/Reject/Delete actions
+- [x] Planner Save — signed-in users save AI itinerary with a title
+- [x] Wishlist tabs — "Destinations" + "Trip Plans" with expand & delete
+- [x] Trending Destinations — top wishlist-saved of last 30 days on homepage
+
+## Iteration 4 — Implemented (2026-02-17)
+- [x] Trip Planner injects approved partners per destination (`> **Mitra Lokal:**` block with business_name, type, city, WhatsApp) — only shown when partners exist; capped at 5 per destination
+- [x] Optional `extra_context` field (max 200 chars) under Interests — adjusts AI tone/priority (e.g. "liburan bareng anak umur 5 tahun"), sanitized server-side, resistant to prompt injection (still limited to DB destinations)
+- [x] Character counter UI + hard client cap
+- [x] Blockquote (`>`) support in Planner markdown renderer for the Mitra Lokal section visual styling
 
 ## Testing
 - Iteration 1: 100% backend + 100% frontend pass
 - Iteration 2: 100% backend + 100% frontend pass
-- Iteration 3: 100% backend + 100% frontend pass (see `/app/test_reports/iteration_3.json`)
+- Iteration 3: 100% backend + 100% frontend pass
+- Iteration 4: 100% backend (13/13 pytest) + 100% frontend pass (see `/app/test_reports/iteration_4.json`)
 
 ## Backlog (P1/P2)
 - P1: Batak Ulos motif SVG background pattern in footer/empty states
