@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLang } from "@/contexts/LanguageContext";
 import { toast } from "sonner";
+import GoogleButton from "@/components/GoogleButton";
 
 export default function Register() {
   const { register } = useAuth();
@@ -37,6 +38,14 @@ export default function Register() {
         </h1>
 
         <form onSubmit={submit} className="space-y-4">
+          <GoogleButton testId="google-register-btn" />
+
+          <div className="flex items-center gap-3 py-1">
+            <span className="h-px flex-1 bg-line" />
+            <span className="text-[12px] text-inkSoft">{t.auth.or}</span>
+            <span className="h-px flex-1 bg-line" />
+          </div>
+
           <label className="block">
             <span className="text-[13px] text-inkSoft">{t.auth.name}</span>
             <input required value={form.name} onChange={upd("name")} className="input-flat mt-2" data-testid="register-name-input" />

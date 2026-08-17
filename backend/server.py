@@ -181,6 +181,80 @@ async def login(payload: LoginIn, response: Response):
     return UserOut(id=uid, email=email, name=user["name"], role=user.get("role", "user"))
 
 
+EMERGENT_AUTH_SESSION_URL = (
+    "https://demobackend.emergentagent.com/auth/v1/env/oauth/session-data"
+)
+
+
+class GoogleSessionIn(BaseModel):
+    session_id: str = Field(..., min_length=8, max_length=500)
+
+
+@api_router.post("/auth/google/session", response_model=UserOut)
+async def google_session(payload: GoogleSessionIn, response: Response):
+    """Exchange an Emergent OAuth session_id for our own app session (JWT cookie)."""
+    async with httpx.AsyncClient(timeout=20) as http:
+        res = await http.get(
+            EMERGENT_AUTH_SESSION_URL, headers={"X-Session-ID": payload.session_id}
+        )
+    if res.status_code != 200:
+        raise HTTPException(status_code=401, detail="Invalid or expired Google session")
+    data = res.json()
+    email = (data.get("email") or "").lower()
+    if not email:
+        raise HTTPException(status_code=400, detail="Google account has no email")
+
+    now = datetime.now(timezone.utc)
+    user = await db.users.find_one({"email": email})
+    if user:
+        # Merge into the existing account, keep its role and password login intact
+        await db.users.update_one(
+            {"_id": user["_id"]},
+            {
+                "$set": {
+                    "google_id": data.get("id", ""),
+                    "picture": data.get("picture", ""),
+                    "name": user.get("name") or data.get("name") or email.split("@")[0],
+                }
+            },
+        )
+        uid = str(user["_id"])
+        name = user.get("name") or data.get("name") or email.split("@")[0]
+        role = user.get("role", "user")
+    else:
+        doc = {
+            "email": email,
+            "name": data.get("name") or email.split("@")[0],
+            "role": "user",
+            "wishlist": [],
+            "google_id": data.get("id", ""),
+            "picture": data.get("picture", ""),
+            "auth_provider": "google",
+            "created_at": now.isoformat(),
+        }
+        res_ins = await db.users.insert_one(doc)
+        uid = str(res_ins.inserted_id)
+        name = doc["name"]
+        role = "user"
+
+    if data.get("session_token"):
+        await db.user_sessions.update_one(
+            {"session_token": data["session_token"]},
+            {
+                "$set": {
+                    "user_id": uid,
+                    "session_token": data["session_token"],
+                    "expires_at": (now + timedelta(days=7)).isoformat(),
+                    "created_at": now.isoformat(),
+                }
+            },
+            upsert=True,
+        )
+
+    set_auth_cookie(response, create_access_token(uid, email))
+    return UserOut(id=uid, email=email, name=name, role=role)
+
+
 @api_router.post("/auth/logout")
 async def logout(response: Response):
     response.delete_cookie("access_token", path="/")

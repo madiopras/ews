@@ -79,8 +79,15 @@ Frontend-only. Neumorphism dihapus total.
 - [x] Mitra premium tampil paling atas (section "Mitra Unggulan") dengan badge Unggulan + garis aksen di halaman Mitra dan di daftar mitra pada halaman destinasi; premium kedaluwarsa otomatis dianggap non-premium.
 - [x] Env: `MIDTRANS_ENV` (sandbox/production) + kredensial sandbox & production di `backend/.env`.
 
+## Iteration 8 — Login/Signup dengan Google (Emergent-managed OAuth) (2026-06-17)
+- [x] `POST /api/auth/google/session` menukar `session_id` Emergent OAuth → data user Google → upsert user (merge by email, role & login password dipertahankan) → cookie JWT `access_token` aplikasi; `session_token` Emergent disimpan di `user_sessions`
+- [x] Frontend: `GoogleButton` (redirect dinamis `window.location.origin + '/profile'`, tanpa hardcode), `AuthCallback` mendeteksi `#session_id=` di `AppShell` sebelum routing, AuthContext skip `/auth/me` saat callback
+- [x] Tombol "Lanjutkan dengan Google" di halaman Masuk, Daftar, dan Profil (guest), berdampingan dengan login email/password
+- [x] Playbook uji auth disimpan di `/app/auth_testing.md`
+
 ## Testing
-- Iteration 7: backend 18/18 PASS, frontend 100% (share OG, admin plans, dialog premium + snap sandbox nyata, mobile 390px) — `/app/test_reports/iteration_7.json`; isu minor `/api/payments/{order_id}/status` sudah diperbaiki & diverifikasi
+- Iteration 8: backend 11/11 PASS (validasi, regresi auth password, merge-by-email, user Google tersimulasi), frontend 100% (tombol di 3 halaman, callback, mobile) — `/app/test_reports/iteration_8.json`. Alur Google sungguhan tidak bisa diotomatisasi (butuh akun Google manusia)
+- Iteration 7: backend 18/18 PASS, frontend 100% — `/app/test_reports/iteration_7.json`
 - Iteration 6: backend 10/10 PASS; share/public/reroll PASS; bug offline-banner diperbaiki & diverifikasi — `/app/test_reports/iteration_6.json`
 - Iteration 5: 100% frontend (13/13 area) di viewport 390x844 + 1920x1080 — `/app/test_reports/iteration_5.json`
 - Iteration 1: 100% backend + 100% frontend pass

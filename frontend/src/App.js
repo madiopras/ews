@@ -1,6 +1,6 @@
 import React from "react";
 import "@/App.css";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { Toaster } from "sonner";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
@@ -18,6 +18,7 @@ import Partners from "@/pages/Partners";
 import PartnerRegister from "@/pages/PartnerRegister";
 import Profile from "@/pages/Profile";
 import PublicTrip from "@/pages/PublicTrip";
+import AuthCallback from "@/components/AuthCallback";
 
 function Protected({ children, adminOnly = false }) {
   const { user, ready } = useAuth();
@@ -28,10 +29,17 @@ function Protected({ children, adminOnly = false }) {
 }
 
 function AppShell() {
+  const location = useLocation();
+  // Emergent OAuth returns to {origin}/profile#session_id=... — handle it before routing
+  const isAuthCallback = location.hash?.includes("session_id=");
+
   return (
     <div className="App bg-cream min-h-screen">
       <Navbar />
       <main className="pb-20 md:pb-0">
+        {isAuthCallback ? (
+          <AuthCallback />
+        ) : (
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/explore" element={<Directory />} />
@@ -61,6 +69,7 @@ function AppShell() {
           />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
+        )}
       </main>
       <BottomNav />
       <Toaster position="top-center" richColors />

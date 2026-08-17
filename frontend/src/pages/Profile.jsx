@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLang } from "@/contexts/LanguageContext";
 import { Heart, Sparkles, Shield, LogOut, Languages, User, ChevronRight, Handshake } from "lucide-react";
+import GoogleButton from "@/components/GoogleButton";
 
 function Row({ to, onClick, icon: Icon, label, value, testId }) {
   const inner = (
@@ -46,6 +47,12 @@ export default function Profile() {
           <h1 className="font-display text-[24px] mb-2">{t.profile.guestTitle}</h1>
           <p className="text-[13px] text-inkSoft mb-6">{t.profile.guestSubtitle}</p>
           <div className="space-y-3">
+            <GoogleButton testId="google-profile-btn" />
+            <div className="flex items-center gap-3">
+              <span className="h-px flex-1 bg-line" />
+              <span className="text-[12px] text-inkSoft">{t.auth.or}</span>
+              <span className="h-px flex-1 bg-line" />
+            </div>
             <Link to="/login" className="btn-primary w-full" data-testid="profile-login-btn">
               {t.nav.login}
             </Link>
