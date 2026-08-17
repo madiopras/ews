@@ -17,6 +17,7 @@ import Planner from "@/pages/Planner";
 import Partners from "@/pages/Partners";
 import PartnerRegister from "@/pages/PartnerRegister";
 import Profile from "@/pages/Profile";
+import PublicTrip from "@/pages/PublicTrip";
 
 function Protected({ children, adminOnly = false }) {
   const { user, ready } = useAuth();
@@ -38,6 +39,7 @@ function AppShell() {
           <Route path="/partners" element={<Partners />} />
           <Route path="/partners/register" element={<PartnerRegister />} />
           <Route path="/destination/:id" element={<DestinationDetail />} />
+          <Route path="/trip/:slug" element={<PublicTrip />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/profile" element={<Profile />} />

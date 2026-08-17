@@ -1,0 +1,43 @@
+{
+  "summary": "Iteration 6 — Tested 3 new features (share itinerary / reroll / lightweight offline). BACKEND 10/10 pytest PASS (test_iteration6.py): itinerary create defaults (author_name from user.name, is_public=false, share_slug=null), PATCH /itineraries/{id}/share validations (400 invalid id, 404 unknown, 403 other user, 200 owner enables and generates 12-hex slug), GET /public/itineraries/{slug} works WITHOUT cookie (returns title/days/budget/interests/content/author_name; no user_id leak), PATCH {public:false} then GET public → 404, and /api/trip-planner/stream SSE accepts previous_content (empty, populated, and long ~4KB) with valid seeded destinations. FRONTEND UI E2E PASS for: (a) Planner generate → save → reroll: planner-reroll-btn NOT present pre-output, appears after output completes, clicking it re-streams a different itinerary that OVERWRITES planner-output (verified content differs). (b) Wishlist ShareBox: share-enable-{id} → toggles into share-box-{id} with share-url-{id} containing /trip/<12-hex-slug>, share-wa-{id} href starts with https://wa.me/?text=... with URL-encoded share URL inside, share-copy-{id} and share-disable-{id} present; badge 'Link publik aktif' (badge-moss) appears on public trip cards. (c) /trip/<slug> in a FRESH incognito context (no cookies) shows public-trip-page with public-trip-title, public-trip-author ('Admin'), public-trip-content (2370 chars markdown rendered), public-trip-cta linking to /planner. (d) After share-disable, opening /trip/<slug> in fresh context shows public-trip-notfound. (e) Regression: home mobile 390 renders, /explore directory-page loads, bottom-nav visible on 390, /profile guest state OK, /partners/register form loads. ISSUE FOUND on Offline banner (see frontend_issues).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {
+        "component": "Wishlist.jsx + OfflineBanner + public/sw.js",
+        "issue": "offline-banner NEVER shows when navigator is offline. Root cause: the app-shell branch of sw.js (network-first with fallback to caches.match(req) || caches.match('/')) also intercepts /api/wishlist and /api/itineraries. When offline, the SW serves the previously cached JSON response with status 200, so axios succeeds → Wishlist.load() takes the 'ok' branch and never sets offlineAt, so OfflineBanner returns null. DestinationDetail.jsx has the same problem (banner also missing). Data IS shown offline (good), but the timestamp banner requirement is unmet.",
+        "selector": "[data-testid=\"offline-banner\"]",
+        "priority": "HIGH"
+      }
+    ],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_iteration6.py",
+    "/app/test_reports/pytest/iteration6.xml"
+  ],
+  "action_items": [
+    "Fix offline-banner detection. Options: (1) In Wishlist.jsx/DestinationDetail.jsx, in the 'ok' branch, additionally check `navigator.onLine === false` (or import isOffline() from /app/frontend/src/lib/offline.js which already exists but is unused) and if so, still set offlineAt from the cache's savedAt. (2) OR: exclude /api/* from sw.js interception entirely so offline API calls truly fail and trigger the existing cache-fallback branch that already sets offlineAt.",
+    "(LOW carry-over) Directory.jsx budget-select still renders <span> inside <option> (React hydration console warning) — unchanged from iter 5.",
+    "(LOW carry-over) server.py ~1084 lines — consider modularization."
+  ],
+  "critical_code_review_comments": [
+    "public/sw.js: fetch handler falls back to caches.match('/') for same-origin misses. This is the correct behavior for HTML navigations, but for /api/* JSON requests it either returns stale JSON (status 200) OR returns index.html HTML — both mask real offline state from the app. Recommend early-return `if (url.pathname.startsWith('/api/')) return;` (or restrict app-shell branch to `req.mode === 'navigate'` / destination === 'document').",
+    "Wishlist.jsx line 108–115: cache-fallback branch is only taken if BOTH /api/wishlist and /api/itineraries reject; because SW returns 200 for cached responses, this branch is unreachable in practice.",
+    "server.py PATCH /itineraries/{id}/share correctly returns 400/404/403/200 and generates uuid.uuid4().hex[:12] slug ONLY on first enable (subsequent enables keep slug — verified). ",
+    "PublicItineraryOut does NOT leak user_id/id — good.",
+    "Planner.jsx correctly forwards `previous_content: previous.slice(0, 20000)` matching backend Field(max_length=20000)."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_iteration6.py",
+    "/app/test_reports/iteration_6.json"
+  ],
+  "success_rate": {"backend": "100% (10/10)", "frontend": "~92% — share/public/reroll all PASS; offline data-restore works; offline BANNER visibility fails."},
+  "test_credentials": "admin@wisatasumut.id / admin123 — verified.",
+  "seed_data_creation": "Created saved itinerary 'TEST_UI_share' (1 hari · Rp 300.000, admin) — still in admin wishlist. Random TEST_it6_* users registered via backend tests (not cleaned).",
+  "retest_needed": true,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Backend iteration 6 endpoints are all solid. The one open bug is offline banner not appearing due to sw.js intercepting /api/* successfully with cached response. Data-visibility offline is fine (both wishlist and destination detail render with cached data), but the banner-with-timestamp UX requirement is not satisfied. Fix in Wishlist.jsx/DestinationDetail.jsx by additionally consulting navigator.onLine, or exclude /api/* in sw.js.",
+  "rca of the issue": "public/sw.js registers a fetch handler that for same-origin non-image requests does network-first with cache fallback to caches.match(req) || caches.match('/'). Because axios calls to /api/wishlist and /api/itineraries were previously cached during online visits, the offline reload receives a 200 JSON response served from the SW cache. Wishlist.load() then follows the success branch (setDests/setTrips from response, offlineAt=null, cacheSet('wishlist',...)). OfflineBanner returns null when !savedAt so it never appears. Reproduction: (1) login → visit /wishlist online (populates SW cache and localStorage); (2) DevTools set offline OR `page.context.set_offline(True)`; (3) navigate /wishlist → data appears but no [data-testid=offline-banner]. Verified live: `await page.evaluate(fetch('/api/wishlist'))` offline returns {status:200, ct:'application/json'}. Fix: gate offlineAt on `navigator.onLine === false` in the ok-branch too, or short-circuit sw.js for /api/*."
+}

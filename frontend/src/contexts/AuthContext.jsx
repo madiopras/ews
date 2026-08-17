@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from "react";
 import { api, formatError } from "@/lib/api";
+import { cacheGet, cacheSet, isOffline } from "@/lib/offline";
 
 const AuthContext = createContext(null);
 
@@ -13,9 +14,13 @@ export function AuthProvider({ children }) {
       .get("/auth/me")
       .then(({ data }) => {
         if (mounted) setUser(data);
+        cacheSet("user", data);
       })
       .catch(() => {
-        if (mounted) setUser(false);
+        if (!mounted) return;
+        // Offline: fall back to the last known session so cached pages stay reachable
+        const cached = isOffline() ? cacheGet("user") : null;
+        setUser(cached?.data || false);
       })
       .finally(() => mounted && setReady(true));
     return () => {
@@ -27,6 +32,7 @@ export function AuthProvider({ children }) {
     try {
       const { data } = await api.post("/auth/login", { email, password });
       setUser(data);
+      cacheSet("user", data);
       return { ok: true };
     } catch (e) {
       return { ok: false, error: formatError(e.response?.data?.detail) || e.message };
@@ -37,6 +43,7 @@ export function AuthProvider({ children }) {
     try {
       const { data } = await api.post("/auth/register", { email, password, name });
       setUser(data);
+      cacheSet("user", data);
       return { ok: true };
     } catch (e) {
       return { ok: false, error: formatError(e.response?.data?.detail) || e.message };
@@ -49,6 +56,7 @@ export function AuthProvider({ children }) {
     } catch (e) {
       // ignore
     }
+    cacheSet("user", null);
     setUser(false);
   }, []);
 

@@ -3,57 +3,86 @@ import { Link, useSearchParams } from "react-router-dom";
 import { api } from "@/lib/api";
 import { useLang } from "@/contexts/LanguageContext";
 import DestinationCard from "@/components/DestinationCard";
-import { Heart, Sparkles, Trash2, ChevronDown } from "lucide-react";
+import OfflineBanner from "@/components/OfflineBanner";
+import { renderMarkdown } from "@/lib/markdown";
+import { cacheGet, cacheSet, isOffline } from "@/lib/offline";
+import { Heart, Sparkles, Trash2, ChevronDown, Share2, Copy, MessageCircle, Link2Off } from "lucide-react";
 import { toast } from "sonner";
 
-function renderMd(md) {
-  const lines = md.split("\n");
-  const out = [];
-  let listBuf = [];
-  const flush = () => {
-    if (listBuf.length) {
-      out.push(
-        <ul key={`ul-${out.length}`} className="list-disc pl-5 my-2 space-y-1 text-[13px] text-inkSoft">
-          {listBuf.map((it, i) => (
-            <li key={i} dangerouslySetInnerHTML={{ __html: it }} />
-          ))}
-        </ul>
-      );
-      listBuf = [];
+function ShareBox({ trip, onChange }) {
+  const { t } = useLang();
+  const [busy, setBusy] = useState(false);
+  const url = trip.share_slug ? `${window.location.origin}/trip/${trip.share_slug}` : "";
+
+  const setPublic = async (pub) => {
+    setBusy(true);
+    try {
+      const { data } = await api.patch(`/itineraries/${trip.id}/share`, { public: pub });
+      onChange(data);
+      toast.success(pub ? t.savedTrips.shareOn : t.savedTrips.sharingStopped);
+    } catch {
+      toast.error("Error");
+    } finally {
+      setBusy(false);
     }
   };
-  const bold = (s) =>
-    s.replace(/\*\*(.+?)\*\*/g, "<strong class='text-ink'>$1</strong>").replace(/\*(.+?)\*/g, "<em>$1</em>");
-  lines.forEach((raw, i) => {
-    const line = raw.trimEnd();
-    if (line.startsWith("## ")) {
-      flush();
-      out.push(<h4 key={i} className="font-display text-[19px] mt-4 mb-1.5 text-toba">{line.slice(3)}</h4>);
-    } else if (line.startsWith("### ")) {
-      flush();
-      out.push(<h5 key={i} className="font-display text-[15px] mt-3 mb-1">{line.slice(4)}</h5>);
-    } else if (line.startsWith("> ")) {
-      flush();
-      out.push(
-        <blockquote
-          key={i}
-          className="my-2 pl-3 border-l-2 border-moss bg-moss/10 rounded-r-lg py-2 pr-3 text-[13px] text-ink"
-          dangerouslySetInnerHTML={{ __html: bold(line.slice(2)) }}
-        />
-      );
-    } else if (line.startsWith("- ") || line.startsWith("* ")) {
-      listBuf.push(bold(line.slice(2)));
-    } else if (line.trim() === "") {
-      flush();
-    } else {
-      flush();
-      out.push(
-        <p key={i} className="text-[13px] text-inkSoft leading-relaxed my-1.5" dangerouslySetInnerHTML={{ __html: bold(line) }} />
-      );
-    }
-  });
-  flush();
-  return out;
+
+  if (!trip.is_public) {
+    return (
+      <button
+        onClick={() => setPublic(true)}
+        disabled={busy}
+        className="btn-outline w-full text-[13px]"
+        data-testid={`share-enable-${trip.id}`}
+      >
+        <Share2 className="w-4 h-4 text-toba" /> {t.savedTrips.shareOff}
+      </button>
+    );
+  }
+
+  return (
+    <div className="rounded-lg border border-line bg-cream p-3.5 space-y-3" data-testid={`share-box-${trip.id}`}>
+      <div>
+        <div className="text-[13px] font-semibold">{t.savedTrips.shareTitle}</div>
+        <p className="text-[12px] text-inkSoft mt-1">{t.savedTrips.shareDesc}</p>
+      </div>
+      <div
+        className="text-[12px] text-toba break-all bg-surface border border-line rounded-lg px-3 py-2.5"
+        data-testid={`share-url-${trip.id}`}
+      >
+        {url}
+      </div>
+      <div className="flex flex-col sm:flex-row gap-2">
+        <a
+          href={`https://wa.me/?text=${encodeURIComponent(`${t.savedTrips.waText} ${trip.title} — ${url}`)}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="btn-primary flex-1 text-[13px]"
+          data-testid={`share-wa-${trip.id}`}
+        >
+          <MessageCircle className="w-4 h-4" /> {t.savedTrips.shareWA}
+        </a>
+        <button
+          onClick={() => {
+            navigator.clipboard?.writeText(url);
+            toast.success(t.savedTrips.copied);
+          }}
+          className="btn-outline text-[13px]"
+          data-testid={`share-copy-${trip.id}`}
+        >
+          <Copy className="w-4 h-4" /> {t.savedTrips.copyLink}
+        </button>
+        <button
+          onClick={() => setPublic(false)}
+          disabled={busy}
+          className="btn-outline text-[13px]"
+          data-testid={`share-disable-${trip.id}`}
+        >
+          <Link2Off className="w-4 h-4" /> {t.savedTrips.stopSharing}
+        </button>
+      </div>
+    </div>
+  );
 }
 
 export default function Wishlist() {
@@ -64,15 +93,26 @@ export default function Wishlist() {
   const [trips, setTrips] = useState([]);
   const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState(null);
+  const [offlineAt, setOfflineAt] = useState(null);
 
   const load = () => {
     setLoading(true);
-    Promise.all([
-      api.get("/wishlist").then((r) => r.data).catch(() => []),
-      api.get("/itineraries").then((r) => r.data).catch(() => []),
-    ]).then(([d, i]) => {
-      setDests(d);
-      setTrips(i);
+    Promise.allSettled([api.get("/wishlist"), api.get("/itineraries")]).then(([w, i]) => {
+      const ok = w.status === "fulfilled" && i.status === "fulfilled";
+      if (ok) {
+        setDests(w.value.data);
+        setTrips(i.value.data);
+        setOfflineAt(isOffline() ? Date.now() : null);
+        cacheSet("wishlist", { dests: w.value.data, trips: i.value.data });
+        w.value.data.forEach((d) => cacheSet(`dest_${d.id}`, d));
+      } else {
+        const cached = cacheGet("wishlist");
+        if (cached) {
+          setDests(cached.data.dests || []);
+          setTrips(cached.data.trips || []);
+          setOfflineAt(cached.savedAt);
+        }
+      }
       setLoading(false);
     });
   };
@@ -92,16 +132,19 @@ export default function Wishlist() {
     }
   };
 
+  const patchTrip = (updated) =>
+    setTrips((prev) => prev.map((x) => (x.id === updated.id ? updated : x)));
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 pb-16" data-testid="wishlist-page">
       <header className="mb-5">
         <div className="eyebrow flex items-center gap-2">
           <Heart className="w-4 h-4" /> {t.nav.wishlist}
         </div>
-        <h1 className="mt-2 font-display text-[26px] sm:text-4xl leading-tight">
-          {t.wishlist.title}
-        </h1>
+        <h1 className="mt-2 font-display text-[26px] sm:text-4xl leading-tight">{t.wishlist.title}</h1>
       </header>
+
+      <OfflineBanner savedAt={offlineAt} />
 
       <div className="scroll-x mb-6">
         <button
@@ -157,15 +200,18 @@ export default function Wishlist() {
                   data-testid={`saved-trip-toggle-${tr.id}`}
                 >
                   <div className="font-display text-[19px] truncate">{tr.title}</div>
-                  <div className="text-[12px] text-inkSoft mt-1">
-                    {tr.days} {lang === "en" ? "days" : "hari"} · Rp{" "}
-                    {new Intl.NumberFormat("id-ID").format(tr.budget)}
-                    {" · "}
-                    {new Date(tr.created_at).toLocaleDateString(lang === "en" ? "en-US" : "id-ID", {
-                      year: "numeric",
-                      month: "short",
-                      day: "numeric",
-                    })}
+                  <div className="text-[12px] text-inkSoft mt-1 flex items-center gap-2 flex-wrap">
+                    <span>
+                      {tr.days} {lang === "en" ? "days" : "hari"} · Rp{" "}
+                      {new Intl.NumberFormat("id-ID").format(tr.budget)}
+                      {" · "}
+                      {new Date(tr.created_at).toLocaleDateString(lang === "en" ? "en-US" : "id-ID", {
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                      })}
+                    </span>
+                    {tr.is_public && <span className="badge-moss">{t.savedTrips.shareOn}</span>}
                   </div>
                 </button>
                 <div className="flex items-center gap-2 shrink-0">
@@ -188,8 +234,15 @@ export default function Wishlist() {
                   </button>
                 </div>
               </div>
+
+              <div className="px-4 pb-4">
+                <ShareBox trip={tr} onChange={patchTrip} />
+              </div>
+
               {expanded === tr.id && (
-                <div className="px-4 pb-4 border-t border-line pt-3">{renderMd(tr.content)}</div>
+                <div className="px-4 pb-4 border-t border-line pt-3">
+                  {renderMarkdown(tr.content, true)}
+                </div>
               )}
             </div>
           ))}

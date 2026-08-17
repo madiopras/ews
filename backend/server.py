@@ -471,6 +471,20 @@ class ItineraryOut(BaseModel):
     content: str
     lang: str
     created_at: str
+    author_name: str = ""
+    is_public: bool = False
+    share_slug: Optional[str] = None
+
+
+class PublicItineraryOut(BaseModel):
+    title: str
+    days: int
+    budget: float
+    interests: List[str]
+    content: str
+    lang: str
+    created_at: str
+    author_name: str
 
 
 def itin_to_out(d: dict) -> ItineraryOut:
@@ -484,6 +498,9 @@ def itin_to_out(d: dict) -> ItineraryOut:
         content=d["content"],
         lang=d.get("lang", "id"),
         created_at=d["created_at"],
+        author_name=d.get("author_name", ""),
+        is_public=d.get("is_public", False),
+        share_slug=d.get("share_slug"),
     )
 
 
@@ -491,6 +508,9 @@ def itin_to_out(d: dict) -> ItineraryOut:
 async def save_itinerary(payload: ItineraryIn, user: dict = Depends(get_current_user)):
     doc = payload.model_dump()
     doc["user_id"] = user["id"]
+    doc["author_name"] = user.get("name", "")
+    doc["is_public"] = False
+    doc["share_slug"] = None
     doc["created_at"] = datetime.now(timezone.utc).isoformat()
     res = await db.itineraries.insert_one(doc)
     doc["_id"] = res.inserted_id
@@ -501,6 +521,51 @@ async def save_itinerary(payload: ItineraryIn, user: dict = Depends(get_current_
 async def list_itineraries(user: dict = Depends(get_current_user)):
     docs = await db.itineraries.find({"user_id": user["id"]}).sort("created_at", -1).to_list(500)
     return [itin_to_out(d) for d in docs]
+
+
+class ShareIn(BaseModel):
+    public: bool
+
+
+@api_router.patch("/itineraries/{itin_id}/share", response_model=ItineraryOut)
+async def toggle_itinerary_share(
+    itin_id: str, payload: ShareIn, user: dict = Depends(get_current_user)
+):
+    try:
+        oid = ObjectId(itin_id)
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid id")
+    d = await db.itineraries.find_one({"_id": oid})
+    if not d:
+        raise HTTPException(status_code=404, detail="Not found")
+    if d["user_id"] != user["id"]:
+        raise HTTPException(status_code=403, detail="Forbidden")
+
+    update = {"is_public": payload.public}
+    if payload.public and not d.get("share_slug"):
+        update["share_slug"] = uuid.uuid4().hex[:12]
+    if payload.public and not d.get("author_name"):
+        update["author_name"] = user.get("name", "")
+    await db.itineraries.update_one({"_id": oid}, {"$set": update})
+    d.update(update)
+    return itin_to_out(d)
+
+
+@api_router.get("/public/itineraries/{slug}", response_model=PublicItineraryOut)
+async def get_public_itinerary(slug: str):
+    d = await db.itineraries.find_one({"share_slug": slug, "is_public": True})
+    if not d:
+        raise HTTPException(status_code=404, detail="Itinerary not found or not shared")
+    return PublicItineraryOut(
+        title=d["title"],
+        days=d["days"],
+        budget=d["budget"],
+        interests=d.get("interests", []),
+        content=d["content"],
+        lang=d.get("lang", "id"),
+        created_at=d["created_at"],
+        author_name=d.get("author_name", ""),
+    )
 
 
 @api_router.delete("/itineraries/{itin_id}")
@@ -840,6 +905,7 @@ class TripPlanIn(BaseModel):
     interests: List[str] = Field(default_factory=list)
     lang: Literal["id", "en"] = "id"
     extra_context: Optional[str] = Field(default="", max_length=200)
+    previous_content: Optional[str] = Field(default="", max_length=20000)
 
 
 @api_router.post("/trip-planner/stream")
@@ -883,6 +949,17 @@ async def trip_planner_stream(payload: TripPlanIn):
     raw_ctx = (payload.extra_context or "").strip()
     safe_ctx = "".join(ch for ch in raw_ctx if ch.isprintable())[:200]
 
+    # Regenerate: detect which catalog destinations were used in the previous plan
+    prev = (payload.previous_content or "").lower()
+    used_names = []
+    if prev:
+        for d in docs:
+            for nm in (d["name"], d.get("name_en") or ""):
+                if nm and nm.lower() in prev:
+                    used_names.append(d["name"])
+                    break
+    used_list = ", ".join(used_names[:20])
+
     if payload.lang == "id":
         system_msg = (
             "Kamu adalah trip planner ahli untuk wisata Sumatera Utara. "
@@ -914,6 +991,14 @@ async def trip_planner_stream(payload: TripPlanIn):
         ]
         if safe_ctx:
             user_parts.append(f'Konteks tambahan dari user: "{safe_ctx}"')
+        if used_list:
+            user_parts.append(
+                "Ini permintaan ULANG: buat versi yang BERBEDA dari rencana sebelumnya. "
+                f"Rencana sebelumnya memakai: {used_list}. "
+                "Utamakan destinasi lain dari katalog, ubah urutan hari dan rutenya, "
+                "serta tulis tips yang berbeda. Jika katalog terbatas, tetap ubah "
+                "urutan, kombinasi harian, dan sudut pandang rekomendasinya."
+            )
         user_parts.append("Gunakan HANYA destinasi dari katalog.")
         user_text = " ".join(user_parts)
     else:
@@ -946,6 +1031,14 @@ async def trip_planner_stream(payload: TripPlanIn):
         ]
         if safe_ctx:
             user_parts.append(f'User extra context: "{safe_ctx}"')
+        if used_list:
+            user_parts.append(
+                "This is a REGENERATE request: produce a DIFFERENT version from the previous plan. "
+                f"The previous plan used: {used_list}. "
+                "Prefer other catalog destinations, change the day order and route, "
+                "and write different tips. If the catalog is limited, still change the "
+                "ordering, daily combinations and recommendation angle."
+            )
         user_parts.append("Use ONLY destinations from the catalog.")
         user_text = " ".join(user_parts)
 

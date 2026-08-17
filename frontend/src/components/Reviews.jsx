@@ -21,6 +21,7 @@ export default function Reviews({ destinationId }) {
     api
       .get(`/destinations/${destinationId}/reviews`)
       .then(({ data }) => setData(data))
+      .catch(() => setData({ reviews: [], average: 0, count: 0 }))
       .finally(() => setLoading(false));
   };
 

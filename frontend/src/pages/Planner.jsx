@@ -1,80 +1,15 @@
 import React, { useState } from "react";
 import { useLang } from "@/contexts/LanguageContext";
 import { CATEGORY_KEYS } from "@/lib/i18n";
-import { Sparkles, Compass, Wallet, Calendar, RefreshCw, Save } from "lucide-react";
+import { Sparkles, Compass, Wallet, Calendar, RefreshCw, Save, Shuffle } from "lucide-react";
 import UlosPattern from "@/components/UlosPattern";
 import { api } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { renderMarkdown } from "@/lib/markdown";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
-
-// Very small markdown renderer for AI output: headings, bold, lists, blockquotes.
-function renderMarkdown(md) {
-  const lines = md.split("\n");
-  const out = [];
-  let listBuf = [];
-  const flushList = () => {
-    if (listBuf.length) {
-      out.push(
-        <ul key={`ul-${out.length}`} className="list-disc pl-5 my-3 space-y-1 text-[14px] text-inkSoft">
-          {listBuf.map((it, i) => (
-            <li key={i} dangerouslySetInnerHTML={{ __html: it }} />
-          ))}
-        </ul>
-      );
-      listBuf = [];
-    }
-  };
-  const bold = (s) =>
-    s
-      .replace(/\*\*(.+?)\*\*/g, "<strong class='text-ink'>$1</strong>")
-      .replace(/\*(.+?)\*/g, "<em>$1</em>");
-
-  lines.forEach((raw, idx) => {
-    const line = raw.trimEnd();
-    if (line.startsWith("## ")) {
-      flushList();
-      out.push(
-        <h3 key={idx} className="font-display text-[22px] sm:text-2xl mt-7 mb-2 text-toba">
-          {line.slice(3)}
-        </h3>
-      );
-    } else if (line.startsWith("### ")) {
-      flushList();
-      out.push(
-        <h4 key={idx} className="font-display text-[18px] mt-5 mb-1.5">
-          {line.slice(4)}
-        </h4>
-      );
-    } else if (line.startsWith("> ")) {
-      flushList();
-      out.push(
-        <blockquote
-          key={idx}
-          className="my-3 pl-3.5 border-l-2 border-moss bg-moss/10 rounded-r-lg py-2.5 pr-3 text-[13px] text-ink"
-          dangerouslySetInnerHTML={{ __html: bold(line.slice(2)) }}
-        />
-      );
-    } else if (line.startsWith("- ") || line.startsWith("* ")) {
-      listBuf.push(bold(line.slice(2)));
-    } else if (line.trim() === "") {
-      flushList();
-    } else {
-      flushList();
-      out.push(
-        <p
-          key={idx}
-          className="text-[14px] text-inkSoft leading-relaxed my-2"
-          dangerouslySetInnerHTML={{ __html: bold(line) }}
-        />
-      );
-    }
-  });
-  flushList();
-  return out;
-}
 
 export default function Planner() {
   const { t, lang } = useLang();
@@ -88,6 +23,7 @@ export default function Planner() {
   const [saveTitle, setSaveTitle] = useState("");
   const [showSave, setShowSave] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [rerolling, setRerolling] = useState(false);
 
   const toggleInterest = (cat) => {
     setForm((p) => ({
@@ -98,10 +34,14 @@ export default function Planner() {
     }));
   };
 
-  const generate = async (e) => {
-    e.preventDefault();
+  const generate = async (e, regenerate = false) => {
+    if (e) e.preventDefault();
+    const previous = regenerate ? output : "";
     setOutput("");
     setError("");
+    setSavedId(null);
+    setShowSave(false);
+    setRerolling(regenerate);
     setStreaming(true);
 
     try {
@@ -109,7 +49,7 @@ export default function Planner() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ ...form, lang }),
+        body: JSON.stringify({ ...form, lang, previous_content: previous.slice(0, 20000) }),
       });
       if (!res.ok || !res.body) {
         setError("Failed to start planner");
@@ -143,6 +83,7 @@ export default function Planner() {
       setError(err.message);
     } finally {
       setStreaming(false);
+      setRerolling(false);
     }
   };
 
@@ -285,8 +226,18 @@ export default function Planner() {
           <div className="mt-6 hidden md:flex gap-3">
             <button type="submit" disabled={streaming} className="btn-primary" data-testid="planner-generate-btn">
               <Sparkles className="w-4 h-4" />
-              {streaming ? t.planner.generating : t.planner.generate}
+              {streaming && !rerolling ? t.planner.generating : t.planner.generate}
             </button>
+            {output && !streaming && (
+              <button
+                type="button"
+                onClick={() => generate(null, true)}
+                className="btn-outline"
+                data-testid="planner-reroll-btn"
+              >
+                <Shuffle className="w-4 h-4" /> {t.planner.regenerate}
+              </button>
+            )}
             {(output || error) && !streaming && (
               <button type="button" onClick={reset} className="btn-outline" data-testid="planner-reset-btn">
                 <RefreshCw className="w-4 h-4" /> {t.planner.newPlan}
@@ -303,8 +254,19 @@ export default function Planner() {
               data-testid="planner-generate-btn-mobile"
             >
               <Sparkles className="w-4 h-4" />
-              {streaming ? t.planner.generating : t.planner.generate}
+              {streaming && !rerolling ? t.planner.generating : t.planner.generate}
             </button>
+            {output && !streaming && (
+              <button
+                type="button"
+                onClick={() => generate(null, true)}
+                className="btn-outline px-4"
+                data-testid="planner-reroll-btn-mobile"
+                aria-label={t.planner.regenerate}
+              >
+                <Shuffle className="w-4 h-4" />
+              </button>
+            )}
             {(output || error) && !streaming && (
               <button
                 type="button"
@@ -372,7 +334,7 @@ export default function Planner() {
             {streaming && !output && (
               <div className="text-inkSoft text-[13px] flex items-center gap-2 py-5">
                 <span className="inline-block w-2 h-2 bg-toba rounded-full animate-pulse" />
-                {t.planner.generating}
+                {rerolling ? t.planner.regenerating : t.planner.generating}
               </div>
             )}
             <div className="max-w-none">{renderMarkdown(output)}</div>

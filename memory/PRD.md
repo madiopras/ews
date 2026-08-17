@@ -64,7 +64,17 @@ Frontend-only. Neumorphism dihapus total.
 - [x] Wishlist mendukung deep link `?tab=trips`
 - [x] Fix: warning hydration `<span> in <option>` di Directory budget select
 
+## Iteration 6 — Share Itinerary + Reroll Plan + Offline Ringan (2026-06-17)
+- [x] **Bagikan Itinerary**: `PATCH /api/itineraries/{id}/share` (owner-only, 403/404/400 tervalidasi) membuat `share_slug` 12-hex; `GET /api/public/itineraries/{slug}` publik tanpa auth (tidak membocorkan user_id); mematikan share → 404
+- [x] Halaman publik `/trip/:slug` (`pages/PublicTrip.jsx`) dengan nama pembuat, hari, budget, itinerary ter-render + CTA "Buat rencana Anda sendiri"
+- [x] ShareBox di Wishlist: aktifkan/matikan link, copy link, tombol Bagikan ke WhatsApp, badge "Link publik aktif"
+- [x] **Acak Ulang (reroll)**: `TripPlanIn.previous_content`; backend mendeteksi destinasi yang sudah dipakai dan menyuruh AI membuat versi berbeda (urutan, kombinasi, tips). Tombol `planner-reroll-btn` / `-mobile` muncul setelah ada output; hasil lama ditimpa
+- [x] **Mode Offline Ringan**: `lib/offline.js` (localStorage + savedAt), `OfflineBanner`, service worker `public/sw.js` (cache-first gambar & app shell, `/api/*` tidak di-intercept), cache wishlist + itinerary + detail destinasi + sesi user (AuthContext) → halaman Favorit & detail tetap terbuka offline dengan banner "Mode offline — data terakhir disimpan {waktu}"
+- [x] Renderer markdown dipakai bersama (`lib/markdown.jsx`) oleh Planner, Wishlist, PublicTrip
+- [x] Fix: axios error tanpa catch (Reviews, wishlist check, PartnerRegister) yang memicu overlay error saat offline
+
 ## Testing
+- Iteration 6: backend 10/10 PASS; frontend share/public/reroll PASS; bug offline-banner (SW meng-cache /api) ditemukan → diperbaiki & diverifikasi manual (banner + data + gambar tampil offline, tanpa error overlay) — `/app/test_reports/iteration_6.json`
 - Iteration 5: 100% frontend (13/13 area) di viewport 390x844 + 1920x1080 — `/app/test_reports/iteration_5.json`
 - Iteration 1: 100% backend + 100% frontend pass
 - Iteration 2: 100% backend + 100% frontend pass

@@ -24,7 +24,7 @@ export default function PartnerRegister() {
   const [done, setDone] = useState(false);
 
   useEffect(() => {
-    api.get("/destinations").then(({ data }) => setDests(data));
+    api.get("/destinations").then(({ data }) => setDests(data)).catch(() => setDests([]));
   }, []);
 
   const upd = (k) => (e) => setForm((p) => ({ ...p, [k]: e.target.value }));

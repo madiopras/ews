@@ -9,6 +9,8 @@ import { toast } from "sonner";
 import { ArrowLeft, Heart, MapPin, Tag, Wallet } from "lucide-react";
 import Reviews from "@/components/Reviews";
 import DestinationPartners from "@/components/DestinationPartners";
+import OfflineBanner from "@/components/OfflineBanner";
+import { cacheGet, cacheSet, isOffline } from "@/lib/offline";
 
 // Fix leaflet default icon
 delete L.Icon.Default.prototype._getIconUrl;
@@ -27,21 +29,37 @@ export default function DestinationDetail() {
   const [inWishlist, setInWishlist] = useState(false);
   const [loading, setLoading] = useState(true);
   const [activeImg, setActiveImg] = useState(0);
+  const [offlineAt, setOfflineAt] = useState(null);
 
   useEffect(() => {
     setLoading(true);
     api
       .get(`/destinations/${id}`)
-      .then(({ data }) => setDest(data))
-      .catch(() => setDest(null))
+      .then(({ data }) => {
+        setDest(data);
+        setOfflineAt(isOffline() ? Date.now() : null);
+        cacheSet(`dest_${id}`, data);
+      })
+      .catch(() => {
+        const cached = cacheGet(`dest_${id}`);
+        if (cached) {
+          setDest(cached.data);
+          setOfflineAt(cached.savedAt);
+        } else {
+          setDest(null);
+        }
+      })
       .finally(() => setLoading(false));
   }, [id]);
 
   useEffect(() => {
     if (user && typeof user === "object") {
-      api.get("/wishlist").then(({ data }) => {
-        setInWishlist(data.some((d) => d.id === id));
-      });
+      api
+        .get("/wishlist")
+        .then(({ data }) => {
+          setInWishlist(data.some((d) => d.id === id));
+        })
+        .catch(() => {});
     }
   }, [user, id]);
 
@@ -95,6 +113,8 @@ export default function DestinationDetail() {
       >
         <ArrowLeft className="w-4 h-4" /> {lang === "en" ? "Back" : "Kembali"}
       </button>
+
+      <OfflineBanner savedAt={offlineAt} />
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
         {/* Gallery */}
