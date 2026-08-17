@@ -4,6 +4,7 @@ import { useLang } from "@/contexts/LanguageContext";
 import { CATEGORY_KEYS } from "@/lib/i18n";
 import { toast } from "sonner";
 import { Plus, Pencil, Trash2, X } from "lucide-react";
+import ImageDropzone from "@/components/ImageDropzone";
 
 const EMPTY = {
   name: "",
@@ -13,7 +14,7 @@ const EMPTY = {
   price: 0,
   description: "",
   description_en: "",
-  images: "",
+  images: [],
   latitude: 2.6540,
   longitude: 98.8756,
   featured: false,
@@ -43,7 +44,7 @@ export default function Admin() {
     setEditing(d.id);
     setForm({
       ...d,
-      images: (d.images || []).join(", "),
+      images: d.images || [],
     });
   };
 
@@ -65,10 +66,7 @@ export default function Admin() {
       price: Number(form.price),
       latitude: Number(form.latitude),
       longitude: Number(form.longitude),
-      images: form.images
-        .split(",")
-        .map((s) => s.trim())
-        .filter(Boolean),
+      images: Array.isArray(form.images) ? form.images : [],
     };
     try {
       if (editing === "new") {
@@ -178,8 +176,11 @@ export default function Admin() {
               <span className="text-sm">{t.admin.fields.featured}</span>
             </label>
             <label className="block md:col-span-2">
-              <span className="text-xs text-muted2 pl-2">{t.admin.fields.images}</span>
-              <input value={form.images} onChange={upd("images")} className={inputCls} placeholder="https://..., https://..." data-testid="f-images" />
+              <span className="text-xs text-muted2 pl-2 block mb-2">{t.admin.fields.images}</span>
+              <ImageDropzone
+                value={form.images}
+                onChange={(imgs) => setForm((p) => ({ ...p, images: imgs }))}
+              />
             </label>
             <label className="block">
               <span className="text-xs text-muted2 pl-2">{t.admin.fields.latitude}</span>

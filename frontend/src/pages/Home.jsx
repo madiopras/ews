@@ -3,8 +3,9 @@ import { Link, useNavigate } from "react-router-dom";
 import { api } from "@/lib/api";
 import { useLang } from "@/contexts/LanguageContext";
 import DestinationCard from "@/components/DestinationCard";
-import { ArrowRight, Compass, Search } from "lucide-react";
+import { ArrowRight, Compass, Search, Sparkles } from "lucide-react";
 import { CATEGORY_KEYS } from "@/lib/i18n";
+import UlosPattern from "@/components/UlosPattern";
 
 export default function Home() {
   const { t, lang } = useLang();
@@ -71,34 +72,46 @@ export default function Home() {
       </section>
 
       {/* CATEGORIES */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-20">
-        <div className="flex items-end justify-between mb-8">
-          <h2 className="font-display text-3xl sm:text-4xl">
-            {t.home.categoriesTitle}
-          </h2>
+      <section className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-20">
+        <div className="absolute inset-0 text-jungle/[0.055] -z-0">
+          <UlosPattern />
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-6">
-          {CATEGORY_KEYS.map((cat, i) => (
+        <div className="relative">
+          <div className="flex items-end justify-between mb-8 flex-wrap gap-4">
+            <h2 className="font-display text-3xl sm:text-4xl">
+              {t.home.categoriesTitle}
+            </h2>
             <Link
-              key={cat}
-              to={`/explore?category=${cat}`}
-              data-testid={`category-tile-${cat}`}
-              className="group aspect-square rounded-3xl bg-sand p-5 shadow-neu-raised hover:shadow-neu-pressed transition-shadow duration-300 flex flex-col justify-between opacity-0 animate-fade-up"
-              style={{ animationDelay: `${i * 70}ms` }}
+              to="/planner"
+              className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-sunset text-sand text-sm font-semibold hover:bg-sunset/90 transition-colors"
+              data-testid="home-planner-cta"
             >
-              <span className="w-10 h-10 rounded-full shadow-neu-sm flex items-center justify-center text-sunset text-lg font-display">
-                {i + 1}
-              </span>
-              <div>
-                <div className="font-display text-xl sm:text-2xl leading-tight">
-                  {t.categories[cat]}
-                </div>
-                <div className="text-xs text-muted2 mt-1 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <ArrowRight className="w-3 h-3" /> {lang === "en" ? "Browse" : "Lihat"}
-                </div>
-              </div>
+              <Sparkles className="w-4 h-4" /> {t.planner.title}
             </Link>
-          ))}
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-6">
+            {CATEGORY_KEYS.map((cat, i) => (
+              <Link
+                key={cat}
+                to={`/explore?category=${cat}`}
+                data-testid={`category-tile-${cat}`}
+                className="group aspect-square rounded-3xl bg-sand p-5 shadow-neu-raised hover:shadow-neu-pressed transition-shadow duration-300 flex flex-col justify-between opacity-0 animate-fade-up"
+                style={{ animationDelay: `${i * 70}ms` }}
+              >
+                <span className="w-10 h-10 rounded-full shadow-neu-sm flex items-center justify-center text-sunset text-lg font-display">
+                  {i + 1}
+                </span>
+                <div>
+                  <div className="font-display text-xl sm:text-2xl leading-tight">
+                    {t.categories[cat]}
+                  </div>
+                  <div className="text-xs text-muted2 mt-1 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <ArrowRight className="w-3 h-3" /> {lang === "en" ? "Browse" : "Lihat"}
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -138,8 +151,11 @@ export default function Home() {
       </section>
 
       {/* FOOTER */}
-      <footer className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-32">
-        <div className="border-t border-sandDark/60 pt-10 pb-4 flex flex-wrap items-center justify-between gap-4 text-sm text-muted2">
+      <footer className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-32">
+        <div className="absolute inset-0 text-jungle/[0.06] -z-0 overflow-hidden">
+          <UlosPattern />
+        </div>
+        <div className="relative border-t border-sandDark/60 pt-10 pb-4 flex flex-wrap items-center justify-between gap-4 text-sm text-muted2">
           <div>
             <span className="font-display text-lg text-ink">Explore Sumut</span>{" "}
             · {lang === "en" ? "A tribute to North Sumatra" : "Bumi Sumatera Utara"}

@@ -45,6 +45,10 @@ export default function Navbar() {
           <NavLink to="/explore" className={navItem} data-testid="nav-explore">
             {t.nav.explore}
           </NavLink>
+          <NavLink to="/planner" className={navItem} data-testid="nav-planner">
+            <span className="hidden sm:inline">{t.nav.planner}</span>
+            <span className="sm:hidden">AI</span>
+          </NavLink>
           {isAuth && (
             <NavLink to="/wishlist" className={navItem} data-testid="nav-wishlist">
               <span className="hidden sm:inline">{t.nav.wishlist}</span>

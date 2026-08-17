@@ -25,13 +25,20 @@ Buat aplikasi web direktori wisata Sumatera Utara bernama Explore Wisata Sumut. 
 - [x] Detail page: gallery thumbnails, price/category info cards, Leaflet map, wishlist toggle
 - [x] Auth: register, login, logout, /me — cookie-based JWT (7-day access)
 - [x] Wishlist: add/remove/list (protected)
-- [x] Admin panel: CRUD form (nama ID/EN, kategori, harga, deskripsi ID/EN, images CSV, lat/lng, featured)
+- [x] Admin panel: CRUD form
 - [x] Bilingual toggle (ID/EN) persisted in localStorage
-- [x] Neumorphic design: raised/inset/pressed shadows on Warm Sand (#F3F1EC), Playfair Display + Manrope, Sunset Orange accents
-- [x] 5 seed destinations, 1 per category (Danau Toba, Pantai Cermin, Istana Maimun, Tip Top Restaurant, Bukit Lawang)
+- [x] Neumorphic design (Warm Sand + Sunset Orange + Playfair Display + Manrope)
+- [x] 5 seed destinations, 1 per category
+
+## Iteration 2 — Implemented (2026-02-17)
+- [x] AI Trip Planner (Claude Sonnet 4.6 via Emergent LLM key) — SSE streaming, uses ONLY DB destinations, bilingual output
+- [x] Multi Image Upload (Emergent Object Storage) — drag-and-drop in admin panel, replaces URL input
+- [x] User Reviews — 1-5 stars + comment, requires login, avg rating displayed on detail page
+- [x] Batak Ulos SVG pattern backdrop on home categories, home footer, planner hero
 
 ## Testing
-- Iteration 1: 100% backend + 100% frontend pass (see /app/test_reports/iteration_1.json)
+- Iteration 1: 100% backend + 100% frontend pass
+- Iteration 2: 100% backend + 100% frontend pass (see `/app/test_reports/iteration_2.json`)
 
 ## Backlog (P1/P2)
 - P1: Batak Ulos motif SVG background pattern in footer/empty states

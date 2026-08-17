@@ -4,7 +4,8 @@ from pathlib import Path
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
-from fastapi import FastAPI, APIRouter, HTTPException, Request, Response, Depends
+from fastapi import FastAPI, APIRouter, HTTPException, Request, Response, Depends, UploadFile, File
+from fastapi.responses import StreamingResponse
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 from pydantic import BaseModel, Field, EmailStr
@@ -15,7 +16,10 @@ import os
 import uuid
 import bcrypt
 import jwt
+import json
 import logging
+import requests
+from emergentintegrations.llm.chat import LlmChat, UserMessage, TextDelta, StreamDone
 
 # ---------------- Setup ----------------
 mongo_url = os.environ['MONGO_URL']
@@ -421,6 +425,13 @@ async def startup():
             {"$set": {"password_hash": hash_password(admin_password), "role": "admin"}},
         )
 
+    # Init object storage
+    try:
+        init_storage()
+        logger.info("Object storage initialized")
+    except Exception as e:
+        logger.error(f"Storage init failed: {e}")
+
     # Seed destinations if empty
     count = await db.destinations.count_documents({})
     if count == 0:
@@ -435,6 +446,271 @@ async def startup():
 @app.on_event("shutdown")
 async def shutdown():
     client.close()
+
+
+# ---------------- Object Storage (Emergent) ----------------
+STORAGE_BASE = (os.environ.get("INTEGRATION_PROXY_URL") or "").strip() or "https://integrations.emergentagent.com"
+STORAGE_URL = STORAGE_BASE.rstrip("/") + "/objstore/api/v1/storage"
+EMERGENT_KEY = os.environ.get("EMERGENT_LLM_KEY")
+APP_NAME = os.environ.get("APP_NAME", "explore-sumut")
+_storage_key = None
+
+
+def init_storage(force: bool = False):
+    global _storage_key
+    if _storage_key and not force:
+        return _storage_key
+    if not EMERGENT_KEY:
+        raise RuntimeError("EMERGENT_LLM_KEY missing")
+    resp = requests.post(
+        f"{STORAGE_URL}/init", json={"emergent_key": EMERGENT_KEY}, timeout=30
+    )
+    resp.raise_for_status()
+    _storage_key = resp.json()["storage_key"]
+    return _storage_key
+
+
+def put_object(path: str, data: bytes, content_type: str) -> dict:
+    key = init_storage()
+    resp = requests.put(
+        f"{STORAGE_URL}/objects/{path}",
+        headers={"X-Storage-Key": key, "Content-Type": content_type},
+        data=data,
+        timeout=120,
+    )
+    if resp.status_code == 404:
+        # Stale key
+        key = init_storage(force=True)
+        resp = requests.put(
+            f"{STORAGE_URL}/objects/{path}",
+            headers={"X-Storage-Key": key, "Content-Type": content_type},
+            data=data,
+            timeout=120,
+        )
+    resp.raise_for_status()
+    return resp.json()
+
+
+def get_object(path: str):
+    key = init_storage()
+    resp = requests.get(
+        f"{STORAGE_URL}/objects/{path}",
+        headers={"X-Storage-Key": key},
+        timeout=60,
+    )
+    if resp.status_code == 404:
+        key = init_storage(force=True)
+        resp = requests.get(
+            f"{STORAGE_URL}/objects/{path}",
+            headers={"X-Storage-Key": key},
+            timeout=60,
+        )
+    resp.raise_for_status()
+    return resp.content, resp.headers.get("Content-Type", "application/octet-stream")
+
+
+MIME_MAP = {
+    "jpg": "image/jpeg", "jpeg": "image/jpeg", "png": "image/png",
+    "gif": "image/gif", "webp": "image/webp",
+}
+
+
+@api_router.post("/upload")
+async def upload_file(file: UploadFile = File(...), admin: dict = Depends(require_admin)):
+    ext = (file.filename.rsplit(".", 1)[-1] if "." in (file.filename or "") else "bin").lower()
+    if ext not in MIME_MAP:
+        raise HTTPException(status_code=400, detail="Only images (jpg, png, gif, webp) allowed")
+    content_type = MIME_MAP[ext]
+    path = f"{APP_NAME}/uploads/{admin['id']}/{uuid.uuid4()}.{ext}"
+    data = await file.read()
+    if len(data) > 8 * 1024 * 1024:
+        raise HTTPException(status_code=400, detail="Max file size 8MB")
+    result = put_object(path, data, content_type)
+    stored_path = result["path"]
+    await db.files.insert_one({
+        "storage_path": stored_path,
+        "original_filename": file.filename,
+        "content_type": content_type,
+        "size": result.get("size", len(data)),
+        "uploaded_by": admin["id"],
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    })
+    return {"path": stored_path, "url": f"/api/files/{stored_path}"}
+
+
+@api_router.get("/files/{path:path}")
+async def serve_file(path: str):
+    try:
+        data, content_type = get_object(path)
+    except requests.HTTPError as e:
+        code = e.response.status_code if e.response is not None else 500
+        raise HTTPException(status_code=404 if code == 404 else 502, detail="File error")
+    return Response(content=data, media_type=content_type, headers={"Cache-Control": "public, max-age=86400"})
+
+
+# ---------------- Reviews ----------------
+class ReviewIn(BaseModel):
+    rating: int = Field(..., ge=1, le=5)
+    comment: str = Field(..., min_length=1, max_length=1000)
+
+
+class ReviewOut(BaseModel):
+    id: str
+    destination_id: str
+    user_id: str
+    user_name: str
+    rating: int
+    comment: str
+    created_at: str
+
+
+def review_to_out(r: dict) -> ReviewOut:
+    return ReviewOut(
+        id=str(r["_id"]),
+        destination_id=r["destination_id"],
+        user_id=r["user_id"],
+        user_name=r["user_name"],
+        rating=r["rating"],
+        comment=r["comment"],
+        created_at=r["created_at"],
+    )
+
+
+@api_router.get("/destinations/{dest_id}/reviews")
+async def list_reviews(dest_id: str):
+    docs = await db.reviews.find({"destination_id": dest_id}).sort("created_at", -1).to_list(500)
+    reviews = [review_to_out(d).model_dump() for d in docs]
+    if reviews:
+        avg = sum(r["rating"] for r in reviews) / len(reviews)
+    else:
+        avg = 0
+    return {"reviews": reviews, "average": round(avg, 1), "count": len(reviews)}
+
+
+@api_router.post("/destinations/{dest_id}/reviews", response_model=ReviewOut)
+async def create_review(dest_id: str, payload: ReviewIn, user: dict = Depends(get_current_user)):
+    try:
+        dest = await db.destinations.find_one({"_id": ObjectId(dest_id)})
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid id")
+    if not dest:
+        raise HTTPException(status_code=404, detail="Destination not found")
+    doc = {
+        "destination_id": dest_id,
+        "user_id": user["id"],
+        "user_name": user["name"],
+        "rating": payload.rating,
+        "comment": payload.comment,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    }
+    res = await db.reviews.insert_one(doc)
+    doc["_id"] = res.inserted_id
+    return review_to_out(doc)
+
+
+@api_router.delete("/reviews/{review_id}")
+async def delete_review(review_id: str, user: dict = Depends(get_current_user)):
+    try:
+        oid = ObjectId(review_id)
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid id")
+    r = await db.reviews.find_one({"_id": oid})
+    if not r:
+        raise HTTPException(status_code=404, detail="Not found")
+    if r["user_id"] != user["id"] and user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Forbidden")
+    await db.reviews.delete_one({"_id": oid})
+    return {"ok": True}
+
+
+# ---------------- AI Trip Planner ----------------
+class TripPlanIn(BaseModel):
+    days: int = Field(..., ge=1, le=14)
+    budget: float = Field(..., ge=0)
+    interests: List[str] = Field(default_factory=list)  # e.g. ['nature','culture','culinary']
+    lang: Literal["id", "en"] = "id"
+
+
+@api_router.post("/trip-planner/stream")
+async def trip_planner_stream(payload: TripPlanIn):
+    # Fetch all destinations from DB
+    docs = await db.destinations.find({}).to_list(500)
+    if not docs:
+        raise HTTPException(status_code=400, detail="No destinations available")
+
+    catalog_items = []
+    for d in docs:
+        catalog_items.append({
+            "id": str(d["_id"]),
+            "name": d["name"],
+            "name_en": d.get("name_en", ""),
+            "location": d["location"],
+            "category": d["category"],
+            "price": d["price"],
+            "description": d["description"][:300],
+        })
+    catalog_json = json.dumps(catalog_items, ensure_ascii=False, indent=2)
+
+    if payload.lang == "id":
+        system_msg = (
+            "Kamu adalah trip planner ahli untuk wisata Sumatera Utara. "
+            "Kamu HANYA boleh merekomendasikan destinasi dari katalog JSON yang diberikan. "
+            "JANGAN mengarang atau menyebut tempat lain di luar katalog. "
+            "Susun itinerary yang realistis, kelompokkan destinasi yang berdekatan, "
+            "dan hormati total budget user. "
+            "Format output: Markdown dengan heading `## Hari 1`, `## Hari 2`, dst. "
+            "Untuk setiap destinasi: **Nama** (kategori) — lokasi, Rp harga. Tambahkan 1-2 kalimat rekomendasi. "
+            "Di akhir tambahkan bagian `### Total Estimasi Biaya` dan `### Tips Perjalanan`.\n\n"
+            f"KATALOG DESTINASI:\n{catalog_json}"
+        )
+        user_text = (
+            f"Rencanakan trip {payload.days} hari di Sumatera Utara. "
+            f"Total budget: Rp {int(payload.budget):,}. "
+            f"Minat utama: {', '.join(payload.interests) if payload.interests else 'semua kategori'}. "
+            "Gunakan HANYA destinasi dari katalog."
+        )
+    else:
+        system_msg = (
+            "You are an expert trip planner for North Sumatra tourism. "
+            "You may ONLY recommend destinations from the provided JSON catalog. "
+            "DO NOT invent or mention any place outside the catalog. "
+            "Design a realistic itinerary, group nearby destinations, "
+            "and respect the user's total budget. "
+            "Output format: Markdown with headings `## Day 1`, `## Day 2`, etc. "
+            "For each destination: **Name** (category) — location, IDR price. Add 1-2 sentence recommendation. "
+            "End with `### Estimated Total Cost` and `### Travel Tips`.\n\n"
+            f"DESTINATION CATALOG:\n{catalog_json}"
+        )
+        user_text = (
+            f"Plan a {payload.days}-day trip in North Sumatra. "
+            f"Total budget: IDR {int(payload.budget):,}. "
+            f"Main interests: {', '.join(payload.interests) if payload.interests else 'all categories'}. "
+            "Use ONLY destinations from the catalog."
+        )
+
+    chat = LlmChat(
+        api_key=os.environ["EMERGENT_LLM_KEY"],
+        session_id=f"trip-{uuid.uuid4()}",
+        system_message=system_msg,
+    ).with_model("anthropic", "claude-sonnet-4-6")
+
+    async def event_gen():
+        try:
+            async for ev in chat.stream_message(UserMessage(text=user_text)):
+                if isinstance(ev, TextDelta):
+                    yield f"data: {json.dumps({'text': ev.content})}\n\n"
+                elif isinstance(ev, StreamDone):
+                    yield f"data: {json.dumps({'done': True})}\n\n"
+                    break
+        except Exception as e:
+            logger.error(f"Trip planner error: {e}")
+            yield f"data: {json.dumps({'error': str(e)})}\n\n"
+
+    return StreamingResponse(
+        event_gen(),
+        media_type="text/event-stream",
+        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+    )
 
 
 # ---------------- Health ----------------

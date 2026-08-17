@@ -12,6 +12,7 @@ import Login from "@/pages/Login";
 import Register from "@/pages/Register";
 import Wishlist from "@/pages/Wishlist";
 import Admin from "@/pages/Admin";
+import Planner from "@/pages/Planner";
 
 function Protected({ children, adminOnly = false }) {
   const { user, ready } = useAuth();
@@ -28,6 +29,7 @@ function AppShell() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/explore" element={<Directory />} />
+        <Route path="/planner" element={<Planner />} />
         <Route path="/destination/:id" element={<DestinationDetail />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
