@@ -3,7 +3,8 @@ import { Link } from "react-router-dom";
 import { api } from "@/lib/api";
 import { useLang } from "@/contexts/LanguageContext";
 import PartnerCard from "@/components/PartnerCard";
-import { Handshake, Plus } from "lucide-react";
+import PremiumDialog from "@/components/PremiumDialog";
+import { Handshake, Plus, Crown } from "lucide-react";
 import UlosPattern from "@/components/UlosPattern";
 
 const TYPES = ["guide", "rental", "homestay"];
@@ -13,8 +14,9 @@ export default function Partners() {
   const [partners, setPartners] = useState([]);
   const [loading, setLoading] = useState(true);
   const [type, setType] = useState("");
+  const [upgrading, setUpgrading] = useState(null);
 
-  useEffect(() => {
+  const load = () => {
     setLoading(true);
     const params = { status: "approved" };
     if (type) params.type = type;
@@ -23,7 +25,12 @@ export default function Partners() {
       .then(({ data }) => setPartners(data))
       .catch(() => setPartners([]))
       .finally(() => setLoading(false));
-  }, [type]);
+  };
+
+  useEffect(load, [type]);
+
+  const premium = partners.filter((p) => p.is_premium);
+  const regular = partners.filter((p) => !p.is_premium);
 
   return (
     <div data-testid="partners-page">
@@ -82,13 +89,46 @@ export default function Partners() {
             </Link>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {partners.map((p) => (
-              <PartnerCard key={p.id} partner={p} />
-            ))}
+          <div className="space-y-8">
+            {premium.length > 0 && (
+              <section data-testid="premium-partners-section">
+                <div className="flex items-center gap-2 text-toba mb-3">
+                  <Crown className="w-4 h-4" />
+                  <span className="text-[12px] tracking-[0.18em] uppercase font-semibold">
+                    {t.partners.premium.sectionTitle}
+                  </span>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {premium.map((p) => (
+                    <PartnerCard key={p.id} partner={p} />
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {regular.length > 0 && (
+              <section>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {regular.map((p) => (
+                    <PartnerCard key={p.id} partner={p} onUpgrade={setUpgrading} />
+                  ))}
+                </div>
+              </section>
+            )}
           </div>
         )}
       </div>
+
+      {upgrading && (
+        <PremiumDialog
+          partner={upgrading}
+          onClose={() => setUpgrading(null)}
+          onActivated={() => {
+            setUpgrading(null);
+            load();
+          }}
+        />
+      )}
     </div>
   );
 }

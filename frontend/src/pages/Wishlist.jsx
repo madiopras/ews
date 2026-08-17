@@ -12,7 +12,9 @@ import { toast } from "sonner";
 function ShareBox({ trip, onChange }) {
   const { t } = useLang();
   const [busy, setBusy] = useState(false);
-  const url = trip.share_slug ? `${window.location.origin}/trip/${trip.share_slug}` : "";
+  const url = trip.share_slug
+    ? `${process.env.REACT_APP_BACKEND_URL}/api/share/${trip.share_slug}`
+    : "";
 
   const setPublic = async (pub) => {
     setBusy(true);
@@ -52,6 +54,13 @@ function ShareBox({ trip, onChange }) {
       >
         {url}
       </div>
+      <img
+        src={`${process.env.REACT_APP_BACKEND_URL}/api/share/${trip.share_slug}/image.png`}
+        alt=""
+        loading="lazy"
+        className="w-full rounded-lg border border-line"
+        data-testid={`share-preview-${trip.id}`}
+      />
       <div className="flex flex-col sm:flex-row gap-2">
         <a
           href={`https://wa.me/?text=${encodeURIComponent(`${t.savedTrips.waText} ${trip.title} — ${url}`)}`}

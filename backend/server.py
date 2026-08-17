@@ -14,6 +14,9 @@ from datetime import datetime, timezone, timedelta
 from bson import ObjectId
 import os
 import uuid
+import hashlib
+import hmac
+import httpx
 import bcrypt
 import jwt
 import json
@@ -367,6 +370,18 @@ class PartnerOut(BaseModel):
     image: Optional[str] = ""
     status: str
     created_at: str
+    is_premium: bool = False
+    premium_until: Optional[str] = None
+
+
+def premium_active(d: dict) -> bool:
+    until = d.get("premium_until")
+    if not until:
+        return False
+    try:
+        return datetime.fromisoformat(until) > datetime.now(timezone.utc)
+    except Exception:
+        return False
 
 
 def partner_to_out(d: dict) -> PartnerOut:
@@ -381,7 +396,14 @@ def partner_to_out(d: dict) -> PartnerOut:
         image=d.get("image", ""),
         status=d.get("status", "pending"),
         created_at=d.get("created_at", ""),
+        is_premium=premium_active(d),
+        premium_until=d.get("premium_until"),
     )
+
+
+def sort_partners(docs: List[dict]) -> List[dict]:
+    """Premium (still active) listings first; input order (newest first) is preserved."""
+    return sorted(docs, key=lambda d: 0 if premium_active(d) else 1)
 
 
 @api_router.post("/partners", response_model=PartnerOut)
@@ -412,7 +434,7 @@ async def list_partners(
     if type:
         q["type"] = type
     docs = await db.partners.find(q).sort("created_at", -1).to_list(500)
-    return [partner_to_out(d) for d in docs]
+    return [partner_to_out(d) for d in sort_partners(docs)]
 
 
 @api_router.get("/partners/admin", response_model=List[PartnerOut])
@@ -699,6 +721,11 @@ async def startup():
             {"email": admin_email},
             {"$set": {"password_hash": hash_password(admin_password), "role": "admin"}},
         )
+
+    # Seed premium plans (admin can edit prices/labels later)
+    if await db.premium_plans.count_documents({}) == 0:
+        await db.premium_plans.insert_many([dict(p) for p in DEFAULT_PLANS])
+        logger.info("Premium plans seeded")
 
     # Init object storage
     try:
@@ -1065,6 +1092,427 @@ async def trip_planner_stream(payload: TripPlanIn):
         media_type="text/event-stream",
         headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
     )
+
+
+# ---------------- Premium partner plans (admin configurable) ----------------
+DEFAULT_PLANS = [
+    {"code": "1m", "label_id": "Unggulan 1 Bulan", "label_en": "Featured 1 Month", "months": 1, "price": 99000, "active": True, "order": 1},
+    {"code": "3m", "label_id": "Unggulan 3 Bulan", "label_en": "Featured 3 Months", "months": 3, "price": 249000, "active": True, "order": 2},
+    {"code": "12m", "label_id": "Unggulan 1 Tahun", "label_en": "Featured 1 Year", "months": 12, "price": 799000, "active": True, "order": 3},
+]
+
+
+class PlanIn(BaseModel):
+    code: str = Field(..., min_length=1, max_length=20)
+    label_id: str = Field(..., min_length=1, max_length=100)
+    label_en: str = Field(..., min_length=1, max_length=100)
+    months: int = Field(..., ge=1, le=36)
+    price: int = Field(..., ge=0)
+    active: bool = True
+    order: int = 1
+
+
+class PlanOut(PlanIn):
+    id: str
+
+
+def plan_to_out(d: dict) -> PlanOut:
+    return PlanOut(
+        id=str(d["_id"]),
+        code=d["code"],
+        label_id=d["label_id"],
+        label_en=d["label_en"],
+        months=d["months"],
+        price=d["price"],
+        active=d.get("active", True),
+        order=d.get("order", 1),
+    )
+
+
+@api_router.get("/premium/plans", response_model=List[PlanOut])
+async def list_public_plans():
+    docs = await db.premium_plans.find({"active": True}).sort("order", 1).to_list(50)
+    return [plan_to_out(d) for d in docs]
+
+
+@api_router.get("/admin/premium/plans", response_model=List[PlanOut])
+async def list_admin_plans(admin: dict = Depends(require_admin)):
+    docs = await db.premium_plans.find({}).sort("order", 1).to_list(50)
+    return [plan_to_out(d) for d in docs]
+
+
+@api_router.post("/admin/premium/plans", response_model=PlanOut)
+async def create_plan(payload: PlanIn, admin: dict = Depends(require_admin)):
+    if await db.premium_plans.find_one({"code": payload.code}):
+        raise HTTPException(status_code=400, detail="Plan code already exists")
+    doc = payload.model_dump()
+    res = await db.premium_plans.insert_one(doc)
+    doc["_id"] = res.inserted_id
+    return plan_to_out(doc)
+
+
+@api_router.put("/admin/premium/plans/{plan_id}", response_model=PlanOut)
+async def update_plan(plan_id: str, payload: PlanIn, admin: dict = Depends(require_admin)):
+    try:
+        oid = ObjectId(plan_id)
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid id")
+    await db.premium_plans.update_one({"_id": oid}, {"$set": payload.model_dump()})
+    d = await db.premium_plans.find_one({"_id": oid})
+    if not d:
+        raise HTTPException(status_code=404, detail="Not found")
+    return plan_to_out(d)
+
+
+@api_router.delete("/admin/premium/plans/{plan_id}")
+async def delete_plan(plan_id: str, admin: dict = Depends(require_admin)):
+    try:
+        res = await db.premium_plans.delete_one({"_id": ObjectId(plan_id)})
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid id")
+    if res.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Not found")
+    return {"ok": True}
+
+
+# ---------------- Midtrans Snap payments ----------------
+def midtrans_conf() -> dict:
+    is_prod = os.environ.get("MIDTRANS_ENV", "sandbox").lower() == "production"
+    suffix = "_PRODUCTION" if is_prod else ""
+    return {
+        "is_production": is_prod,
+        "merchant_id": os.environ[f"MIDTRANS_MERCHANT_ID{suffix}"],
+        "client_key": os.environ[f"MIDTRANS_CLIENT_KEY{suffix}"],
+        "server_key": os.environ[f"MIDTRANS_SERVER_KEY{suffix}"],
+        "snap_url": (
+            "https://app.midtrans.com/snap/v1/transactions"
+            if is_prod
+            else "https://app.sandbox.midtrans.com/snap/v1/transactions"
+        ),
+        "snap_js": (
+            "https://app.midtrans.com/snap/snap.js"
+            if is_prod
+            else "https://app.sandbox.midtrans.com/snap/snap.js"
+        ),
+        "api_host": "https://api.midtrans.com" if is_prod else "https://api.sandbox.midtrans.com",
+    }
+
+
+def add_months(base: datetime, months: int) -> datetime:
+    year = base.year + (base.month - 1 + months) // 12
+    month = (base.month - 1 + months) % 12 + 1
+    day = min(base.day, [31, 29 if year % 4 == 0 and (year % 100 != 0 or year % 400 == 0) else 28,
+                         31, 30, 31, 30, 31, 31, 30, 31, 30, 31][month - 1])
+    return base.replace(year=year, month=month, day=day)
+
+
+def payment_state(m: dict) -> str:
+    status = m.get("transaction_status")
+    fraud = (m.get("fraud_status") or "").lower()
+    if status in ("settlement", "capture") and (not fraud or fraud == "accept"):
+        return "paid"
+    if status in ("pending", "authorize"):
+        return "pending"
+    if status in ("deny", "cancel", "expire", "failure"):
+        return "failed"
+    return "pending"
+
+
+async def apply_payment(m: dict):
+    """Idempotently store the payment result and activate the partner premium period."""
+    order_id = m.get("order_id")
+    order = await db.payment_orders.find_one({"order_id": order_id})
+    if not order:
+        raise HTTPException(status_code=404, detail="Unknown order")
+
+    state = payment_state(m)
+    now = datetime.now(timezone.utc)
+    await db.payment_orders.update_one(
+        {"order_id": order_id},
+        {"$set": {"status": state, "midtrans": m, "updated_at": now.isoformat()}},
+    )
+    if state != "paid":
+        return
+
+    claimed = await db.payment_orders.update_one(
+        {"order_id": order_id, "premium_activated_at": {"$exists": False}},
+        {"$set": {"premium_activated_at": now.isoformat()}},
+    )
+    if claimed.modified_count != 1:
+        return  # already activated by a previous notification
+
+    partner = await db.partners.find_one({"_id": ObjectId(order["partner_id"])})
+    if not partner:
+        return
+    base = now
+    current = partner.get("premium_until")
+    if current:
+        try:
+            parsed = datetime.fromisoformat(current)
+            if parsed > now:
+                base = parsed
+        except Exception:
+            pass
+    until = add_months(base, order["months"])
+    await db.partners.update_one(
+        {"_id": partner["_id"]}, {"$set": {"premium_until": until.isoformat()}}
+    )
+
+
+@api_router.get("/payments/config")
+async def payments_config():
+    c = midtrans_conf()
+    return {"client_key": c["client_key"], "snap_js": c["snap_js"], "is_production": c["is_production"]}
+
+
+class SnapTokenIn(BaseModel):
+    partner_id: str
+    plan_code: str
+
+
+@api_router.post("/payments/snap-token")
+async def create_snap_token(payload: SnapTokenIn):
+    plan = await db.premium_plans.find_one({"code": payload.plan_code, "active": True})
+    if not plan:
+        raise HTTPException(status_code=404, detail="Plan not found")
+    try:
+        oid = ObjectId(payload.partner_id)
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid partner id")
+    partner = await db.partners.find_one({"_id": oid})
+    if not partner:
+        raise HTTPException(status_code=404, detail="Partner not found")
+    if partner.get("status") != "approved":
+        raise HTTPException(status_code=400, detail="Partner must be approved first")
+
+    conf = midtrans_conf()
+    order_id = f"PRM-{uuid.uuid4().hex[:20]}"
+    amount = int(plan["price"])
+    order = {
+        "order_id": order_id,
+        "partner_id": str(oid),
+        "plan_code": plan["code"],
+        "months": int(plan["months"]),
+        "amount": amount,
+        "status": "created",
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    }
+    await db.payment_orders.insert_one(order)
+
+    body = {
+        "transaction_details": {"order_id": order_id, "gross_amount": amount},
+        "item_details": [
+            {"id": f"premium-{plan['code']}", "price": amount, "quantity": 1, "name": plan["label_id"][:50]}
+        ],
+        "customer_details": {"first_name": partner["business_name"][:40], "phone": partner["whatsapp"]},
+        "custom_field1": str(oid),
+        "custom_field2": plan["code"],
+    }
+    async with httpx.AsyncClient(timeout=20) as http:
+        res = await http.post(conf["snap_url"], auth=(conf["server_key"], ""), json=body)
+    if res.status_code not in (200, 201):
+        await db.payment_orders.update_one({"order_id": order_id}, {"$set": {"status": "token_failed"}})
+        logger.error(f"Midtrans token failed: {res.status_code} {res.text[:300]}")
+        raise HTTPException(status_code=502, detail="Midtrans token creation failed")
+    data = res.json()
+    await db.payment_orders.update_one({"order_id": order_id}, {"$set": {"snap_token": data["token"]}})
+    return {
+        "order_id": order_id,
+        "token": data["token"],
+        "amount": amount,
+        "client_key": conf["client_key"],
+        "snap_js": conf["snap_js"],
+    }
+
+
+@api_router.post("/payments/midtrans/notification")
+async def midtrans_notification(request: Request):
+    body = await request.json()
+    required = ("order_id", "status_code", "gross_amount", "signature_key")
+    if any(k not in body for k in required):
+        raise HTTPException(status_code=400, detail="Invalid notification")
+    conf = midtrans_conf()
+    raw = f"{body['order_id']}{body['status_code']}{body['gross_amount']}{conf['server_key']}"
+    expected = hashlib.sha512(raw.encode("utf-8")).hexdigest()
+    if not hmac.compare_digest(expected, body["signature_key"]):
+        raise HTTPException(status_code=403, detail="Invalid signature")
+    await apply_payment(body)
+    return {"ok": True}
+
+
+@api_router.get("/payments/{order_id}/status")
+async def payment_status(order_id: str):
+    order = await db.payment_orders.find_one({"order_id": order_id})
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+    conf = midtrans_conf()
+    async with httpx.AsyncClient(timeout=20) as http:
+        res = await http.get(f"{conf['api_host']}/v2/{order_id}/status", auth=(conf["server_key"], ""))
+    if res.status_code < 400:
+        body = res.json()
+        if body.get("order_id") == order_id:
+            await apply_payment(body)
+    fresh = await db.payment_orders.find_one({"order_id": order_id})
+    partner = await db.partners.find_one({"_id": ObjectId(order["partner_id"])})
+    return {
+        "order_id": order_id,
+        "payment_status": fresh.get("status", "pending"),
+        "premium_until": (partner or {}).get("premium_until"),
+    }
+
+
+# ---------------- Share preview (OG card for WhatsApp / social) ----------------
+FONT_SERIF_BOLD = "/usr/share/fonts/truetype/liberation/LiberationSerif-Bold.ttf"
+FONT_SANS = "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf"
+FONT_SANS_BOLD = "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf"
+
+
+def _base_url(request: Request) -> str:
+    proto = request.headers.get("x-forwarded-proto", "https")
+    host = request.headers.get("x-forwarded-host") or request.headers.get("host", "")
+    return f"{proto}://{host.split(',')[0].strip()}"
+
+
+def _wrap(draw, text: str, font, max_width: int, max_lines: int) -> List[str]:
+    words = text.split()
+    lines: List[str] = []
+    current = ""
+    for w in words:
+        trial = f"{current} {w}".strip()
+        if draw.textlength(trial, font=font) <= max_width:
+            current = trial
+        else:
+            if current:
+                lines.append(current)
+            current = w
+            if len(lines) == max_lines:
+                break
+    if current and len(lines) < max_lines:
+        lines.append(current)
+    if len(lines) == max_lines and draw.textlength(lines[-1], font=font) > max_width - 40:
+        lines[-1] = lines[-1][:-3] + "..."
+    return lines
+
+
+def build_share_card(title: str, subtitle: str, author: str) -> bytes:
+    from PIL import Image, ImageDraw, ImageFont
+
+    W, H = 1200, 630
+    img = Image.new("RGB", (W, H), "#0F3D3E")
+    d = ImageDraw.Draw(img)
+
+    # Ulos-inspired geometry: diagonal weave + diamond band, very low contrast
+    weave = "#1B5658"
+    for x in range(-H, W + H, 46):
+        d.line([(x, 0), (x + H, H)], fill=weave, width=2)
+    for i in range(0, W + 80, 80):
+        cx, cy, r = i, H - 70, 26
+        d.polygon([(cx, cy - r), (cx + r, cy), (cx, cy + r), (cx - r, cy)], outline=weave, width=2)
+
+    # Brick accent bar (primary accent, used sparingly)
+    d.rectangle([0, 0, 14, H], fill="#C4472B")
+
+    f_eyebrow = ImageFont.truetype(FONT_SANS_BOLD, 26)
+    f_title = ImageFont.truetype(FONT_SERIF_BOLD, 76)
+    f_meta = ImageFont.truetype(FONT_SANS, 32)
+    f_brand = ImageFont.truetype(FONT_SANS_BOLD, 26)
+
+    d.text((80, 82), "AI TRIP PLANNER  ·  SUMATERA UTARA", font=f_eyebrow, fill="#9FBFB8")
+
+    lines = _wrap(d, title, f_title, W - 200, 3)
+    y = 160
+    for ln in lines:
+        d.text((78, y), ln, font=f_title, fill="#F5F1E8")
+        y += 92
+
+    d.text((80, min(y + 18, H - 190)), subtitle, font=f_meta, fill="#DCD5C4")
+    if author:
+        d.text((80, min(y + 66, H - 140)), author, font=f_meta, fill="#8B9D83")
+
+    d.line([(80, H - 96), (W - 80, H - 96)], fill=weave, width=2)
+    d.text((80, H - 74), "EXPLORE WISATA SUMUT", font=f_brand, fill="#F5F1E8")
+
+    import io
+
+    buf = io.BytesIO()
+    img.save(buf, format="PNG", optimize=True)
+    return buf.getvalue()
+
+
+@api_router.get("/share/{slug}/image.png")
+async def share_card_image(slug: str):
+    d = await db.itineraries.find_one({"share_slug": slug, "is_public": True})
+    if not d:
+        raise HTTPException(status_code=404, detail="Not found")
+    is_en = d.get("lang") == "en"
+    subtitle = (
+        f"{d['days']} {'days' if is_en else 'hari'}  ·  Rp {int(d['budget']):,}".replace(",", ".")
+    )
+    author = (
+        f"{'Plan by' if is_en else 'Rencana oleh'} {d.get('author_name') or 'Anonim'}"
+    )
+    png = build_share_card(d["title"], subtitle, author)
+    return Response(
+        content=png,
+        media_type="image/png",
+        headers={"Cache-Control": "public, max-age=600"},
+    )
+
+
+@api_router.get("/share/{slug}")
+async def share_preview_page(slug: str, request: Request):
+    d = await db.itineraries.find_one({"share_slug": slug, "is_public": True})
+    base = _base_url(request)
+    if not d:
+        return Response(
+            content=f'<!doctype html><meta charset="utf-8"><meta http-equiv="refresh" content="0;url={base}/trip/{slug}">',
+            media_type="text/html",
+            status_code=404,
+        )
+    is_en = d.get("lang") == "en"
+    target = f"{base}/trip/{slug}"
+    image = f"{base}/api/share/{slug}/image.png"
+    title = d["title"]
+    desc = (
+        f"{d['days']} {'days' if is_en else 'hari'} · Rp {int(d['budget']):,}".replace(",", ".")
+        + f" · {'Plan by' if is_en else 'Rencana oleh'} {d.get('author_name') or 'Anonim'}"
+        + (" — Explore Wisata Sumut")
+    )
+
+    def esc(s: str) -> str:
+        return (
+            s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace('"', "&quot;")
+        )
+
+    html = f"""<!doctype html>
+<html lang="{'en' if is_en else 'id'}">
+<head>
+<meta charset="utf-8">
+<title>{esc(title)} — Explore Wisata Sumut</title>
+<meta name="description" content="{esc(desc)}">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Explore Wisata Sumut">
+<meta property="og:title" content="{esc(title)}">
+<meta property="og:description" content="{esc(desc)}">
+<meta property="og:image" content="{image}">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:url" content="{target}">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{esc(title)}">
+<meta name="twitter:description" content="{esc(desc)}">
+<meta name="twitter:image" content="{image}">
+<meta http-equiv="refresh" content="0;url={target}">
+<link rel="canonical" href="{target}">
+<style>body{{background:#0F3D3E;color:#F5F1E8;font-family:system-ui,sans-serif;display:flex;
+align-items:center;justify-content:center;height:100vh;margin:0}}a{{color:#F5F1E8}}</style>
+</head>
+<body>
+<p>{esc(title)} — <a href="{target}">{'Open the plan' if is_en else 'Buka rencana ini'}</a></p>
+<script>location.replace({json.dumps(target)});</script>
+</body>
+</html>"""
+    return Response(content=html, media_type="text/html")
 
 
 # ---------------- Health ----------------

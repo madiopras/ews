@@ -73,8 +73,15 @@ Frontend-only. Neumorphism dihapus total.
 - [x] Renderer markdown dipakai bersama (`lib/markdown.jsx`) oleh Planner, Wishlist, PublicTrip
 - [x] Fix: axios error tanpa catch (Reviews, wishlist check, PartnerRegister) yang memicu overlay error saat offline
 
+## Iteration 7 — Kartu Preview Share (OG) + Mitra Unggulan Berbayar (Midtrans) (2026-06-17)
+- [x] **OG share card**: `GET /api/share/{slug}` mengembalikan HTML meta OG/Twitter (title, description "X hari · Rp budget · Rencana oleh Nama", og:image absolut) lalu redirect ke `/trip/{slug}`; `GET /api/share/{slug}/image.png` men-generate kartu 1200x630 dengan PIL (bg teal, motif ulos, aksen brick, brand). Link bagikan di Wishlist kini memakai `{BACKEND}/api/share/{slug}` + pratinjau kartu.
+- [x] **Mitra Unggulan (Midtrans Snap, sandbox aktif)**: koleksi `premium_plans` (seed 1 bulan Rp99k / 3 bulan Rp249k / 12 bulan Rp799k) dengan CRUD admin di tab **Paket Unggulan**; `POST /api/payments/snap-token`, webhook `POST /api/payments/midtrans/notification` (verifikasi SHA512, idempoten via `premium_activated_at`, perpanjang dari `premium_until` bila masih aktif), `GET /api/payments/{order_id}/status`, `GET /api/payments/config`.
+- [x] Mitra premium tampil paling atas (section "Mitra Unggulan") dengan badge Unggulan + garis aksen di halaman Mitra dan di daftar mitra pada halaman destinasi; premium kedaluwarsa otomatis dianggap non-premium.
+- [x] Env: `MIDTRANS_ENV` (sandbox/production) + kredensial sandbox & production di `backend/.env`.
+
 ## Testing
-- Iteration 6: backend 10/10 PASS; frontend share/public/reroll PASS; bug offline-banner (SW meng-cache /api) ditemukan → diperbaiki & diverifikasi manual (banner + data + gambar tampil offline, tanpa error overlay) — `/app/test_reports/iteration_6.json`
+- Iteration 7: backend 18/18 PASS, frontend 100% (share OG, admin plans, dialog premium + snap sandbox nyata, mobile 390px) — `/app/test_reports/iteration_7.json`; isu minor `/api/payments/{order_id}/status` sudah diperbaiki & diverifikasi
+- Iteration 6: backend 10/10 PASS; share/public/reroll PASS; bug offline-banner diperbaiki & diverifikasi — `/app/test_reports/iteration_6.json`
 - Iteration 5: 100% frontend (13/13 area) di viewport 390x844 + 1920x1080 — `/app/test_reports/iteration_5.json`
 - Iteration 1: 100% backend + 100% frontend pass
 - Iteration 2: 100% backend + 100% frontend pass

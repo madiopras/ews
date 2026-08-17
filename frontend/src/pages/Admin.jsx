@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Plus, Pencil, Trash2, X, Check, XCircle } from "lucide-react";
 import ImageDropzone from "@/components/ImageDropzone";
 import PartnerCard from "@/components/PartnerCard";
+import AdminPlans from "@/components/AdminPlans";
 
 const EMPTY = {
   name: "",
@@ -158,9 +159,18 @@ export default function Admin() {
         >
           Partners ({partners.length})
         </button>
+        <button
+          onClick={() => setSection("plans")}
+          className={`chip ${section === "plans" ? "chip-active" : ""}`}
+          data-testid="admin-tab-plans"
+        >
+          {t.admin.plansTab}
+        </button>
       </div>
 
-      {section === "partners" ? (
+      {section === "plans" ? (
+        <AdminPlans />
+      ) : section === "partners" ? (
         loading ? (
           <div className="text-inkSoft text-[13px]">{t.common.loading}</div>
         ) : partners.length === 0 ? (
