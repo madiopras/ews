@@ -3,8 +3,9 @@ import { api } from "@/lib/api";
 import { useLang } from "@/contexts/LanguageContext";
 import { CATEGORY_KEYS } from "@/lib/i18n";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, X } from "lucide-react";
+import { Plus, Pencil, Trash2, X, Check, XCircle } from "lucide-react";
 import ImageDropzone from "@/components/ImageDropzone";
+import PartnerCard from "@/components/PartnerCard";
 
 const EMPTY = {
   name: "",
@@ -22,7 +23,9 @@ const EMPTY = {
 
 export default function Admin() {
   const { t } = useLang();
+  const [section, setSection] = useState("destinations"); // 'destinations' | 'partners'
   const [list, setList] = useState([]);
+  const [partners, setPartners] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(null); // null | 'new' | id
   const [form, setForm] = useState(EMPTY);
@@ -30,15 +33,40 @@ export default function Admin() {
 
   const load = () => {
     setLoading(true);
-    api
-      .get("/destinations")
-      .then(({ data }) => setList(data))
-      .finally(() => setLoading(false));
+    Promise.all([
+      api.get("/destinations").then((r) => r.data).catch(() => []),
+      api.get("/partners/admin").then((r) => r.data).catch(() => []),
+    ]).then(([d, p]) => {
+      setList(d);
+      setPartners(p);
+      setLoading(false);
+    });
   };
 
   useEffect(() => {
     load();
   }, []);
+
+  const setPartnerStatus = async (id, status) => {
+    try {
+      await api.patch(`/partners/${id}/status`, { status });
+      toast.success(status);
+      load();
+    } catch {
+      toast.error("Error");
+    }
+  };
+
+  const deletePartner = async (id) => {
+    if (!window.confirm("Delete this partner?")) return;
+    try {
+      await api.delete(`/partners/${id}`);
+      toast.success("Deleted");
+      load();
+    } catch {
+      toast.error("Error");
+    }
+  };
 
   const startEdit = (d) => {
     setEditing(d.id);
@@ -107,7 +135,7 @@ export default function Admin() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10 pb-24" data-testid="admin-page">
-      <header className="mb-10 flex items-center justify-between flex-wrap gap-4">
+      <header className="mb-8 flex items-center justify-between flex-wrap gap-4">
         <div>
           <div className="text-xs tracking-[0.2em] uppercase text-sunset mb-1">
             Admin
@@ -116,14 +144,82 @@ export default function Admin() {
             {t.admin.title}
           </h1>
         </div>
-        <button
-          onClick={startNew}
-          className="px-6 py-3 rounded-full bg-sunset text-sand font-semibold text-sm hover:bg-sunset/90 flex items-center gap-2"
-          data-testid="admin-add-btn"
-        >
-          <Plus className="w-4 h-4" /> {t.admin.add}
-        </button>
+        {section === "destinations" && (
+          <button
+            onClick={startNew}
+            className="px-6 py-3 rounded-full bg-sunset text-sand font-semibold text-sm hover:bg-sunset/90 flex items-center gap-2"
+            data-testid="admin-add-btn"
+          >
+            <Plus className="w-4 h-4" /> {t.admin.add}
+          </button>
+        )}
       </header>
+
+      {/* Section tabs */}
+      <div className="flex gap-2 mb-8">
+        <button
+          onClick={() => setSection("destinations")}
+          className={`px-6 py-3 rounded-full text-sm transition-all ${
+            section === "destinations" ? "shadow-neu-pressed text-sunset font-semibold" : "shadow-neu-sm hover:text-sunset"
+          }`}
+          data-testid="admin-tab-destinations"
+        >
+          Destinations ({list.length})
+        </button>
+        <button
+          onClick={() => setSection("partners")}
+          className={`px-6 py-3 rounded-full text-sm transition-all ${
+            section === "partners" ? "shadow-neu-pressed text-sunset font-semibold" : "shadow-neu-sm hover:text-sunset"
+          }`}
+          data-testid="admin-tab-partners"
+        >
+          Partners ({partners.length})
+        </button>
+      </div>
+
+      {section === "partners" ? (
+        loading ? (
+          <div className="text-muted2">{t.common.loading}</div>
+        ) : partners.length === 0 ? (
+          <div className="text-muted2 py-10 text-center neu-raised rounded-3xl">No partner applications yet.</div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {partners.map((p) => (
+              <div key={p.id} className="space-y-3" data-testid={`admin-partner-${p.id}`}>
+                <PartnerCard partner={p} showBadge />
+                <div className="flex gap-2 pl-2">
+                  {p.status !== "approved" && (
+                    <button
+                      onClick={() => setPartnerStatus(p.id, "approved")}
+                      className="px-4 py-2 rounded-full text-xs shadow-neu-sm hover:text-emerald-600 flex items-center gap-1.5"
+                      data-testid={`partner-approve-${p.id}`}
+                    >
+                      <Check className="w-3.5 h-3.5" /> {t.partners.approve}
+                    </button>
+                  )}
+                  {p.status !== "rejected" && (
+                    <button
+                      onClick={() => setPartnerStatus(p.id, "rejected")}
+                      className="px-4 py-2 rounded-full text-xs shadow-neu-sm hover:text-red-500 flex items-center gap-1.5"
+                      data-testid={`partner-reject-${p.id}`}
+                    >
+                      <XCircle className="w-3.5 h-3.5" /> {t.partners.reject}
+                    </button>
+                  )}
+                  <button
+                    onClick={() => deletePartner(p.id)}
+                    className="px-4 py-2 rounded-full text-xs shadow-neu-sm hover:text-red-500 flex items-center gap-1.5"
+                    data-testid={`partner-delete-${p.id}`}
+                  >
+                    <Trash2 className="w-3.5 h-3.5" /> Delete
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )
+      ) : (
+        <>
 
       {editing && (
         <form
@@ -262,6 +358,8 @@ export default function Admin() {
             </div>
           ))}
         </div>
+      )}
+      </>
       )}
     </div>
   );

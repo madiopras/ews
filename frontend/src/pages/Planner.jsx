@@ -1,8 +1,12 @@
 import React, { useState } from "react";
 import { useLang } from "@/contexts/LanguageContext";
 import { CATEGORY_KEYS } from "@/lib/i18n";
-import { Sparkles, Compass, Wallet, Calendar, RefreshCw } from "lucide-react";
+import { Sparkles, Compass, Wallet, Calendar, RefreshCw, Save } from "lucide-react";
 import UlosPattern from "@/components/UlosPattern";
+import { api } from "@/lib/api";
+import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -65,10 +69,16 @@ function renderMarkdown(md) {
 
 export default function Planner() {
   const { t, lang } = useLang();
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [form, setForm] = useState({ days: 3, budget: 1500000, interests: ["nature"] });
   const [output, setOutput] = useState("");
   const [streaming, setStreaming] = useState(false);
   const [error, setError] = useState("");
+  const [savedId, setSavedId] = useState(null);
+  const [saveTitle, setSaveTitle] = useState("");
+  const [showSave, setShowSave] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   const toggleInterest = (cat) => {
     setForm((p) => ({
@@ -133,6 +143,36 @@ export default function Planner() {
   const reset = () => {
     setOutput("");
     setError("");
+    setSavedId(null);
+    setShowSave(false);
+    setSaveTitle("");
+  };
+
+  const saveTrip = async () => {
+    if (!user || typeof user !== "object") {
+      toast.error(t.detail.loginToSave);
+      navigate("/login");
+      return;
+    }
+    setSaving(true);
+    try {
+      const title = saveTitle.trim() || `${form.days} ${lang === "en" ? "days" : "hari"} · ${new Date().toLocaleDateString()}`;
+      const { data } = await api.post("/itineraries", {
+        title,
+        days: form.days,
+        budget: form.budget,
+        interests: form.interests,
+        content: output,
+        lang,
+      });
+      setSavedId(data.id);
+      setShowSave(false);
+      toast.success(t.savedTrips.saved);
+    } catch (err) {
+      toast.error("Error saving trip");
+    } finally {
+      setSaving(false);
+    }
   };
 
   const inputCls = "w-full rounded-2xl px-5 py-4 bg-sand shadow-neu-inset outline-none";
@@ -245,8 +285,46 @@ export default function Planner() {
 
       {(output || streaming) && (
         <article className="neu-raised rounded-3xl p-6 sm:p-10" data-testid="planner-output">
-          <div className="text-xs tracking-[0.2em] uppercase text-sunset mb-2">
-            {t.planner.itineraryTitle}
+          <div className="flex items-start justify-between gap-4 flex-wrap">
+            <div className="text-xs tracking-[0.2em] uppercase text-sunset mb-2">
+              {t.planner.itineraryTitle}
+            </div>
+            {!streaming && output && !savedId && (
+              <div className="flex items-center gap-2">
+                {showSave ? (
+                  <>
+                    <input
+                      value={saveTitle}
+                      onChange={(e) => setSaveTitle(e.target.value)}
+                      placeholder={t.savedTrips.titlePlaceholder}
+                      className="rounded-full px-4 py-2 bg-sand shadow-neu-inset text-sm outline-none"
+                      data-testid="save-title-input"
+                    />
+                    <button
+                      onClick={saveTrip}
+                      disabled={saving}
+                      className="px-4 py-2 rounded-full bg-sunset text-sand text-sm font-semibold disabled:opacity-50"
+                      data-testid="save-confirm-btn"
+                    >
+                      {saving ? "..." : t.savedTrips.saveBtn}
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    onClick={() => setShowSave(true)}
+                    className="px-5 py-2.5 rounded-full shadow-neu-raised hover:text-sunset text-sm font-semibold flex items-center gap-2"
+                    data-testid="save-trip-btn"
+                  >
+                    <Save className="w-4 h-4" /> {t.savedTrips.saveBtn}
+                  </button>
+                )}
+              </div>
+            )}
+            {savedId && (
+              <span className="text-sm text-emerald-600 flex items-center gap-1 font-semibold" data-testid="save-success-badge">
+                ✓ {t.savedTrips.saved}
+              </span>
+            )}
           </div>
           {streaming && !output && (
             <div className="text-muted2 flex items-center gap-2 py-6">

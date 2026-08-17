@@ -238,6 +238,30 @@ async def list_destinations(
     return [dest_to_out(d) for d in docs]
 
 
+@api_router.get("/destinations/trending", response_model=List[DestinationOut])
+async def trending(days: int = 30, limit: int = 6):
+    since = (datetime.now(timezone.utc) - timedelta(days=days)).isoformat()
+    pipeline = [
+        {"$match": {"created_at": {"$gte": since}}},
+        {"$group": {"_id": "$destination_id", "n": {"$sum": 1}}},
+        {"$sort": {"n": -1}},
+        {"$limit": limit},
+    ]
+    rows = await db.wishlist_events.aggregate(pipeline).to_list(limit)
+    if not rows:
+        return []
+    order = {r["_id"]: i for i, r in enumerate(rows)}
+    oids = []
+    for r in rows:
+        try:
+            oids.append(ObjectId(r["_id"]))
+        except Exception:
+            continue
+    docs = await db.destinations.find({"_id": {"$in": oids}}).to_list(len(oids))
+    docs.sort(key=lambda d: order.get(str(d["_id"]), 999))
+    return [dest_to_out(d) for d in docs]
+
+
 @api_router.get("/destinations/{dest_id}", response_model=DestinationOut)
 async def get_destination(dest_id: str):
     try:
@@ -305,6 +329,192 @@ async def add_wishlist(dest_id: str, user: dict = Depends(get_current_user)):
         {"_id": ObjectId(user["id"])},
         {"$addToSet": {"wishlist": dest_id}},
     )
+    # Log event for trending computation
+    await db.wishlist_events.insert_one({
+        "user_id": user["id"],
+        "destination_id": dest_id,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    })
+    return {"ok": True}
+
+
+# ---------------- Trending ----------------
+# (Moved above /destinations/{dest_id} to avoid route shadowing)
+
+
+# ---------------- Partners ----------------
+PartnerType = Literal["guide", "rental", "homestay"]
+
+
+class PartnerIn(BaseModel):
+    business_name: str = Field(..., min_length=2, max_length=120)
+    type: PartnerType
+    whatsapp: str = Field(..., min_length=8, max_length=20)  # digits only, with country code e.g. 6281...
+    description: str = Field(..., min_length=10, max_length=1000)
+    city: str = Field(..., max_length=120)
+    destination_ids: List[str] = Field(default_factory=list)
+    image: Optional[str] = ""
+
+
+class PartnerOut(BaseModel):
+    id: str
+    business_name: str
+    type: str
+    whatsapp: str
+    description: str
+    city: str
+    destination_ids: List[str]
+    image: Optional[str] = ""
+    status: str
+    created_at: str
+
+
+def partner_to_out(d: dict) -> PartnerOut:
+    return PartnerOut(
+        id=str(d["_id"]),
+        business_name=d["business_name"],
+        type=d["type"],
+        whatsapp=d["whatsapp"],
+        description=d["description"],
+        city=d["city"],
+        destination_ids=d.get("destination_ids", []),
+        image=d.get("image", ""),
+        status=d.get("status", "pending"),
+        created_at=d.get("created_at", ""),
+    )
+
+
+@api_router.post("/partners", response_model=PartnerOut)
+async def register_partner(payload: PartnerIn):
+    wa = "".join(ch for ch in payload.whatsapp if ch.isdigit())
+    if not wa:
+        raise HTTPException(status_code=400, detail="Invalid whatsapp number")
+    doc = payload.model_dump()
+    doc["whatsapp"] = wa
+    doc["status"] = "pending"
+    doc["created_at"] = datetime.now(timezone.utc).isoformat()
+    res = await db.partners.insert_one(doc)
+    doc["_id"] = res.inserted_id
+    return partner_to_out(doc)
+
+
+@api_router.get("/partners", response_model=List[PartnerOut])
+async def list_partners(
+    destination_id: Optional[str] = None,
+    type: Optional[str] = None,
+    status: Optional[str] = "approved",
+):
+    q = {}
+    if status and status != "all":
+        q["status"] = status
+    if destination_id:
+        q["destination_ids"] = destination_id
+    if type:
+        q["type"] = type
+    docs = await db.partners.find(q).sort("created_at", -1).to_list(500)
+    return [partner_to_out(d) for d in docs]
+
+
+@api_router.get("/partners/admin", response_model=List[PartnerOut])
+async def list_partners_admin(admin: dict = Depends(require_admin)):
+    docs = await db.partners.find({}).sort("created_at", -1).to_list(1000)
+    return [partner_to_out(d) for d in docs]
+
+
+class PartnerStatusIn(BaseModel):
+    status: Literal["approved", "rejected", "pending"]
+
+
+@api_router.patch("/partners/{partner_id}/status", response_model=PartnerOut)
+async def update_partner_status(
+    partner_id: str, payload: PartnerStatusIn, admin: dict = Depends(require_admin)
+):
+    try:
+        oid = ObjectId(partner_id)
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid id")
+    await db.partners.update_one({"_id": oid}, {"$set": {"status": payload.status}})
+    updated = await db.partners.find_one({"_id": oid})
+    if not updated:
+        raise HTTPException(status_code=404, detail="Not found")
+    return partner_to_out(updated)
+
+
+@api_router.delete("/partners/{partner_id}")
+async def delete_partner(partner_id: str, admin: dict = Depends(require_admin)):
+    try:
+        res = await db.partners.delete_one({"_id": ObjectId(partner_id)})
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid id")
+    if res.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Not found")
+    return {"ok": True}
+
+
+# ---------------- Saved Itineraries ----------------
+class ItineraryIn(BaseModel):
+    title: str = Field(..., min_length=1, max_length=200)
+    days: int = Field(..., ge=1, le=30)
+    budget: float = Field(..., ge=0)
+    interests: List[str] = Field(default_factory=list)
+    content: str = Field(..., min_length=1)
+    lang: Literal["id", "en"] = "id"
+
+
+class ItineraryOut(BaseModel):
+    id: str
+    user_id: str
+    title: str
+    days: int
+    budget: float
+    interests: List[str]
+    content: str
+    lang: str
+    created_at: str
+
+
+def itin_to_out(d: dict) -> ItineraryOut:
+    return ItineraryOut(
+        id=str(d["_id"]),
+        user_id=d["user_id"],
+        title=d["title"],
+        days=d["days"],
+        budget=d["budget"],
+        interests=d.get("interests", []),
+        content=d["content"],
+        lang=d.get("lang", "id"),
+        created_at=d["created_at"],
+    )
+
+
+@api_router.post("/itineraries", response_model=ItineraryOut)
+async def save_itinerary(payload: ItineraryIn, user: dict = Depends(get_current_user)):
+    doc = payload.model_dump()
+    doc["user_id"] = user["id"]
+    doc["created_at"] = datetime.now(timezone.utc).isoformat()
+    res = await db.itineraries.insert_one(doc)
+    doc["_id"] = res.inserted_id
+    return itin_to_out(doc)
+
+
+@api_router.get("/itineraries", response_model=List[ItineraryOut])
+async def list_itineraries(user: dict = Depends(get_current_user)):
+    docs = await db.itineraries.find({"user_id": user["id"]}).sort("created_at", -1).to_list(500)
+    return [itin_to_out(d) for d in docs]
+
+
+@api_router.delete("/itineraries/{itin_id}")
+async def delete_itinerary(itin_id: str, user: dict = Depends(get_current_user)):
+    try:
+        oid = ObjectId(itin_id)
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid id")
+    d = await db.itineraries.find_one({"_id": oid})
+    if not d:
+        raise HTTPException(status_code=404, detail="Not found")
+    if d["user_id"] != user["id"]:
+        raise HTTPException(status_code=403, detail="Forbidden")
+    await db.itineraries.delete_one({"_id": oid})
     return {"ok": True}
 
 

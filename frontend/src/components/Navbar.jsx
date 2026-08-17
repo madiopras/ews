@@ -49,6 +49,10 @@ export default function Navbar() {
             <span className="hidden sm:inline">{t.nav.planner}</span>
             <span className="sm:hidden">AI</span>
           </NavLink>
+          <NavLink to="/partners" className={navItem} data-testid="nav-partners">
+            <span className="hidden md:inline">{t.nav.partners}</span>
+            <span className="md:hidden">Mitra</span>
+          </NavLink>
           {isAuth && (
             <NavLink to="/wishlist" className={navItem} data-testid="nav-wishlist">
               <span className="hidden sm:inline">{t.nav.wishlist}</span>

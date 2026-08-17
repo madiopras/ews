@@ -11,14 +11,18 @@ export default function Home() {
   const { t, lang } = useLang();
   const navigate = useNavigate();
   const [featured, setFeatured] = useState([]);
+  const [trending, setTrending] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    api
-      .get("/destinations", { params: { featured: true } })
-      .then(({ data }) => setFeatured(data))
-      .catch(() => setFeatured([]))
-      .finally(() => setLoading(false));
+    Promise.all([
+      api.get("/destinations", { params: { featured: true } }).then((r) => r.data).catch(() => []),
+      api.get("/destinations/trending", { params: { days: 30, limit: 4 } }).then((r) => r.data).catch(() => []),
+    ]).then(([f, tr]) => {
+      setFeatured(f);
+      setTrending(tr);
+      setLoading(false);
+    });
   }, []);
 
   return (
@@ -114,6 +118,32 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* TRENDING */}
+      {trending.length > 0 && (
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-24" data-testid="trending-section">
+          <div className="flex items-end justify-between mb-8 flex-wrap gap-3">
+            <div>
+              <div className="text-xs tracking-[0.2em] uppercase text-sunset mb-2 flex items-center gap-2">
+                <Sparkles className="w-4 h-4" /> {t.trending.title}
+              </div>
+              <h2 className="font-display text-3xl sm:text-4xl leading-tight">
+                {t.trending.subtitle}
+              </h2>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {trending.map((d, i) => (
+              <div key={d.id} className="relative" data-testid={`trending-item-${d.id}`}>
+                <span className="absolute -top-3 -left-3 z-10 w-10 h-10 rounded-full bg-sunset text-sand flex items-center justify-center font-display text-lg shadow-neu-raised">
+                  {i + 1}
+                </span>
+                <DestinationCard dest={d} index={i} />
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* FEATURED */}
       <section

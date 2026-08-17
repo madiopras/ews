@@ -32,13 +32,22 @@ Buat aplikasi web direktori wisata Sumatera Utara bernama Explore Wisata Sumut. 
 
 ## Iteration 2 — Implemented (2026-02-17)
 - [x] AI Trip Planner (Claude Sonnet 4.6 via Emergent LLM key) — SSE streaming, uses ONLY DB destinations, bilingual output
-- [x] Multi Image Upload (Emergent Object Storage) — drag-and-drop in admin panel, replaces URL input
+- [x] Multi Image Upload (Emergent Object Storage) — drag-and-drop in admin panel
 - [x] User Reviews — 1-5 stars + comment, requires login, avg rating displayed on detail page
-- [x] Batak Ulos SVG pattern backdrop on home categories, home footer, planner hero
+- [x] Batak Ulos SVG pattern backdrop on home + planner hero + footer
+
+## Iteration 3 — Implemented (2026-02-17)
+- [x] Local Partners directory `/partners` — guide/rental mobil/homestay, public registration form `/partners/register`, admin approval workflow, filter by type
+- [x] Partners on Destination Detail — approved partners appear for each linked destination with WhatsApp click-to-chat button (`wa.me/{number}`)
+- [x] Admin Partners tab — pending list with Approve/Reject/Delete actions
+- [x] Planner Save — after AI generates itinerary, signed-in users can save with a title; stored in new `itineraries` collection
+- [x] Wishlist tabs — "Destinations" + "Trip Plans", saved itineraries expand to show markdown with delete action
+- [x] Trending Destinations — top wishlist-saved of last 30 days, aggregated from new `wishlist_events` collection, shown on homepage with rank badge
 
 ## Testing
 - Iteration 1: 100% backend + 100% frontend pass
-- Iteration 2: 100% backend + 100% frontend pass (see `/app/test_reports/iteration_2.json`)
+- Iteration 2: 100% backend + 100% frontend pass
+- Iteration 3: 100% backend + 100% frontend pass (see `/app/test_reports/iteration_3.json`)
 
 ## Backlog (P1/P2)
 - P1: Batak Ulos motif SVG background pattern in footer/empty states

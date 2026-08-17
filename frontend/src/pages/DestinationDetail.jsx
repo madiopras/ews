@@ -8,6 +8,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { ArrowLeft, Heart, MapPin, Tag, Wallet } from "lucide-react";
 import Reviews from "@/components/Reviews";
+import DestinationPartners from "@/components/DestinationPartners";
 
 // Fix leaflet default icon
 delete L.Icon.Default.prototype._getIconUrl;
@@ -213,6 +214,9 @@ export default function DestinationDetail() {
 
       {/* Reviews */}
       <Reviews destinationId={dest.id} />
+
+      {/* Local Partners */}
+      <DestinationPartners destinationId={dest.id} />
     </div>
   );
 }
