@@ -1,0 +1,87 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Manrope:wght@300..800&display=swap');
+@import url('https://unpkg.com/leaflet@1.9.4/dist/leaflet.css');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+    margin: 0;
+    font-family: 'Manrope', system-ui, sans-serif;
+    background-color: #F3F1EC;
+    color: #1A2F24;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+@layer base {
+    :root {
+        --background: 40 22% 94%;
+        --foreground: 152 28% 14%;
+        --card: 40 22% 94%;
+        --card-foreground: 152 28% 14%;
+        --popover: 40 22% 94%;
+        --popover-foreground: 152 28% 14%;
+        --primary: 15 68% 58%;
+        --primary-foreground: 40 22% 98%;
+        --secondary: 40 15% 88%;
+        --secondary-foreground: 152 28% 14%;
+        --muted: 40 15% 88%;
+        --muted-foreground: 152 8% 39%;
+        --accent: 15 68% 58%;
+        --accent-foreground: 40 22% 98%;
+        --destructive: 0 68% 52%;
+        --destructive-foreground: 0 0% 98%;
+        --border: 40 15% 82%;
+        --input: 40 15% 82%;
+        --ring: 15 68% 58%;
+        --radius: 1rem;
+    }
+}
+
+@layer base {
+    body {
+        @apply bg-sand text-ink;
+    }
+}
+
+/* Neumorphic utility classes */
+.neu-raised {
+    background: #F3F1EC;
+    box-shadow: 8px 8px 16px #D8D4CC, -8px -8px 16px #FFFFFF;
+}
+.neu-inset {
+    background: #F3F1EC;
+    box-shadow: inset 6px 6px 12px #D8D4CC, inset -6px -6px 12px #FFFFFF;
+}
+.neu-pressed {
+    box-shadow: inset 4px 4px 8px #D8D4CC, inset -4px -4px 8px #FFFFFF !important;
+}
+
+/* Leaflet map fix inside neumorphic containers */
+.leaflet-container {
+    background: #F3F1EC;
+    border-radius: 1.5rem;
+    font-family: 'Manrope', sans-serif;
+}
+
+/* Selection */
+::selection {
+    background: #DE6B48;
+    color: #F3F1EC;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: #F3F1EC; }
+::-webkit-scrollbar-thumb {
+    background: #D8D4CC;
+    border-radius: 6px;
+}
+::-webkit-scrollbar-thumb:hover { background: #DE6B48; }
+
+@layer base {
+    [data-debug-wrapper="true"] {
+        display: contents !important;
+    }
+}

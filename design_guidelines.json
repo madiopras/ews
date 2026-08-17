@@ -1,0 +1,163 @@
+{
+  "theme": "light",
+  "design_concept": {
+    "style": "Tropical Neumorphism",
+    "description": "A blend of a curated travel magazine and a modern directory app. Uses a warm sand background to enable soft Neumorphic dual shadows (raised and inset surfaces). Emphasizes large, immersive destination photography, generous whitespace, and organic structural shapes. Avoids generic tech-blues and purples in favor of warm sand, jungle green, and sunset orange. Captures the essence of North Sumatra."
+  },
+  "colors": {
+    "background": {
+      "main": "#F3F1EC",
+      "card": "#F3F1EC"
+    },
+    "text": {
+      "primary": "#1A2F24",
+      "secondary": "#5C6C63",
+      "accent": "#DE6B48"
+    },
+    "brand": {
+      "primary": "#DE6B48",
+      "jungle_green": "#2A4D3B",
+      "ocean_teal": "#2A7A78",
+      "warm_sand": "#F3F1EC"
+    },
+    "neumorphism": {
+      "shadow_light": "#FFFFFF",
+      "shadow_dark": "#D8D4CC"
+    }
+  },
+  "typography": {
+    "headings": {
+      "font": "Playfair Display",
+      "google_font_url": "https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap",
+      "usage": "H1, H2, H3, Hero text, editorial pull quotes. Conveys the 'travel magazine' elegance."
+    },
+    "body": {
+      "font": "Manrope",
+      "google_font_url": "https://fonts.googleapis.com/css2?family=Manrope:wght@300..800&display=swap",
+      "usage": "Paragraphs, UI elements, labels, buttons, navigation. Crisp and readable inside Neumorphic elements."
+    },
+    "scale": {
+      "h1": "text-5xl sm:text-6xl tracking-tight leading-none",
+      "h2": "text-4xl sm:text-5xl tracking-tight leading-tight",
+      "h3": "text-2xl sm:text-3xl",
+      "body_main": "text-base leading-relaxed",
+      "ui_small": "text-sm tracking-[0.05em]"
+    }
+  },
+  "layouts": {
+    "page_wrapper": "bg-[#F3F1EC] min-h-screen text-[#1A2F24] font-['Manrope',sans-serif]",
+    "hero_section": "relative w-full rounded-3xl overflow-hidden mb-16",
+    "bento_grid": "grid grid-cols-1 md:grid-cols-12 gap-8",
+    "neumorphic_card": "rounded-3xl bg-[#F3F1EC] p-6 sm:p-8 transition-all duration-300 shadow-[8px_8px_16px_#D8D4CC,-8px_-8px_16px_#FFFFFF]",
+    "container": "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
+  },
+  "components": {
+    "NeumorphicButton": {
+      "classes": "px-8 py-4 rounded-full bg-[#F3F1EC] text-[#1A2F24] font-semibold transition-transform transition-shadow duration-300 hover:text-[#DE6B48]",
+      "shadow_default": "shadow-[6px_6px_12px_#D8D4CC,-6px_-6px_12px_#FFFFFF]",
+      "shadow_active": "active:shadow-[inset_4px_4px_8px_#D8D4CC,inset_-4px_-4px_8px_#FFFFFF]",
+      "notes": "Use for primary actions. Do not use flat background colors for the button surface; rely on the dual shadow for depth on the warm sand background."
+    },
+    "NeumorphicInput": {
+      "classes": "w-full bg-[#F3F1EC] rounded-2xl px-6 py-4 outline-none text-[#1A2F24] placeholder-[#5C6C63] focus:ring-2 focus:ring-[#DE6B48]/30 transition-all",
+      "shadow_default": "shadow-[inset_6px_6px_12px_#D8D4CC,inset_-6px_-6px_12px_#FFFFFF]",
+      "notes": "Input fields and search bars must use the inset shadow to look carved into the background."
+    },
+    "DestinationCard": {
+      "structure": "Raised Neumorphic container -> Image (rounded-2xl, object-cover) -> Content padding -> Title (Playfair) -> Details (Location/Price) -> Action button",
+      "image_treatment": "Large photo taking up 60%+ of card height. No heavy dark overlays on the entire card, keep it bright and tropical."
+    },
+    "CategoryFilter": {
+      "style": "Horizontal scrollable list of pill-shaped Neumorphic buttons. Active state uses inset shadow + Accent Sunset Orange text."
+    },
+    "Navigation": {
+      "style": "Floating Neumorphic pill-shaped header or soft raised bar. Sticky at top with z-50. Include bilingual toggle (ID/EN)."
+    }
+  },
+  "visual_enhancers": {
+    "border_radius": "Use generous rounding. rounded-2xl for inner elements, rounded-3xl or full for main containers/cards/buttons.",
+    "icons": "Use Phosphor Icons (yarn add @phosphor-icons/react) to match the elegant travel magazine feel. Duotone or Light weights.",
+    "cultural_motifs": "Subtle background SVG patterns using traditional Batak Ulos geometric shapes (very low opacity, e.g., 3-5%) in empty spaces or footer.",
+    "photography": "Large, borderless images within the Neumorphic cards. Use object-cover and aspect ratios that feel editorial (e.g., 4:5 for cards, 16:9 or panoramic for hero)."
+  },
+  "motion": {
+    "hover": "Hovering on a raised Neumorphic card slightly increases the shadow blur and distance (lifting it). e.g. hover:shadow-[12px_12px_24px_#D8D4CC,-12px_-12px_24px_#FFFFFF]",
+    "active": "Clicking a Neumorphic button swaps its box-shadow to `inset`, giving a tactile physical pressing effect.",
+    "page_transitions": "Smooth fade in for destination images to feel premium."
+  },
+  "accessibility": {
+    "contrast": "Ensure the Jungle Green text (#1A2F24) against Warm Sand (#F3F1EC) maintains high contrast.",
+    "focus_states": "Focus rings on inputs should be visible. Use the Sunset Orange (#DE6B48) for focus rings (`focus:ring-2 focus:ring-[#DE6B48]/50`).",
+    "aria": "Add aria-labels to icon-only buttons (like the wishlist heart)."
+  },
+  "media": {
+    "3d_libraries": "Not recommended. The Neumorphic UI and high-fidelity photography carry the visual weight.",
+    "map_integration": "For the map location display, use standard React-Leaflet (`yarn add leaflet react-leaflet`). Style the map tiles to be light/warm if possible."
+  },
+  "image_urls": {
+    "hero_lake_toba": {
+      "url": "https://images.unsplash.com/photo-1592639298199-7b9d01c1cf29?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzNDR8MHwxfHNlYXJjaHwzfHxsYWtlJTIwdG9iYSUyMGluZG9uZXNpYXxlbnwwfHx8fDE3ODY5Mzk0Njl8MA&ixlib=rb-4.1.0&q=85",
+      "description": "Lake Toba with red boat, green trees and mountain",
+      "category": "Hero / Destination Featured"
+    },
+    "destination_lake_toba_hills": {
+      "url": "https://images.pexels.com/photos/33562774/pexels-photo-33562774.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+      "description": "Lush green hills overlooking Lake Toba",
+      "category": "Destination (Nature)"
+    },
+    "destination_bukit_lawang": {
+      "url": "https://images.unsplash.com/photo-1723153247780-02e191e1dd0c?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NjZ8MHwxfHNlYXJjaHwzfHxidWtpdCUyMGxhd2FuZyUyMGp1bmdsZXxlbnwwfHx8fDE3ODY5Mzk0Njl8MA&ixlib=rb-4.1.0&q=85",
+      "description": "Orangutan in a tree, Bukit Lawang jungle",
+      "category": "Destination (Adventure)"
+    },
+    "destination_bukit_lawang_bridge": {
+      "url": "https://images.pexels.com/photos/37866119/pexels-photo-37866119.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+      "description": "Rustic bamboo bridge over a river in the jungle",
+      "category": "Destination (Adventure/Nature)"
+    },
+    "destination_sipiso_waterfall": {
+      "url": "https://images.unsplash.com/photo-1520168646905-00463442afb6?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA3MDR8MHwxfHNlYXJjaHwyfHx0cm9waWNhbCUyMHdhdGVyZmFsbCUyMGp1bmdsZXxlbnwwfHx8fDE3ODY5Mzk0Njl8MA&ixlib=rb-4.1.0&q=85",
+      "description": "Tropical waterfall in the jungle",
+      "category": "Destination (Nature/Beach)"
+    },
+    "destination_batak_architecture": {
+      "url": "https://images.pexels.com/photos/8679204/pexels-photo-8679204.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+      "description": "Intricately designed facade of a traditional Tongkonan house (simulates traditional Indonesian/Batak architecture)",
+      "category": "Destination (Culture & History)"
+    },
+    "destination_grand_mosque": {
+      "url": "https://images.pexels.com/photos/37820758/pexels-photo-37820758.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+      "description": "West Sumatra Grand Mosque",
+      "category": "Destination (Culture)"
+    }
+  },
+  "instructions_to_main_agent": [
+    "Extend tailwind.config.js to include the custom Neumorphism shadows in the theme.extend.boxShadow section (e.g. `neu-raised: '8px 8px 16px #D8D4CC, -8px -8px 16px #FFFFFF'`, `neu-inset: 'inset 6px 6px 12px #D8D4CC, inset -6px -6px 12px #FFFFFF'`, `neu-pressed: 'inset 4px 4px 8px #D8D4CC, inset -4px -4px 8px #FFFFFF'`).",
+    "Use standard React/Tailwind for the main structural UI. Instead of Shadcn default cards which have standard borders, implement the custom Neumorphic shadow classes.",
+    "For interactive form elements (Dropdowns, Dialogs), use Shadcn UI but aggressively override their default styles (remove borders, apply #F3F1EC background, add Neumorphic shadows).",
+    "Do NOT use pure white (#FFFFFF) for the main background. Neumorphism strictly requires an off-white background (use #F3F1EC) so both light and dark shadows are visible.",
+    "Do NOT use standard CSS borders. Neumorphism relies on shadows for edges.",
+    "Implement the bilingual toggle (ID/EN) state in the application header.",
+    "Use react-leaflet for the map location display.",
+    "All interactive elements MUST include a `data-testid` attribute (e.g., `data-testid=\"search-button\"`).",
+    "Include `.js` and `.jsx` specific logic where needed, avoiding typescript specific code since the repository uses `.js` files."
+  ],
+  "UNIVERSAL_GUIDELINES_FOR_MAIN_AGENT": [
+    "Do not converge toward generic 'AI slop' outputs.",
+    "Avoid flat, center-everything layouts.",
+    "Use 2-3x more spacing (p-6, p-8, p-12) than typical designs.",
+    "Add transition effects to all interactive elements, but avoid `transition: all`. Use specific properties.",
+    "Do not center align the app container. No `.App { text-align: center; }`.",
+    "Use `sonner` for toast notifications.",
+    "Prioritize using pre-existing components from src/components/ui.",
+    "Never use placeholder URLs (like via.placeholder.com). Use the provided image_urls.",
+    "Do not use complete transparent backgrounds in headers/dropdowns; use solid #F3F1EC or glassmorphism if absolutely necessary (but solid is better for Neumorphism)."
+  ],
+  "GENERAL_UI_UX_DESIGN_GUIDELINES": [
+    "Maintain a clear visual hierarchy using typography (Playfair for elegant headers, Manrope for readable body).",
+    "Ensure touch targets on mobile are large enough (min 44x44px).",
+    "Use inset shadows for 'empty' or 'receptive' states (inputs, depressed buttons, search bars).",
+    "Use raised shadows for 'active' or 'content' states (cards, floating action buttons, standard buttons).",
+    "Ensure consistency across all pages (Homepage, Detail Page, Favorites, Admin)."
+  ]
+}
