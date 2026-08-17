@@ -55,19 +55,14 @@ export default function PartnerRegister() {
     }
   };
 
-  const inputCls = "w-full rounded-2xl px-5 py-4 bg-sand shadow-neu-inset outline-none";
-
   if (done) {
     return (
-      <div className="max-w-xl mx-auto px-4 mt-20 pb-24 text-center" data-testid="partner-register-success">
-        <div className="w-20 h-20 mx-auto rounded-full shadow-neu-raised flex items-center justify-center text-emerald-500 mb-6">
-          <CheckCircle2 className="w-10 h-10" />
+      <div className="max-w-xl mx-auto px-4 mt-16 pb-16 text-center" data-testid="partner-register-success">
+        <div className="w-16 h-16 mx-auto rounded-full bg-moss/20 flex items-center justify-center text-[#4F6047] mb-5">
+          <CheckCircle2 className="w-8 h-8" />
         </div>
-        <h1 className="font-display text-4xl mb-4">{t.partners.success}</h1>
-        <button
-          onClick={() => navigate("/partners")}
-          className="mt-6 px-6 py-3 rounded-full shadow-neu-raised hover:text-sunset font-semibold text-sm"
-        >
+        <h1 className="font-display text-[26px] sm:text-3xl mb-5">{t.partners.success}</h1>
+        <button onClick={() => navigate("/partners")} className="btn-outline">
           {t.partners.title}
         </button>
       </div>
@@ -75,34 +70,38 @@ export default function PartnerRegister() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto px-4 sm:px-6 mt-10 pb-24" data-testid="partner-register-page">
-      <header className="mb-8">
-        <div className="text-xs tracking-[0.2em] uppercase text-sunset mb-2 flex items-center gap-2">
+    <div className="max-w-2xl mx-auto px-4 sm:px-6 mt-6 pb-16" data-testid="partner-register-page">
+      <header className="mb-6">
+        <div className="eyebrow flex items-center gap-2">
           <Handshake className="w-4 h-4" /> {t.nav.partners}
         </div>
-        <h1 className="font-display text-4xl sm:text-5xl leading-tight">
+        <h1 className="mt-2 font-display text-[26px] sm:text-4xl leading-tight">
           {t.partners.registerTitle}
         </h1>
-        <p className="mt-4 text-muted2">{t.partners.registerSubtitle}</p>
+        <p className="mt-3 text-[14px] text-inkSoft">{t.partners.registerSubtitle}</p>
       </header>
 
-      <form onSubmit={submit} className="neu-raised rounded-3xl p-6 sm:p-8 space-y-5">
+      <form onSubmit={submit} className="card-flat p-4 sm:p-6 space-y-5">
         <label className="block">
-          <span className="text-xs text-muted2 pl-1">{t.partners.fields.business_name}</span>
-          <input required value={form.business_name} onChange={upd("business_name")} className={inputCls + " mt-2"} data-testid="partner-name" />
+          <span className="text-[13px] text-inkSoft">{t.partners.fields.business_name}</span>
+          <input
+            required
+            value={form.business_name}
+            onChange={upd("business_name")}
+            className="input-flat mt-2"
+            data-testid="partner-name"
+          />
         </label>
 
         <div>
-          <span className="text-xs text-muted2 pl-1 block mb-2">{t.partners.fields.type}</span>
-          <div className="flex flex-wrap gap-2">
+          <span className="text-[13px] text-inkSoft block mb-2">{t.partners.fields.type}</span>
+          <div className="scroll-x">
             {TYPES.map((tp) => (
               <button
                 key={tp}
                 type="button"
                 onClick={() => setForm((p) => ({ ...p, type: tp }))}
-                className={`px-5 py-2.5 rounded-full text-sm transition-all ${
-                  form.type === tp ? "shadow-neu-pressed text-sunset font-semibold" : "shadow-neu-sm hover:text-sunset"
-                }`}
+                className={`chip ${form.type === tp ? "chip-active" : ""}`}
                 data-testid={`partner-type-${tp}`}
               >
                 {t.partners.types[tp]}
@@ -112,49 +111,53 @@ export default function PartnerRegister() {
         </div>
 
         <label className="block">
-          <span className="text-xs text-muted2 pl-1">{t.partners.fields.whatsapp}</span>
+          <span className="text-[13px] text-inkSoft">{t.partners.fields.whatsapp}</span>
           <input
             required
             inputMode="numeric"
             value={form.whatsapp}
             onChange={upd("whatsapp")}
             placeholder="6281234567890"
-            className={inputCls + " mt-2"}
+            className="input-flat mt-2"
             data-testid="partner-whatsapp"
           />
         </label>
 
         <label className="block">
-          <span className="text-xs text-muted2 pl-1">{t.partners.fields.city}</span>
-          <input required value={form.city} onChange={upd("city")} className={inputCls + " mt-2"} data-testid="partner-city" />
+          <span className="text-[13px] text-inkSoft">{t.partners.fields.city}</span>
+          <input
+            required
+            value={form.city}
+            onChange={upd("city")}
+            className="input-flat mt-2"
+            data-testid="partner-city"
+          />
         </label>
 
         <label className="block">
-          <span className="text-xs text-muted2 pl-1">{t.partners.fields.description}</span>
+          <span className="text-[13px] text-inkSoft">{t.partners.fields.description}</span>
           <textarea
             required
             rows={4}
             minLength={10}
             value={form.description}
             onChange={upd("description")}
-            className={inputCls + " mt-2 resize-none"}
+            className="input-flat mt-2 resize-none"
             data-testid="partner-description"
           />
         </label>
 
         <div>
-          <span className="text-xs text-muted2 pl-1 block mb-2">{t.partners.fields.destinations}</span>
-          <div className="flex flex-wrap gap-2 max-h-64 overflow-y-auto p-3 rounded-2xl shadow-neu-inset">
+          <span className="text-[13px] text-inkSoft block mb-2">
+            {t.partners.fields.destinations}
+          </span>
+          <div className="flex flex-wrap gap-2 max-h-60 overflow-y-auto p-3 rounded-lg border border-line bg-cream">
             {dests.map((d) => (
               <button
                 key={d.id}
                 type="button"
                 onClick={() => toggleDest(d.id)}
-                className={`px-4 py-2 rounded-full text-xs transition-all ${
-                  form.destination_ids.includes(d.id)
-                    ? "bg-sunset text-sand font-semibold"
-                    : "shadow-neu-sm hover:text-sunset"
-                }`}
+                className={`chip ${form.destination_ids.includes(d.id) ? "chip-active" : ""}`}
                 data-testid={`partner-dest-${d.id}`}
               >
                 {d.name}
@@ -164,14 +167,20 @@ export default function PartnerRegister() {
         </div>
 
         <label className="block">
-          <span className="text-xs text-muted2 pl-1">{t.partners.fields.image}</span>
-          <input value={form.image} onChange={upd("image")} placeholder="https://..." className={inputCls + " mt-2"} data-testid="partner-image" />
+          <span className="text-[13px] text-inkSoft">{t.partners.fields.image}</span>
+          <input
+            value={form.image}
+            onChange={upd("image")}
+            placeholder="https://..."
+            className="input-flat mt-2"
+            data-testid="partner-image"
+          />
         </label>
 
         <button
           type="submit"
           disabled={submitting}
-          className="w-full px-6 py-4 rounded-full bg-sunset text-sand font-semibold text-sm hover:bg-sunset/90 disabled:opacity-50"
+          className="btn-primary w-full"
           data-testid="partner-submit-btn"
         >
           {submitting ? t.common.loading : t.partners.submit}

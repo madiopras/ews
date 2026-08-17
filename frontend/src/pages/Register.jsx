@@ -29,68 +29,55 @@ export default function Register() {
   const upd = (k) => (e) => setForm((p) => ({ ...p, [k]: e.target.value }));
 
   return (
-    <div className="max-w-md mx-auto px-4 mt-16 pb-24">
-      <div className="neu-raised rounded-3xl p-8 sm:p-10">
-        <div className="text-xs tracking-[0.2em] uppercase text-sunset mb-2">
-          {t.nav.register}
-        </div>
-        <h1 className="font-display text-4xl leading-tight mb-8">
+    <div className="max-w-md mx-auto px-4 mt-8 pb-16">
+      <div className="card-flat p-5 sm:p-8">
+        <div className="eyebrow">{t.nav.register}</div>
+        <h1 className="mt-2 font-display text-[26px] sm:text-3xl leading-tight mb-6">
           {t.auth.registerTitle}
         </h1>
 
-        <form onSubmit={submit} className="space-y-5">
+        <form onSubmit={submit} className="space-y-4">
           <label className="block">
-            <span className="text-sm text-muted2 pl-2">{t.auth.name}</span>
-            <input
-              required
-              value={form.name}
-              onChange={upd("name")}
-              className="mt-2 w-full rounded-2xl px-5 py-4 bg-sand shadow-neu-inset outline-none"
-              data-testid="register-name-input"
-            />
+            <span className="text-[13px] text-inkSoft">{t.auth.name}</span>
+            <input required value={form.name} onChange={upd("name")} className="input-flat mt-2" data-testid="register-name-input" />
           </label>
           <label className="block">
-            <span className="text-sm text-muted2 pl-2">{t.auth.email}</span>
+            <span className="text-[13px] text-inkSoft">{t.auth.email}</span>
             <input
               type="email"
               required
               value={form.email}
               onChange={upd("email")}
-              className="mt-2 w-full rounded-2xl px-5 py-4 bg-sand shadow-neu-inset outline-none"
+              className="input-flat mt-2"
               data-testid="register-email-input"
             />
           </label>
           <label className="block">
-            <span className="text-sm text-muted2 pl-2">{t.auth.password}</span>
+            <span className="text-[13px] text-inkSoft">{t.auth.password}</span>
             <input
               type="password"
               required
               minLength={6}
               value={form.password}
               onChange={upd("password")}
-              className="mt-2 w-full rounded-2xl px-5 py-4 bg-sand shadow-neu-inset outline-none"
+              className="input-flat mt-2"
               data-testid="register-password-input"
             />
           </label>
 
           {error && (
-            <div className="text-sm text-red-600" data-testid="register-error">
+            <div className="text-[13px] text-red-600" data-testid="register-error">
               {error}
             </div>
           )}
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full px-6 py-4 rounded-full bg-sunset text-sand font-semibold text-sm tracking-wide hover:bg-sunset/90 transition-colors disabled:opacity-50"
-            data-testid="register-submit-btn"
-          >
+          <button type="submit" disabled={loading} className="btn-primary w-full" data-testid="register-submit-btn">
             {loading ? t.common.loading : t.auth.submitRegister}
           </button>
 
           <Link
             to="/login"
-            className="block text-center text-sm text-muted2 hover:text-sunset transition-colors"
+            className="block text-center text-[13px] text-inkSoft hover:text-toba transition-colors py-3"
             data-testid="switch-login-link"
           >
             {t.auth.switchToLogin}

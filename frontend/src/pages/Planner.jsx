@@ -10,7 +10,7 @@ import { toast } from "sonner";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
-// Very small markdown renderer for AI output: headings, bold, lists.
+// Very small markdown renderer for AI output: headings, bold, lists, blockquotes.
 function renderMarkdown(md) {
   const lines = md.split("\n");
   const out = [];
@@ -18,7 +18,7 @@ function renderMarkdown(md) {
   const flushList = () => {
     if (listBuf.length) {
       out.push(
-        <ul key={`ul-${out.length}`} className="list-disc pl-6 my-3 space-y-1 text-ink/85">
+        <ul key={`ul-${out.length}`} className="list-disc pl-5 my-3 space-y-1 text-[14px] text-inkSoft">
           {listBuf.map((it, i) => (
             <li key={i} dangerouslySetInnerHTML={{ __html: it }} />
           ))}
@@ -37,14 +37,14 @@ function renderMarkdown(md) {
     if (line.startsWith("## ")) {
       flushList();
       out.push(
-        <h3 key={idx} className="font-display text-2xl sm:text-3xl mt-8 mb-3 text-sunset">
+        <h3 key={idx} className="font-display text-[22px] sm:text-2xl mt-7 mb-2 text-toba">
           {line.slice(3)}
         </h3>
       );
     } else if (line.startsWith("### ")) {
       flushList();
       out.push(
-        <h4 key={idx} className="font-display text-xl mt-6 mb-2">
+        <h4 key={idx} className="font-display text-[18px] mt-5 mb-1.5">
           {line.slice(4)}
         </h4>
       );
@@ -53,7 +53,7 @@ function renderMarkdown(md) {
       out.push(
         <blockquote
           key={idx}
-          className="my-3 pl-4 border-l-4 border-sunset/60 bg-sand shadow-neu-inset rounded-r-xl py-2 pr-4 text-sm text-ink/90"
+          className="my-3 pl-3.5 border-l-2 border-moss bg-moss/10 rounded-r-lg py-2.5 pr-3 text-[13px] text-ink"
           dangerouslySetInnerHTML={{ __html: bold(line.slice(2)) }}
         />
       );
@@ -66,7 +66,7 @@ function renderMarkdown(md) {
       out.push(
         <p
           key={idx}
-          className="text-ink/85 leading-relaxed my-2"
+          className="text-[14px] text-inkSoft leading-relaxed my-2"
           dangerouslySetInnerHTML={{ __html: bold(line) }}
         />
       );
@@ -134,9 +134,6 @@ export default function Planner() {
             const evt = JSON.parse(jsonStr);
             if (evt.text) setOutput((prev) => prev + evt.text);
             if (evt.error) setError(evt.error);
-            if (evt.done) {
-              /* stream done */
-            }
           } catch {
             /* ignore */
           }
@@ -165,7 +162,9 @@ export default function Planner() {
     }
     setSaving(true);
     try {
-      const title = saveTitle.trim() || `${form.days} ${lang === "en" ? "days" : "hari"} · ${new Date().toLocaleDateString()}`;
+      const title =
+        saveTitle.trim() ||
+        `${form.days} ${lang === "en" ? "days" : "hari"} · ${new Date().toLocaleDateString()}`;
       const { data } = await api.post("/itineraries", {
         title,
         days: form.days,
@@ -184,189 +183,202 @@ export default function Planner() {
     }
   };
 
-  const inputCls = "w-full rounded-2xl px-5 py-4 bg-sand shadow-neu-inset outline-none";
-
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mt-10 pb-24" data-testid="planner-page">
-      <header className="relative mb-10 rounded-3xl overflow-hidden neu-raised p-8 sm:p-12">
-        <div className="absolute inset-0 text-jungle/[0.06]">
+    <div data-testid="planner-page">
+      {/* HERO — dark teal */}
+      <header className="relative bg-toba overflow-hidden">
+        <div className="absolute inset-0 text-cream/[0.07]">
           <UlosPattern />
         </div>
-        <div className="relative">
-          <div className="text-xs tracking-[0.2em] uppercase text-sunset mb-2 flex items-center gap-2">
+        <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-14">
+          <div className="text-[12px] tracking-[0.18em] uppercase text-cream/70 flex items-center gap-2">
             <Sparkles className="w-4 h-4" /> {t.planner.tagline}
           </div>
-          <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl leading-tight max-w-3xl">
+          <h1 className="mt-3 font-display text-[26px] sm:text-4xl lg:text-5xl leading-tight text-cream">
             {t.planner.title}
           </h1>
-          <p className="mt-4 text-muted2 max-w-2xl">{t.planner.subtitle}</p>
+          <p className="mt-3 text-[14px] sm:text-base text-cream/80 max-w-2xl leading-relaxed">
+            {t.planner.subtitle}
+          </p>
         </div>
       </header>
 
-      <form onSubmit={generate} className="neu-raised rounded-3xl p-6 sm:p-8 mb-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <label className="block">
-            <span className="text-xs text-muted2 pl-1 flex items-center gap-1">
-              <Calendar className="w-3 h-3" /> {t.planner.days}
-            </span>
-            <input
-              type="number"
-              min="1"
-              max="14"
-              required
-              value={form.days}
-              onChange={(e) => setForm((p) => ({ ...p, days: Number(e.target.value) }))}
-              className={inputCls + " mt-2"}
-              data-testid="planner-days"
-            />
-          </label>
-          <label className="block">
-            <span className="text-xs text-muted2 pl-1 flex items-center gap-1">
-              <Wallet className="w-3 h-3" /> {t.planner.budget}
-            </span>
-            <input
-              type="number"
-              min="0"
-              step="50000"
-              required
-              value={form.budget}
-              onChange={(e) => setForm((p) => ({ ...p, budget: Number(e.target.value) }))}
-              className={inputCls + " mt-2"}
-              data-testid="planner-budget"
-            />
-          </label>
-        </div>
-
-        <div className="mt-6">
-          <span className="text-xs text-muted2 pl-1 flex items-center gap-1 mb-3">
-            <Compass className="w-3 h-3" /> {t.planner.interests}
-          </span>
-          <div className="flex flex-wrap gap-2">
-            {CATEGORY_KEYS.map((cat) => (
-              <button
-                key={cat}
-                type="button"
-                onClick={() => toggleInterest(cat)}
-                data-testid={`planner-interest-${cat}`}
-                className={`px-5 py-2.5 rounded-full text-sm transition-all ${
-                  form.interests.includes(cat)
-                    ? "shadow-neu-pressed text-sunset font-semibold"
-                    : "shadow-neu-sm hover:text-sunset"
-                }`}
-              >
-                {t.categories[cat]}
-              </button>
-            ))}
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 pb-24 md:pb-16">
+        <form onSubmit={generate} className="card-flat p-4 sm:p-6">
+          {/* single column on mobile */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <label className="block">
+              <span className="text-[13px] text-inkSoft flex items-center gap-1.5">
+                <Calendar className="w-3.5 h-3.5" /> {t.planner.days}
+              </span>
+              <input
+                type="number"
+                min="1"
+                max="14"
+                required
+                value={form.days}
+                onChange={(e) => setForm((p) => ({ ...p, days: Number(e.target.value) }))}
+                className="input-flat mt-2"
+                data-testid="planner-days"
+              />
+            </label>
+            <label className="block">
+              <span className="text-[13px] text-inkSoft flex items-center gap-1.5">
+                <Wallet className="w-3.5 h-3.5" /> {t.planner.budget}
+              </span>
+              <input
+                type="number"
+                min="0"
+                step="50000"
+                required
+                value={form.budget}
+                onChange={(e) => setForm((p) => ({ ...p, budget: Number(e.target.value) }))}
+                className="input-flat mt-2"
+                data-testid="planner-budget"
+              />
+            </label>
           </div>
-        </div>
 
-        <div className="mt-6">
-          <div className="flex items-center justify-between pl-1 mb-2">
-            <span className="text-xs text-muted2 flex items-center gap-1">
-              <Sparkles className="w-3 h-3" /> {t.planner.extraContext}{" "}
-              <span className="text-muted2/60">({t.planner.optional})</span>
+          <div className="mt-5">
+            <span className="text-[13px] text-inkSoft flex items-center gap-1.5 mb-2.5">
+              <Compass className="w-3.5 h-3.5" /> {t.planner.interests}
             </span>
-            <span className="text-[10px] text-muted2/70" data-testid="planner-ctx-count">
-              {form.extra_context.length}/200
-            </span>
-          </div>
-          <textarea
-            rows={3}
-            maxLength={200}
-            value={form.extra_context}
-            onChange={(e) =>
-              setForm((p) => ({ ...p, extra_context: e.target.value.slice(0, 200) }))
-            }
-            placeholder={t.planner.extraContextPlaceholder}
-            className="w-full rounded-2xl px-5 py-4 bg-sand shadow-neu-inset outline-none text-sm resize-none"
-            data-testid="planner-extra-context"
-          />
-        </div>
-
-        <div className="mt-8 flex flex-wrap gap-3">
-          <button
-            type="submit"
-            disabled={streaming}
-            className="px-7 py-4 rounded-full bg-sunset text-sand font-semibold text-sm hover:bg-sunset/90 disabled:opacity-60 flex items-center gap-2"
-            data-testid="planner-generate-btn"
-          >
-            <Sparkles className="w-4 h-4" />
-            {streaming ? t.planner.generating : t.planner.generate}
-          </button>
-          {(output || error) && !streaming && (
-            <button
-              type="button"
-              onClick={reset}
-              className="px-6 py-4 rounded-full shadow-neu-sm text-sm flex items-center gap-2"
-              data-testid="planner-reset-btn"
-            >
-              <RefreshCw className="w-4 h-4" /> {t.planner.newPlan}
-            </button>
-          )}
-        </div>
-      </form>
-
-      {error && (
-        <div
-          className="rounded-3xl p-6 mb-6 shadow-neu-inset text-red-600 text-sm"
-          data-testid="planner-error"
-        >
-          {error}
-        </div>
-      )}
-
-      {(output || streaming) && (
-        <article className="neu-raised rounded-3xl p-6 sm:p-10" data-testid="planner-output">
-          <div className="flex items-start justify-between gap-4 flex-wrap">
-            <div className="text-xs tracking-[0.2em] uppercase text-sunset mb-2">
-              {t.planner.itineraryTitle}
+            <div className="scroll-x">
+              {CATEGORY_KEYS.map((cat) => (
+                <button
+                  key={cat}
+                  type="button"
+                  onClick={() => toggleInterest(cat)}
+                  data-testid={`planner-interest-${cat}`}
+                  className={`chip ${form.interests.includes(cat) ? "chip-active" : ""}`}
+                >
+                  {t.categories[cat]}
+                </button>
+              ))}
             </div>
-            {!streaming && output && !savedId && (
-              <div className="flex items-center gap-2">
-                {showSave ? (
-                  <>
-                    <input
-                      value={saveTitle}
-                      onChange={(e) => setSaveTitle(e.target.value)}
-                      placeholder={t.savedTrips.titlePlaceholder}
-                      className="rounded-full px-4 py-2 bg-sand shadow-neu-inset text-sm outline-none"
-                      data-testid="save-title-input"
-                    />
+          </div>
+
+          <div className="mt-5">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[13px] text-inkSoft flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5" /> {t.planner.extraContext}{" "}
+                <span className="text-inkSoft/60">({t.planner.optional})</span>
+              </span>
+              <span className="text-[11px] text-inkSoft/70" data-testid="planner-ctx-count">
+                {form.extra_context.length}/200
+              </span>
+            </div>
+            <textarea
+              rows={3}
+              maxLength={200}
+              value={form.extra_context}
+              onChange={(e) =>
+                setForm((p) => ({ ...p, extra_context: e.target.value.slice(0, 200) }))
+              }
+              placeholder={t.planner.extraContextPlaceholder}
+              className="input-flat resize-none"
+              data-testid="planner-extra-context"
+            />
+          </div>
+
+          {/* Desktop actions */}
+          <div className="mt-6 hidden md:flex gap-3">
+            <button type="submit" disabled={streaming} className="btn-primary" data-testid="planner-generate-btn">
+              <Sparkles className="w-4 h-4" />
+              {streaming ? t.planner.generating : t.planner.generate}
+            </button>
+            {(output || error) && !streaming && (
+              <button type="button" onClick={reset} className="btn-outline" data-testid="planner-reset-btn">
+                <RefreshCw className="w-4 h-4" /> {t.planner.newPlan}
+              </button>
+            )}
+          </div>
+
+          {/* Mobile: thumb-reachable sticky action bar */}
+          <div className="md:hidden fixed left-0 right-0 bottom-[56px] z-40 px-4 py-3 bg-cream/95 backdrop-blur border-t border-line flex gap-2">
+            <button
+              type="submit"
+              disabled={streaming}
+              className="btn-primary flex-1"
+              data-testid="planner-generate-btn-mobile"
+            >
+              <Sparkles className="w-4 h-4" />
+              {streaming ? t.planner.generating : t.planner.generate}
+            </button>
+            {(output || error) && !streaming && (
+              <button
+                type="button"
+                onClick={reset}
+                className="btn-outline px-4"
+                data-testid="planner-reset-btn-mobile"
+                aria-label={t.planner.newPlan}
+              >
+                <RefreshCw className="w-4 h-4" />
+              </button>
+            )}
+          </div>
+        </form>
+
+        {error && (
+          <div
+            className="card-flat border-red-300 bg-red-50 p-4 mt-5 text-red-700 text-[13px]"
+            data-testid="planner-error"
+          >
+            {error}
+          </div>
+        )}
+
+        {(output || streaming) && (
+          <article className="card-flat p-4 sm:p-7 mt-5" data-testid="planner-output">
+            <div className="flex items-start justify-between gap-3 flex-wrap">
+              <div className="eyebrow">{t.planner.itineraryTitle}</div>
+              {!streaming && output && !savedId && (
+                <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto">
+                  {showSave ? (
+                    <>
+                      <input
+                        value={saveTitle}
+                        onChange={(e) => setSaveTitle(e.target.value)}
+                        placeholder={t.savedTrips.titlePlaceholder}
+                        className="input-flat flex-1 min-w-[160px]"
+                        data-testid="save-title-input"
+                      />
+                      <button
+                        onClick={saveTrip}
+                        disabled={saving}
+                        className="btn-primary"
+                        data-testid="save-confirm-btn"
+                      >
+                        {saving ? "..." : t.savedTrips.saveBtn}
+                      </button>
+                    </>
+                  ) : (
                     <button
-                      onClick={saveTrip}
-                      disabled={saving}
-                      className="px-4 py-2 rounded-full bg-sunset text-sand text-sm font-semibold disabled:opacity-50"
-                      data-testid="save-confirm-btn"
+                      onClick={() => setShowSave(true)}
+                      className="btn-outline w-full sm:w-auto"
+                      data-testid="save-trip-btn"
                     >
-                      {saving ? "..." : t.savedTrips.saveBtn}
+                      <Save className="w-4 h-4" /> {t.savedTrips.saveBtn}
                     </button>
-                  </>
-                ) : (
-                  <button
-                    onClick={() => setShowSave(true)}
-                    className="px-5 py-2.5 rounded-full shadow-neu-raised hover:text-sunset text-sm font-semibold flex items-center gap-2"
-                    data-testid="save-trip-btn"
-                  >
-                    <Save className="w-4 h-4" /> {t.savedTrips.saveBtn}
-                  </button>
-                )}
+                  )}
+                </div>
+              )}
+              {savedId && (
+                <span className="badge-moss" data-testid="save-success-badge">
+                  ✓ {t.savedTrips.saved}
+                </span>
+              )}
+            </div>
+            {streaming && !output && (
+              <div className="text-inkSoft text-[13px] flex items-center gap-2 py-5">
+                <span className="inline-block w-2 h-2 bg-toba rounded-full animate-pulse" />
+                {t.planner.generating}
               </div>
             )}
-            {savedId && (
-              <span className="text-sm text-emerald-600 flex items-center gap-1 font-semibold" data-testid="save-success-badge">
-                ✓ {t.savedTrips.saved}
-              </span>
-            )}
-          </div>
-          {streaming && !output && (
-            <div className="text-muted2 flex items-center gap-2 py-6">
-              <span className="inline-block w-2 h-2 bg-sunset rounded-full animate-pulse" />
-              {t.planner.generating}
-            </div>
-          )}
-          <div className="prose max-w-none">{renderMarkdown(output)}</div>
-        </article>
-      )}
+            <div className="max-w-none">{renderMarkdown(output)}</div>
+          </article>
+        )}
+      </div>
     </div>
   );
 }

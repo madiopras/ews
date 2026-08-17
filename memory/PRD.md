@@ -50,7 +50,22 @@ Buat aplikasi web direktori wisata Sumatera Utara bernama Explore Wisata Sumut. 
 - [x] Character counter UI + hard client cap
 - [x] Blockquote (`>`) support in Planner markdown renderer for the Mitra Lokal section visual styling
 
+## Iteration 5 — Redesign Flat Modern + Mobile-First (2026-06-17)
+Frontend-only. Neumorphism dihapus total.
+- [x] Design token baru (tailwind.config.js + index.css): cream #F5F1E8, surface #FFFDF7, line #DDD6C5, ink #1A1A18, inkSoft #5A5A52, toba #0F3D3E, tobaDeep, brick #C4472B (HANYA tombol aksi utama), moss #8B9D83 (badge/status)
+- [x] Utility flat: `.card-flat` (border 1px, radius 12px, shadow halus), `.btn-primary/.btn-dark/.btn-outline/.btn-ghost/.btn-onteal` (min-h 44px, radius 8px), `.input-flat` (border tipis), `.chip/.chip-active`, `.badge-moss`, `.scroll-x`, `.eyebrow`, `.section-title`
+- [x] Tipografi: heading Playfair Display (serif), body Manrope; body 15px, min 13px, judul ≥22px di mobile
+- [x] Hero teal gelap + teks krem pada Home, Planner, Partners, Directory (Ulos pattern cream/7%)
+- [x] Mobile-first: basis 390px, semua form 1 kolom di mobile, chips scroll horizontal, touch target ≥44px, jarak antar elemen ≥8px
+- [x] BottomNav baru (`components/BottomNav.jsx`) — Beranda/Destinasi/Mitra/Profil, `md:hidden` (mobile-only), safe-area inset
+- [x] Halaman Profil baru `/profile` (`pages/Profile.jsx`) — state guest & login, link Favorit/Trip Plans/Daftar Mitra/Admin, toggle bahasa, logout
+- [x] Planner: CTA "Buat Itinerary" sticky di bawah layar pada mobile (`planner-generate-btn-mobile`, di atas bottom nav)
+- [x] Performa gambar: semua `<img>` lazy + `decoding=async`; ImageDropzone kompres client-side (resize max 1600px → WebP q0.82) sebelum upload
+- [x] Wishlist mendukung deep link `?tab=trips`
+- [x] Fix: warning hydration `<span> in <option>` di Directory budget select
+
 ## Testing
+- Iteration 5: 100% frontend (13/13 area) di viewport 390x844 + 1920x1080 — `/app/test_reports/iteration_5.json`
 - Iteration 1: 100% backend + 100% frontend pass
 - Iteration 2: 100% backend + 100% frontend pass
 - Iteration 3: 100% backend + 100% frontend pass

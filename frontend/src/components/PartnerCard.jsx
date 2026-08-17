@@ -18,45 +18,49 @@ export default function PartnerCard({ partner, showBadge = false }) {
 
   const badge = {
     pending: { label: t.partners.pendingBadge, cls: "bg-amber-100 text-amber-800" },
-    approved: { label: t.partners.approvedBadge, cls: "bg-emerald-100 text-emerald-800" },
+    approved: { label: t.partners.approvedBadge, cls: "bg-moss/25 text-[#4F6047]" },
     rejected: { label: t.partners.rejectedBadge, cls: "bg-red-100 text-red-700" },
   }[partner.status] || { label: partner.status, cls: "" };
 
   return (
     <article
-      className="rounded-3xl bg-sand shadow-neu-raised p-6 flex gap-5 items-start"
+      className="card-flat p-4 sm:p-5 flex gap-4 items-start"
       data-testid={`partner-card-${partner.id}`}
     >
-      <div className="w-16 h-16 shrink-0 rounded-2xl shadow-neu-inset flex items-center justify-center text-sunset">
+      <div className="w-14 h-14 shrink-0 rounded-lg border border-line bg-cream flex items-center justify-center text-toba overflow-hidden">
         {partner.image ? (
           <img
             src={partner.image}
             alt=""
-            className="w-full h-full object-cover rounded-2xl"
+            loading="lazy"
+            decoding="async"
+            className="w-full h-full object-cover"
           />
         ) : (
-          <Icon className="w-7 h-7" />
+          <Icon className="w-6 h-6" />
         )}
       </div>
 
       <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-3 flex-wrap">
-          <h3 className="font-display text-xl leading-tight truncate">
+        <div className="flex items-center gap-2 flex-wrap">
+          <h3 className="font-display text-[19px] leading-tight truncate">
             {partner.business_name}
           </h3>
           {showBadge && (
-            <span className={`text-[10px] uppercase tracking-widest px-2 py-1 rounded-full font-semibold ${badge.cls}`}>
+            <span
+              className={`text-[10px] uppercase tracking-widest px-2 py-1 rounded-full font-semibold ${badge.cls}`}
+            >
               {badge.label}
             </span>
           )}
         </div>
-        <div className="mt-1 text-xs uppercase tracking-widest text-sunset">
-          {t.partners.types[partner.type]}
+        <div className="mt-1.5 flex items-center gap-2 flex-wrap">
+          <span className="badge-moss">{t.partners.types[partner.type]}</span>
+          <span className="flex items-center gap-1 text-[13px] text-inkSoft">
+            <MapPin className="w-3.5 h-3.5" /> {partner.city}
+          </span>
         </div>
-        <div className="mt-2 flex items-center gap-1 text-sm text-muted2">
-          <MapPin className="w-3.5 h-3.5" /> {partner.city}
-        </div>
-        <p className="mt-3 text-sm text-ink/85 leading-relaxed line-clamp-3">
+        <p className="mt-3 text-[13px] text-inkSoft leading-relaxed line-clamp-3">
           {partner.description}
         </p>
 
@@ -64,10 +68,10 @@ export default function PartnerCard({ partner, showBadge = false }) {
           href={waUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="mt-4 inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-600 transition-colors"
+          className="mt-4 btn-outline w-full sm:w-auto"
           data-testid={`partner-wa-btn-${partner.id}`}
         >
-          <MessageCircle className="w-4 h-4" />
+          <MessageCircle className="w-4 h-4 text-toba" />
           {t.partners.contactWA}
         </a>
       </div>

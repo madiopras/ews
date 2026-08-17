@@ -8,7 +8,7 @@ export default function DestinationCard({ dest, index = 0 }) {
   const name = lang === "en" && dest.name_en ? dest.name_en : dest.name;
   const image =
     dest.images?.[0] ||
-    "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80";
+    "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=900&q=70";
 
   const price = new Intl.NumberFormat(lang === "en" ? "en-US" : "id-ID").format(
     dest.price
@@ -18,36 +18,37 @@ export default function DestinationCard({ dest, index = 0 }) {
     <Link
       to={`/destination/${dest.id}`}
       data-testid={`destination-card-${dest.id}`}
-      className="group block rounded-3xl bg-sand p-4 shadow-neu-raised hover:shadow-neu-raised-lg transition-shadow duration-500 opacity-0 animate-fade-up"
-      style={{ animationDelay: `${index * 60}ms` }}
+      className="group block card-link overflow-hidden opacity-0 animate-fade-up"
+      style={{ animationDelay: `${index * 50}ms` }}
     >
-      <div className="relative overflow-hidden rounded-2xl aspect-[4/5]">
+      <div className="relative overflow-hidden aspect-[4/3] bg-line/40">
         <img
           src={image}
           alt={name}
           loading="lazy"
-          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+          decoding="async"
+          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
         />
-        <span className="absolute top-3 left-3 bg-sand/95 backdrop-blur px-3 py-1 rounded-full text-[11px] tracking-widest uppercase font-semibold text-jungle shadow-neu-sm">
+        <span className="absolute top-3 left-3 bg-surface/95 px-2.5 py-1 rounded-full text-[11px] tracking-wider uppercase font-semibold text-toba">
           {t.categories[dest.category] || dest.category}
         </span>
       </div>
 
-      <div className="pt-5 px-1 pb-1 flex items-start justify-between gap-4">
+      <div className="p-4 flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
-          <h3 className="font-display text-2xl leading-tight text-ink truncate">
+          <h3 className="font-display text-[20px] leading-snug text-ink truncate">
             {name}
           </h3>
-          <div className="mt-1 flex items-center gap-1.5 text-sm text-muted2">
+          <div className="mt-1 flex items-center gap-1.5 text-[13px] text-inkSoft">
             <MapPin className="w-3.5 h-3.5 shrink-0" />
             <span className="truncate">{dest.location}</span>
           </div>
-          <div className="mt-3 text-sm">
-            <span className="text-muted2">{t.common.currency}</span>{" "}
+          <div className="mt-2 text-[13px]">
+            <span className="text-inkSoft">{t.common.currency}</span>{" "}
             <span className="text-ink font-semibold">{price}</span>
           </div>
         </div>
-        <span className="w-10 h-10 shrink-0 rounded-full flex items-center justify-center shadow-neu-sm text-sunset group-hover:shadow-neu-pressed transition-all">
+        <span className="w-9 h-9 shrink-0 rounded-lg border border-line flex items-center justify-center text-toba group-hover:bg-toba group-hover:text-cream transition-colors">
           <ArrowUpRight className="w-4 h-4" />
         </span>
       </div>

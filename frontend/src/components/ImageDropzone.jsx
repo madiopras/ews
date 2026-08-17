@@ -4,8 +4,25 @@ import { useLang } from "@/contexts/LanguageContext";
 import { UploadCloud, X, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
-// Backend URL for building absolute image src
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const MAX_EDGE = 1600;
+
+// Downscale + convert to WebP in the browser so mobile visitors load lighter images.
+async function compressImage(file) {
+  if (file.type === "image/gif" || file.type === "image/svg+xml") return file;
+  const bitmap = await createImageBitmap(file);
+  const scale = Math.min(1, MAX_EDGE / Math.max(bitmap.width, bitmap.height));
+  const w = Math.round(bitmap.width * scale);
+  const h = Math.round(bitmap.height * scale);
+  const canvas = document.createElement("canvas");
+  canvas.width = w;
+  canvas.height = h;
+  canvas.getContext("2d").drawImage(bitmap, 0, 0, w, h);
+  const blob = await new Promise((res) => canvas.toBlob(res, "image/webp", 0.82));
+  if (!blob || blob.size >= file.size) return file;
+  const name = file.name.replace(/\.[^.]+$/, "") + ".webp";
+  return new File([blob], name, { type: "image/webp" });
+}
 
 export default function ImageDropzone({ value = [], onChange }) {
   const { t } = useLang();
@@ -33,7 +50,13 @@ export default function ImageDropzone({ value = [], onChange }) {
         continue;
       }
       try {
-        const url = await uploadFile(f);
+        let payload = f;
+        try {
+          payload = await compressImage(f);
+        } catch {
+          payload = f;
+        }
+        const url = await uploadFile(payload);
         uploaded.push(url);
       } catch (e) {
         toast.error(`${f.name}: ${e.response?.data?.detail || "upload failed"}`);
@@ -65,10 +88,8 @@ export default function ImageDropzone({ value = [], onChange }) {
         onDragLeave={() => setDragging(false)}
         onDrop={onDrop}
         onClick={() => inputRef.current?.click()}
-        className={`cursor-pointer rounded-2xl px-6 py-10 text-center transition-all ${
-          dragging
-            ? "shadow-neu-pressed text-sunset"
-            : "shadow-neu-inset text-muted2 hover:text-sunset"
+        className={`cursor-pointer rounded-lg border border-dashed px-6 py-8 text-center transition-colors ${
+          dragging ? "border-toba text-toba bg-toba/5" : "border-line text-inkSoft hover:border-toba"
         }`}
         data-testid="dropzone-area"
       >
@@ -82,14 +103,14 @@ export default function ImageDropzone({ value = [], onChange }) {
           data-testid="dropzone-input"
         />
         {uploading ? (
-          <div className="flex items-center justify-center gap-2 text-sm">
+          <div className="flex items-center justify-center gap-2 text-[13px]">
             <Loader2 className="w-5 h-5 animate-spin" />
             {t.upload.uploading}
           </div>
         ) : (
           <div className="flex flex-col items-center gap-2">
-            <UploadCloud className="w-8 h-8" />
-            <div className="text-sm">{t.upload.dragDrop}</div>
+            <UploadCloud className="w-7 h-7" />
+            <div className="text-[13px]">{t.upload.dragDrop}</div>
           </div>
         )}
       </div>
@@ -99,14 +120,14 @@ export default function ImageDropzone({ value = [], onChange }) {
           {value.map((url, i) => (
             <div
               key={i}
-              className="relative group aspect-square rounded-xl overflow-hidden shadow-neu-sm"
+              className="relative group aspect-square rounded-lg overflow-hidden border border-line"
               data-testid={`uploaded-thumb-${i}`}
             >
-              <img src={url} alt="" className="w-full h-full object-cover" />
+              <img src={url} alt="" loading="lazy" className="w-full h-full object-cover" />
               <button
                 type="button"
                 onClick={() => remove(i)}
-                className="absolute top-1 right-1 w-7 h-7 rounded-full bg-ink/70 text-sand flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                className="absolute top-1 right-1 w-8 h-8 rounded-full bg-ink/70 text-cream flex items-center justify-center"
                 data-testid={`remove-thumb-${i}`}
                 aria-label="remove"
               >

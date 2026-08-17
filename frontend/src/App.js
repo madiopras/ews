@@ -5,6 +5,7 @@ import { Toaster } from "sonner";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import Navbar from "@/components/Navbar";
+import BottomNav from "@/components/BottomNav";
 import Home from "@/pages/Home";
 import Directory from "@/pages/Directory";
 import DestinationDetail from "@/pages/DestinationDetail";
@@ -15,10 +16,11 @@ import Admin from "@/pages/Admin";
 import Planner from "@/pages/Planner";
 import Partners from "@/pages/Partners";
 import PartnerRegister from "@/pages/PartnerRegister";
+import Profile from "@/pages/Profile";
 
 function Protected({ children, adminOnly = false }) {
   const { user, ready } = useAuth();
-  if (!ready) return <div className="p-10 text-muted2">Loading...</div>;
+  if (!ready) return <div className="p-10 text-inkSoft">Loading...</div>;
   if (!user || typeof user !== "object") return <Navigate to="/login" replace />;
   if (adminOnly && user.role !== "admin") return <Navigate to="/" replace />;
   return children;
@@ -26,36 +28,40 @@ function Protected({ children, adminOnly = false }) {
 
 function AppShell() {
   return (
-    <div className="App bg-sand min-h-screen pt-4">
+    <div className="App bg-cream min-h-screen">
       <Navbar />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/explore" element={<Directory />} />
-        <Route path="/planner" element={<Planner />} />
-        <Route path="/partners" element={<Partners />} />
-        <Route path="/partners/register" element={<PartnerRegister />} />
-        <Route path="/destination/:id" element={<DestinationDetail />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route
-          path="/wishlist"
-          element={
-            <Protected>
-              <Wishlist />
-            </Protected>
-          }
-        />
-        <Route
-          path="/admin"
-          element={
-            <Protected adminOnly>
-              <Admin />
-            </Protected>
-          }
-        />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-      <Toaster position="top-right" richColors />
+      <main className="pb-20 md:pb-0">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/explore" element={<Directory />} />
+          <Route path="/planner" element={<Planner />} />
+          <Route path="/partners" element={<Partners />} />
+          <Route path="/partners/register" element={<PartnerRegister />} />
+          <Route path="/destination/:id" element={<DestinationDetail />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route
+            path="/wishlist"
+            element={
+              <Protected>
+                <Wishlist />
+              </Protected>
+            }
+          />
+          <Route
+            path="/admin"
+            element={
+              <Protected adminOnly>
+                <Admin />
+              </Protected>
+            }
+          />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </main>
+      <BottomNav />
+      <Toaster position="top-center" richColors />
     </div>
   );
 }

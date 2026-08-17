@@ -8,77 +8,118 @@
 body {
     margin: 0;
     font-family: 'Manrope', system-ui, sans-serif;
-    background-color: #F3F1EC;
-    color: #1A2F24;
+    background-color: #F5F1E8;
+    color: #1A1A18;
+    font-size: 15px;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
 
 @layer base {
     :root {
-        --background: 40 22% 94%;
-        --foreground: 152 28% 14%;
-        --card: 40 22% 94%;
-        --card-foreground: 152 28% 14%;
-        --popover: 40 22% 94%;
-        --popover-foreground: 152 28% 14%;
-        --primary: 15 68% 58%;
-        --primary-foreground: 40 22% 98%;
-        --secondary: 40 15% 88%;
-        --secondary-foreground: 152 28% 14%;
-        --muted: 40 15% 88%;
-        --muted-foreground: 152 8% 39%;
-        --accent: 15 68% 58%;
-        --accent-foreground: 40 22% 98%;
-        --destructive: 0 68% 52%;
+        --background: 40 33% 93%;
+        --foreground: 60 4% 10%;
+        --card: 45 100% 98%;
+        --card-foreground: 60 4% 10%;
+        --popover: 45 100% 98%;
+        --popover-foreground: 60 4% 10%;
+        --primary: 181 61% 15%;
+        --primary-foreground: 40 33% 93%;
+        --secondary: 43 28% 88%;
+        --secondary-foreground: 60 4% 10%;
+        --muted: 43 28% 88%;
+        --muted-foreground: 60 5% 35%;
+        --accent: 12 64% 47%;
+        --accent-foreground: 40 33% 93%;
+        --destructive: 0 68% 48%;
         --destructive-foreground: 0 0% 98%;
-        --border: 40 15% 82%;
-        --input: 40 15% 82%;
-        --ring: 15 68% 58%;
-        --radius: 1rem;
+        --border: 43 28% 82%;
+        --input: 43 28% 82%;
+        --ring: 181 61% 15%;
+        --radius: 0.5rem;
     }
-}
 
-@layer base {
     body {
-        @apply bg-sand text-ink;
+        @apply bg-cream text-ink;
     }
 }
 
-/* Neumorphic utility classes */
-.neu-raised {
-    background: #F3F1EC;
-    box-shadow: 8px 8px 16px #D8D4CC, -8px -8px 16px #FFFFFF;
-}
-.neu-inset {
-    background: #F3F1EC;
-    box-shadow: inset 6px 6px 12px #D8D4CC, inset -6px -6px 12px #FFFFFF;
-}
-.neu-pressed {
-    box-shadow: inset 4px 4px 8px #D8D4CC, inset -4px -4px 8px #FFFFFF !important;
+/* ---------- Flat component primitives ---------- */
+@layer components {
+    .card-flat {
+        @apply bg-surface border border-line rounded-xl;
+    }
+
+    .card-link {
+        @apply card-flat transition-shadow duration-300 hover:shadow-soft-md;
+    }
+
+    /* Buttons: min 44px touch target */
+    .btn {
+        @apply inline-flex items-center justify-center gap-2 min-h-[44px] px-5 rounded-lg text-sm font-semibold transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed;
+    }
+    /* Accent brick — ONLY for primary actions */
+    .btn-primary {
+        @apply btn bg-brick text-cream hover:bg-[#A93A21];
+    }
+    .btn-dark {
+        @apply btn bg-toba text-cream hover:bg-tobaDeep;
+    }
+    .btn-outline {
+        @apply btn border border-line bg-surface text-ink hover:border-toba;
+    }
+    .btn-ghost {
+        @apply btn text-ink hover:bg-line/40;
+    }
+    .btn-onteal {
+        @apply btn border border-cream/35 bg-cream/10 text-cream hover:bg-cream/20;
+    }
+
+    .input-flat {
+        @apply w-full min-h-[44px] px-4 py-3 rounded-lg bg-surface border border-line text-[15px] text-ink outline-none transition-colors placeholder:text-inkSoft/60 focus:border-toba;
+    }
+
+    .chip {
+        @apply inline-flex items-center justify-center min-h-[44px] px-4 rounded-full text-[13px] whitespace-nowrap border border-line bg-surface text-ink transition-colors duration-200 hover:border-toba;
+    }
+    .chip-active {
+        @apply bg-toba border-toba text-cream font-semibold hover:border-toba;
+    }
+
+    .badge-moss {
+        @apply inline-flex items-center min-h-[26px] px-2.5 rounded-full bg-moss/20 text-[#4F6047] text-[11px] font-semibold uppercase tracking-wider;
+    }
+
+    .scroll-x {
+        @apply flex gap-2 overflow-x-auto pb-1;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+    .scroll-x::-webkit-scrollbar { display: none; }
+
+    .eyebrow {
+        @apply text-[12px] tracking-[0.18em] uppercase text-inkSoft;
+    }
+    .section-title {
+        @apply font-display text-[24px] sm:text-3xl lg:text-4xl leading-tight text-ink;
+    }
 }
 
-/* Leaflet map fix inside neumorphic containers */
+/* Leaflet */
 .leaflet-container {
-    background: #F3F1EC;
-    border-radius: 1.5rem;
+    background: #F5F1E8;
     font-family: 'Manrope', sans-serif;
 }
 
-/* Selection */
 ::selection {
-    background: #DE6B48;
-    color: #F3F1EC;
+    background: #0F3D3E;
+    color: #F5F1E8;
 }
 
-/* Scrollbar */
-::-webkit-scrollbar { width: 10px; height: 10px; }
-::-webkit-scrollbar-track { background: #F3F1EC; }
-::-webkit-scrollbar-thumb {
-    background: #D8D4CC;
-    border-radius: 6px;
-}
-::-webkit-scrollbar-thumb:hover { background: #DE6B48; }
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: #F5F1E8; }
+::-webkit-scrollbar-thumb { background: #DDD6C5; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #8B9D83; }
 
 @layer base {
     [data-debug-wrapper="true"] {

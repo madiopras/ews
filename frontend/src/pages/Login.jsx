@@ -28,57 +28,50 @@ export default function Login() {
   };
 
   return (
-    <div className="max-w-md mx-auto px-4 mt-16 pb-24">
-      <div className="neu-raised rounded-3xl p-8 sm:p-10">
-        <div className="text-xs tracking-[0.2em] uppercase text-sunset mb-2">
-          {t.nav.login}
-        </div>
-        <h1 className="font-display text-4xl leading-tight mb-8">
+    <div className="max-w-md mx-auto px-4 mt-8 pb-16">
+      <div className="card-flat p-5 sm:p-8">
+        <div className="eyebrow">{t.nav.login}</div>
+        <h1 className="mt-2 font-display text-[26px] sm:text-3xl leading-tight mb-6">
           {t.auth.loginTitle}
         </h1>
 
-        <form onSubmit={submit} className="space-y-5">
+        <form onSubmit={submit} className="space-y-4">
           <label className="block">
-            <span className="text-sm text-muted2 pl-2">{t.auth.email}</span>
+            <span className="text-[13px] text-inkSoft">{t.auth.email}</span>
             <input
               type="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="mt-2 w-full rounded-2xl px-5 py-4 bg-sand shadow-neu-inset outline-none text-ink"
+              className="input-flat mt-2"
               data-testid="login-email-input"
             />
           </label>
           <label className="block">
-            <span className="text-sm text-muted2 pl-2">{t.auth.password}</span>
+            <span className="text-[13px] text-inkSoft">{t.auth.password}</span>
             <input
               type="password"
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="mt-2 w-full rounded-2xl px-5 py-4 bg-sand shadow-neu-inset outline-none text-ink"
+              className="input-flat mt-2"
               data-testid="login-password-input"
             />
           </label>
 
           {error && (
-            <div className="text-sm text-red-600" data-testid="login-error">
+            <div className="text-[13px] text-red-600" data-testid="login-error">
               {error}
             </div>
           )}
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full px-6 py-4 rounded-full bg-sunset text-sand font-semibold text-sm tracking-wide hover:bg-sunset/90 transition-colors disabled:opacity-50"
-            data-testid="login-submit-btn"
-          >
+          <button type="submit" disabled={loading} className="btn-primary w-full" data-testid="login-submit-btn">
             {loading ? t.common.loading : t.auth.submitLogin}
           </button>
 
           <Link
             to="/register"
-            className="block text-center text-sm text-muted2 hover:text-sunset transition-colors"
+            className="block text-center text-[13px] text-inkSoft hover:text-toba transition-colors py-3"
             data-testid="switch-register-link"
           >
             {t.auth.switchToRegister}

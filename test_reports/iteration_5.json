@@ -1,0 +1,30 @@
+{
+  "summary": "Iteration 5 — Frontend-only redesign (flat modern Danau Toba/Batak identity + mobile-first + new /profile page + client-side WebP compression + mobile sticky planner CTA + bottom nav) fully verified on BOTH viewports (390x844 mobile + 1920x1080 desktop). All 13 test areas from review request PASS. Homepage: 5 destination-card-*, hero-cta-explore, category-tile-nature all render. Directory /explore: search-input filters (5 → 1 for 'toba'), reset-filters-btn clears. Detail page: dest-detail-page, 2 dest-thumb-*, Leaflet .leaflet-container renders, wishlist-toggle-btn as guest redirects to /login. Login admin@wisatasumut.id / admin123 succeeds. NEW /profile: guest state (profile-login-btn + profile-register-btn), logged-in state shows profile-name, profile-link-wishlist, profile-link-trips, profile-link-partner, profile-link-admin (admin-only), profile-lang-toggle changes ID↔EN, profile-logout-btn. Bottom-nav: hidden on desktop 1920 (md:hidden works), visible on mobile 390 with all 4 items (bottomnav-home/explore/partners/profile) each ≥56.5px tall — nav to /explore and /profile works. Planner desktop: planner-generate-btn + 5 interest chips + planner-extra-context counter (9/200 → correct). Planner mobile: planner-generate-btn-mobile sticky visible at y=732 in 844 viewport, 44px height, chips 44px. Wishlist ?tab=trips opens trips tab with chip-active class. Partners: 4 partner-filter-* chips + partner-wa-btn href contains wa.me. Partner register: all form testids present. Admin: admin-tab-destinations, admin-tab-partners, admin-add-btn present. Design: 0 neumorphism inset+multi-shadow elements detected across DOM; brick #C4472B color NOT misused on non-button text (0 violations); lang toggle works ID→EN→ID.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [
+    "(LOW) React hydration warning on /explore: '<span> cannot be a child of <option>' — the budget-select at Directory.jsx line ~84 renders a wrapper <span data-ve-dynamic='true' style='display:contents'> inside the <option> for the currency label from t.common.currency. Move the currency string interpolation OUT of the translation-span wrapper (e.g., use plain string concatenation for option text) so <option> only contains text nodes. Non-blocking, but console-noisy on every /explore visit.",
+    "(INFO carry-over) server.py still ~975 lines — consider modularization (unchanged this iteration since backend was untouched).",
+    "(INFO carry-over) Nested <button> hydration warning in Wishlist saved-trip row — unchanged."
+  ],
+  "critical_code_review_comments": [
+    "Directory.jsx option children include a dynamic span (from i18n wrapper) — invalid HTML nesting (<span> in <option>) causes hydration mismatch console error every load; fix by using pre-computed strings for <option> labels.",
+    "BottomNav.jsx correctly uses md:hidden + safe-area-inset-bottom — good touch-target min-h-[56px]. All 4 items reach ≥56.5px on 390px viewport ✓.",
+    "Planner.jsx mobile sticky CTA renders at 44px height at bottom-[56px] above bottom-nav — good stacking; verify z-index vs bottom-nav (currently visible and clickable ✓).",
+    "Profile.jsx admin badge + gated profile-link-admin correctly conditioned on user.role === 'admin'.",
+    "Design tokens (cream/toba/tobaDeep/brick/moss/line/ink/inkSoft) applied consistently — no leftover neu-* utilities detected."
+  ],
+  "updated_files": ["/app/test_reports/iteration_5.json"],
+  "success_rate": {"backend": "N/A (skipped per request)", "frontend": "100% (13/13 test areas passing)"},
+  "test_credentials": "Admin admin@wisatasumut.id / admin123 (login verified).",
+  "seed_data_creation": "None.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Iteration 5 = frontend redesign verified on 390 + 1920. All new testids (bottom-nav, bottomnav-*, profile-*, planner-generate-btn-mobile, directory-page) work. Only remaining console noise is Directory.jsx <span>-in-<option> hydration warning (unchanged from prior iterations if present). AI SSE stream itself was not re-run (unchanged backend; verified functionally in iteration_4).",
+  "rca of the issue": "N/A — no functional bugs found. Minor DX issue only: i18n span wrapper injected inside <option> element in Directory.jsx budget-select produces hydration console warnings."
+}
