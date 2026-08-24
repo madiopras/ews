@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { api } from "@/lib/api";
-import { useLang } from "@/contexts/LanguageContext";
-import { renderMarkdown } from "@/lib/markdown";
+import { api } from "../lib/api.js";
+import { useLang } from "../contexts/LanguageContext.jsx";
+import { renderMarkdown } from "../lib/markdown.jsx";
 import { Sparkles, Calendar, Wallet, User } from "lucide-react";
-import UlosPattern from "@/components/UlosPattern";
+import UlosPattern from "../components/UlosPattern.jsx";
+import DestinationCard from "../components/DestinationCard.jsx";
+import Seo from "../components/Seo.jsx";
 
 export default function PublicTrip() {
   const { slug } = useParams();
@@ -12,6 +14,7 @@ export default function PublicTrip() {
   const [trip, setTrip] = useState(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const [destinations, setDestinations] = useState([]);
 
   useEffect(() => {
     setLoading(true);
@@ -21,6 +24,16 @@ export default function PublicTrip() {
       .catch(() => setNotFound(true))
       .finally(() => setLoading(false));
   }, [slug]);
+
+  useEffect(() => {
+    if (!trip?.destination_ids?.length) {
+      setDestinations([]);
+      return;
+    }
+    api.post("/destinations/batch", { ids: trip.destination_ids })
+      .then(({ data }) => setDestinations(data))
+      .catch(() => setDestinations([]));
+  }, [trip?.destination_ids]);
 
   if (loading)
     return <div className="max-w-3xl mx-auto px-4 mt-10 text-inkSoft text-[13px]">{t.common.loading}</div>;
@@ -37,6 +50,19 @@ export default function PublicTrip() {
 
   return (
     <div data-testid="public-trip-page">
+      <Seo
+        title={trip.title}
+        description={`${trip.days} ${t.savedTrips.daysLabel} · ${t.savedTrips.publicSeoDescription}`}
+        path={`/trip/${slug}`}
+        image={destinations[0]?.images?.[0] || ""}
+        structuredData={{
+          "@context": "https://schema.org",
+          "@type": "Trip",
+          name: trip.title,
+          description: `${trip.days} ${t.savedTrips.daysLabel} · ${t.savedTrips.publicSeoDescription}`,
+          itinerary: destinations.map((destination) => ({ "@type": "TouristDestination", name: destination.name })),
+        }}
+      />
       <header className="relative bg-toba overflow-hidden">
         <div className="absolute inset-0 text-cream/[0.07]">
           <UlosPattern />
@@ -55,7 +81,7 @@ export default function PublicTrip() {
             <span className="flex items-center gap-1.5">
               <User className="w-3.5 h-3.5" /> {t.savedTrips.byAuthor}{" "}
               <strong className="text-cream" data-testid="public-trip-author">
-                {trip.author_name || "Anonim"}
+                {trip.author_name || t.savedTrips.anonymous}
               </strong>
             </span>
             <span className="flex items-center gap-1.5">
@@ -73,6 +99,12 @@ export default function PublicTrip() {
         <article className="card-flat p-4 sm:p-7" data-testid="public-trip-content">
           {renderMarkdown(trip.content)}
         </article>
+        {!!destinations.length && (
+          <section className="mt-8">
+            <h2 className="font-display text-[24px] mb-4">{t.savedTrips.destinationsInTrip}</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">{destinations.map((destination) => <DestinationCard key={destination.id} dest={destination} />)}</div>
+          </section>
+        )}
         <Link to="/planner" className="btn-primary w-full mt-5" data-testid="public-trip-cta">
           <Sparkles className="w-4 h-4" /> {t.savedTrips.makeYourOwn}
         </Link>

@@ -1,262 +1,200 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { api } from "@/lib/api";
-import { useLang } from "@/contexts/LanguageContext";
-import DestinationCard from "@/components/DestinationCard";
-import OfflineBanner from "@/components/OfflineBanner";
-import { renderMarkdown } from "@/lib/markdown";
-import { cacheGet, cacheSet, isOffline } from "@/lib/offline";
-import { Heart, Sparkles, Trash2, ChevronDown, Share2, Copy, MessageCircle, Link2Off } from "lucide-react";
-import { toast } from "sonner";
+import { CalendarDays, CloudOff, ExternalLink, Heart, Lock, Search, Share2, Sparkles } from "lucide-react";
+import { api } from "../lib/api.js";
+import { privateCacheGet, privateCacheSet } from "../lib/offline.js";
+import { useAuth } from "../contexts/AuthContext.jsx";
+import { useLang } from "../contexts/LanguageContext.jsx";
+import DestinationCard from "../components/DestinationCard.jsx";
+import OfflineBanner from "../components/OfflineBanner.jsx";
+import Seo from "../components/Seo.jsx";
 
-function ShareBox({ trip, onChange }) {
-  const { t } = useLang();
-  const [busy, setBusy] = useState(false);
-  const url = trip.share_slug
-    ? `${process.env.REACT_APP_BACKEND_URL}/api/share/${trip.share_slug}`
-    : "";
+const CACHE_KEY = "trip_workspace";
 
-  const setPublic = async (pub) => {
-    setBusy(true);
+function normalizeTab(value) {
+  return value === "trips" ? "trips" : "destinations";
+}
+
+function normalizeVisibility(value) {
+  return ["all", "public", "private"].includes(value) ? value : "all";
+}
+
+export default function Wishlist() {
+  const { user } = useAuth();
+  const { t, lang } = useLang();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [destinations, setDestinations] = useState([]);
+  const [trips, setTrips] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [savedAt, setSavedAt] = useState(null);
+  const [syncFailed, setSyncFailed] = useState(false);
+
+  const tab = normalizeTab(searchParams.get("tab"));
+  const query = searchParams.get("q") || "";
+  const visibility = normalizeVisibility(searchParams.get("visibility"));
+
+  const updateParams = useCallback((changes) => {
+    setSearchParams((current) => {
+      const next = new URLSearchParams(current);
+      Object.entries(changes).forEach(([key, value]) => {
+        if (!value || value === "all" || (key === "tab" && value === "destinations")) next.delete(key);
+        else next.set(key, value);
+      });
+      return next;
+    }, { replace: true });
+  }, [setSearchParams]);
+
+  const load = useCallback(async () => {
+    if (!user?.id) return;
+    setLoading(true);
+    setSyncFailed(false);
+    const cached = privateCacheGet(user.id, CACHE_KEY);
     try {
-      const { data } = await api.patch(`/itineraries/${trip.id}/share`, { public: pub });
-      onChange(data);
-      toast.success(pub ? t.savedTrips.shareOn : t.savedTrips.sharingStopped);
+      const [wishlistResult, tripsResult] = await Promise.allSettled([
+        api.get("/wishlist"),
+        api.get("/itineraries"),
+      ]);
+      if (wishlistResult.status === "rejected" && tripsResult.status === "rejected") throw wishlistResult.reason;
+      const nextDestinations = wishlistResult.status === "fulfilled"
+        ? wishlistResult.value.data
+        : cached?.data?.destinations || [];
+      const nextTrips = tripsResult.status === "fulfilled"
+        ? tripsResult.value.data
+        : cached?.data?.trips || [];
+      setDestinations(nextDestinations);
+      setTrips(nextTrips);
+      privateCacheSet(user.id, CACHE_KEY, { destinations: nextDestinations, trips: nextTrips });
+      setSavedAt(null);
+      setSyncFailed(wishlistResult.status === "rejected" || tripsResult.status === "rejected");
     } catch {
-      toast.error("Error");
+      if (cached) {
+        setDestinations(cached.data?.destinations || []);
+        setTrips(cached.data?.trips || []);
+        setSavedAt(cached.savedAt);
+      }
+      setSyncFailed(true);
     } finally {
-      setBusy(false);
+      setLoading(false);
     }
-  };
+  }, [user?.id]);
 
-  if (!trip.is_public) {
-    return (
-      <button
-        onClick={() => setPublic(true)}
-        disabled={busy}
-        className="btn-outline w-full text-[13px]"
-        data-testid={`share-enable-${trip.id}`}
-      >
-        <Share2 className="w-4 h-4 text-toba" /> {t.savedTrips.shareOff}
-      </button>
-    );
-  }
+  useEffect(() => { load(); }, [load]);
 
+  const filteredDestinations = useMemo(() => {
+    const needle = query.trim().toLocaleLowerCase(lang === "en" ? "en" : "id");
+    if (!needle) return destinations;
+    return destinations.filter((destination) => [
+      destination.name,
+      destination.name_en,
+      destination.location,
+      ...(destination.tags || []),
+    ].filter(Boolean).join(" ").toLocaleLowerCase().includes(needle));
+  }, [destinations, lang, query]);
+
+  const filteredTrips = useMemo(() => {
+    const needle = query.trim().toLocaleLowerCase(lang === "en" ? "en" : "id");
+    return trips.filter((trip) => {
+      if (visibility === "public" && !trip.is_public) return false;
+      if (visibility === "private" && trip.is_public) return false;
+      return !needle || [trip.title, ...(trip.interests || [])].filter(Boolean).join(" ").toLocaleLowerCase().includes(needle);
+    });
+  }, [lang, query, trips, visibility]);
+
+  const hasCache = savedAt !== null;
   return (
-    <div className="rounded-lg border border-line bg-cream p-3.5 space-y-3" data-testid={`share-box-${trip.id}`}>
-      <div>
-        <div className="text-[13px] font-semibold">{t.savedTrips.shareTitle}</div>
-        <p className="text-[12px] text-inkSoft mt-1">{t.savedTrips.shareDesc}</p>
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-7 sm:py-10" data-testid="trip-workspace">
+      <Seo title={t.savedTrips.workspaceTitle} description={t.savedTrips.workspaceSubtitle} path="/wishlist" noIndex />
+
+      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-6">
+        <div>
+          <div className="text-[12px] tracking-[0.16em] uppercase font-semibold text-toba">{t.savedTrips.eyebrow}</div>
+          <h1 className="font-display text-[30px] sm:text-[38px] text-ink mt-1">{t.savedTrips.workspaceTitle}</h1>
+          <p className="text-[14px] text-inkSoft mt-1 max-w-2xl">{t.savedTrips.workspaceSubtitle}</p>
+        </div>
+        <Link to="/planner" className="btn-primary shrink-0"><Sparkles className="w-4 h-4" /> {t.savedTrips.newTrip}</Link>
       </div>
-      <div
-        className="text-[12px] text-toba break-all bg-surface border border-line rounded-lg px-3 py-2.5"
-        data-testid={`share-url-${trip.id}`}
-      >
-        {url}
+
+      {hasCache && <OfflineBanner savedAt={savedAt} stale />}
+      {syncFailed && !hasCache && (
+        <div className="mb-4 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-[13px] text-amber-950 flex flex-wrap items-center justify-between gap-3" role="alert">
+          <span className="flex items-center gap-2"><CloudOff className="w-4 h-4" /> {t.savedTrips.syncError}</span>
+          <button type="button" onClick={load} className="underline font-semibold">{t.common.retry}</button>
+        </div>
+      )}
+
+      <div className="card-flat p-3 sm:p-4 mb-6">
+        <div className="flex gap-1 border-b border-line" role="tablist" aria-label={t.savedTrips.workspaceTitle}>
+          <button type="button" role="tab" aria-selected={tab === "destinations"} onClick={() => updateParams({ tab: "destinations" })} className={`px-3 sm:px-4 py-3 text-[13px] font-semibold border-b-2 -mb-px ${tab === "destinations" ? "border-toba text-toba" : "border-transparent text-inkSoft"}`}>
+            <Heart className="inline w-4 h-4 mr-1.5" /> {t.savedTrips.destTab} ({destinations.length})
+          </button>
+          <button type="button" role="tab" aria-selected={tab === "trips"} onClick={() => updateParams({ tab: "trips" })} className={`px-3 sm:px-4 py-3 text-[13px] font-semibold border-b-2 -mb-px ${tab === "trips" ? "border-toba text-toba" : "border-transparent text-inkSoft"}`}>
+            <CalendarDays className="inline w-4 h-4 mr-1.5" /> {t.savedTrips.tab} ({trips.length})
+          </button>
+        </div>
+        <div className="pt-4 flex flex-col sm:flex-row gap-3">
+          <label className="relative flex-1">
+            <span className="sr-only">{t.savedTrips.searchPlaceholder}</span>
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-inkSoft" />
+            <input value={query} onChange={(event) => updateParams({ q: event.target.value })} placeholder={t.savedTrips.searchPlaceholder} className="w-full rounded-lg border border-line bg-surface py-2.5 pl-10 pr-3 text-[14px] outline-none focus:border-toba" />
+          </label>
+          {tab === "trips" && (
+            <select value={visibility} onChange={(event) => updateParams({ visibility: event.target.value })} className="rounded-lg border border-line bg-surface px-3 py-2.5 text-[14px] outline-none focus:border-toba" aria-label={t.savedTrips.visibilityFilter}>
+              <option value="all">{t.savedTrips.allVisibility}</option>
+              <option value="public">{t.savedTrips.sharedOnly}</option>
+              <option value="private">{t.savedTrips.privateOnly}</option>
+            </select>
+          )}
+        </div>
       </div>
-      <img
-        src={`${process.env.REACT_APP_BACKEND_URL}/api/share/${trip.share_slug}/image.png`}
-        alt=""
-        loading="lazy"
-        className="w-full rounded-lg border border-line"
-        data-testid={`share-preview-${trip.id}`}
-      />
-      <div className="flex flex-col sm:flex-row gap-2">
-        <a
-          href={`https://wa.me/?text=${encodeURIComponent(`${t.savedTrips.waText} ${trip.title} — ${url}`)}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="btn-primary flex-1 text-[13px]"
-          data-testid={`share-wa-${trip.id}`}
-        >
-          <MessageCircle className="w-4 h-4" /> {t.savedTrips.shareWA}
-        </a>
-        <button
-          onClick={() => {
-            navigator.clipboard?.writeText(url);
-            toast.success(t.savedTrips.copied);
-          }}
-          className="btn-outline text-[13px]"
-          data-testid={`share-copy-${trip.id}`}
-        >
-          <Copy className="w-4 h-4" /> {t.savedTrips.copyLink}
-        </button>
-        <button
-          onClick={() => setPublic(false)}
-          disabled={busy}
-          className="btn-outline text-[13px]"
-          data-testid={`share-disable-${trip.id}`}
-        >
-          <Link2Off className="w-4 h-4" /> {t.savedTrips.stopSharing}
-        </button>
-      </div>
+
+      {loading ? (
+        <div className="py-16 text-center text-[13px] text-inkSoft">{t.common.loading}</div>
+      ) : tab === "destinations" ? (
+        filteredDestinations.length ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">{filteredDestinations.map((destination) => <DestinationCard key={destination.id} dest={destination} />)}</div>
+        ) : (
+          <EmptyState title={query ? t.savedTrips.noSearchResults : t.wishlist.empty} actionLabel={t.wishlist.browse} action="/explore" />
+        )
+      ) : filteredTrips.length ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {filteredTrips.map((trip) => (
+            <article key={trip.id} className="card-flat p-5 flex flex-col" data-testid={`saved-trip-${trip.id}`}>
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <h2 className="font-display text-[21px] text-ink truncate">{trip.title}</h2>
+                  <p className="mt-1 text-[13px] text-inkSoft">{trip.days} {t.savedTrips.daysLabel} · Rp {new Intl.NumberFormat("id-ID").format(trip.budget || 0)}</p>
+                </div>
+                <span className={`shrink-0 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold ${trip.is_public ? "bg-moss/20 text-toba" : "bg-line/50 text-inkSoft"}`}>
+                  {trip.is_public ? <Share2 className="w-3 h-3" /> : <Lock className="w-3 h-3" />}
+                  {trip.is_public ? t.savedTrips.shared : t.savedTrips.private}
+                </span>
+              </div>
+              {!!trip.interests?.length && <div className="mt-3 flex flex-wrap gap-1.5">{trip.interests.slice(0, 5).map((interest) => <span key={interest} className="rounded-full bg-cream px-2 py-1 text-[11px] text-inkSoft">{interest}</span>)}</div>}
+              <div className="mt-auto pt-5 flex items-center justify-between gap-3 border-t border-line/70">
+                <span className="text-[11px] text-inkSoft">{t.savedTrips.updatedAt} {formatDate(trip.updated_at || trip.created_at, lang)}</span>
+                <Link to={`/saved/trips/${trip.id}`} className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-toba hover:underline">{t.savedTrips.openDetails} <ExternalLink className="w-3.5 h-3.5" /></Link>
+              </div>
+            </article>
+          ))}
+        </div>
+      ) : (
+        <EmptyState title={query || visibility !== "all" ? t.savedTrips.noSearchResults : t.savedTrips.empty} actionLabel={t.savedTrips.newTrip} action="/planner" />
+      )}
     </div>
   );
 }
 
-export default function Wishlist() {
-  const { t, lang } = useLang();
-  const [params] = useSearchParams();
-  const [tab, setTab] = useState(params.get("tab") === "trips" ? "trips" : "destinations");
-  const [dests, setDests] = useState([]);
-  const [trips, setTrips] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [expanded, setExpanded] = useState(null);
-  const [offlineAt, setOfflineAt] = useState(null);
+function formatDate(value, lang) {
+  if (!value) return "—";
+  return new Date(value).toLocaleDateString(lang === "en" ? "en-US" : "id-ID", { day: "numeric", month: "short", year: "numeric" });
+}
 
-  const load = () => {
-    setLoading(true);
-    Promise.allSettled([api.get("/wishlist"), api.get("/itineraries")]).then(([w, i]) => {
-      const ok = w.status === "fulfilled" && i.status === "fulfilled";
-      if (ok) {
-        setDests(w.value.data);
-        setTrips(i.value.data);
-        setOfflineAt(isOffline() ? Date.now() : null);
-        cacheSet("wishlist", { dests: w.value.data, trips: i.value.data });
-        w.value.data.forEach((d) => cacheSet(`dest_${d.id}`, d));
-      } else {
-        const cached = cacheGet("wishlist");
-        if (cached) {
-          setDests(cached.data.dests || []);
-          setTrips(cached.data.trips || []);
-          setOfflineAt(cached.savedAt);
-        }
-      }
-      setLoading(false);
-    });
-  };
-
-  useEffect(() => {
-    load();
-  }, []);
-
-  const deleteTrip = async (id) => {
-    if (!window.confirm(t.savedTrips.confirmDelete)) return;
-    try {
-      await api.delete(`/itineraries/${id}`);
-      toast.success("Deleted");
-      load();
-    } catch {
-      toast.error("Error");
-    }
-  };
-
-  const patchTrip = (updated) =>
-    setTrips((prev) => prev.map((x) => (x.id === updated.id ? updated : x)));
-
+function EmptyState({ title, actionLabel, action }) {
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 pb-16" data-testid="wishlist-page">
-      <header className="mb-5">
-        <div className="eyebrow flex items-center gap-2">
-          <Heart className="w-4 h-4" /> {t.nav.wishlist}
-        </div>
-        <h1 className="mt-2 font-display text-[26px] sm:text-4xl leading-tight">{t.wishlist.title}</h1>
-      </header>
-
-      <OfflineBanner savedAt={offlineAt} />
-
-      <div className="scroll-x mb-6">
-        <button
-          onClick={() => setTab("destinations")}
-          className={`chip ${tab === "destinations" ? "chip-active" : ""}`}
-          data-testid="wishlist-tab-dest"
-        >
-          <Heart className="w-4 h-4 mr-2" />
-          {t.savedTrips.destTab} ({dests.length})
-        </button>
-        <button
-          onClick={() => setTab("trips")}
-          className={`chip ${tab === "trips" ? "chip-active" : ""}`}
-          data-testid="wishlist-tab-trips"
-        >
-          <Sparkles className="w-4 h-4 mr-2" />
-          {t.savedTrips.tab} ({trips.length})
-        </button>
-      </div>
-
-      {loading ? (
-        <div className="text-inkSoft text-[13px]">{t.common.loading}</div>
-      ) : tab === "destinations" ? (
-        dests.length === 0 ? (
-          <div className="card-flat text-center py-14 px-4">
-            <div className="font-display text-[22px] mb-4">{t.wishlist.empty}</div>
-            <Link to="/explore" className="btn-primary" data-testid="wishlist-browse-btn">
-              {t.wishlist.browse}
-            </Link>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
-            {dests.map((d, i) => (
-              <DestinationCard key={d.id} dest={d} index={i} />
-            ))}
-          </div>
-        )
-      ) : trips.length === 0 ? (
-        <div className="card-flat text-center py-14 px-4">
-          <div className="font-display text-[22px] mb-4">{t.savedTrips.empty}</div>
-          <Link to="/planner" className="btn-primary" data-testid="wishlist-planner-btn">
-            {t.planner.title}
-          </Link>
-        </div>
-      ) : (
-        <div className="space-y-3">
-          {trips.map((tr) => (
-            <div key={tr.id} className="card-flat overflow-hidden" data-testid={`saved-trip-${tr.id}`}>
-              <div className="w-full p-4 flex items-center justify-between gap-3">
-                <button
-                  onClick={() => setExpanded(expanded === tr.id ? null : tr.id)}
-                  className="flex-1 min-w-0 text-left min-h-[44px]"
-                  data-testid={`saved-trip-toggle-${tr.id}`}
-                >
-                  <div className="font-display text-[19px] truncate">{tr.title}</div>
-                  <div className="text-[12px] text-inkSoft mt-1 flex items-center gap-2 flex-wrap">
-                    <span>
-                      {tr.days} {lang === "en" ? "days" : "hari"} · Rp{" "}
-                      {new Intl.NumberFormat("id-ID").format(tr.budget)}
-                      {" · "}
-                      {new Date(tr.created_at).toLocaleDateString(lang === "en" ? "en-US" : "id-ID", {
-                        year: "numeric",
-                        month: "short",
-                        day: "numeric",
-                      })}
-                    </span>
-                    {tr.is_public && <span className="badge-moss">{t.savedTrips.shareOn}</span>}
-                  </div>
-                </button>
-                <div className="flex items-center gap-2 shrink-0">
-                  <button
-                    onClick={() => deleteTrip(tr.id)}
-                    className="w-11 h-11 rounded-lg border border-line flex items-center justify-center text-inkSoft hover:text-red-500 transition-colors"
-                    data-testid={`saved-trip-delete-${tr.id}`}
-                    aria-label="delete"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={() => setExpanded(expanded === tr.id ? null : tr.id)}
-                    className="w-11 h-11 rounded-lg border border-line flex items-center justify-center text-inkSoft hover:text-toba transition-colors"
-                    aria-label="expand"
-                  >
-                    <ChevronDown
-                      className={`w-5 h-5 transition-transform ${expanded === tr.id ? "rotate-180" : ""}`}
-                    />
-                  </button>
-                </div>
-              </div>
-
-              <div className="px-4 pb-4">
-                <ShareBox trip={tr} onChange={patchTrip} />
-              </div>
-
-              {expanded === tr.id && (
-                <div className="px-4 pb-4 border-t border-line pt-3">
-                  {renderMarkdown(tr.content, true)}
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
+    <div className="card-flat py-14 px-5 text-center">
+      <Heart className="w-8 h-8 mx-auto text-inkSoft/50" />
+      <p className="mt-3 text-[14px] text-inkSoft">{title}</p>
+      <Link to={action} className="btn-outline mt-4">{actionLabel}</Link>
     </div>
   );
 }

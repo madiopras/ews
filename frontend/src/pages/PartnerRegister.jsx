@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { api, formatError } from "@/lib/api";
-import { useLang } from "@/contexts/LanguageContext";
+import { api, formatError } from "../lib/api.js";
+import { useLang } from "../contexts/LanguageContext.jsx";
 import { toast } from "sonner";
 import { Handshake, CheckCircle2 } from "lucide-react";
 
-const TYPES = ["guide", "rental", "homestay"];
+const TYPES = ["guide", "rental", "homestay", "souvenir"];
 
 export default function PartnerRegister() {
   const { t } = useLang();
@@ -15,16 +15,21 @@ export default function PartnerRegister() {
     business_name: "",
     type: "guide",
     whatsapp: "",
+    email: "",
+    address: "",
     description: "",
     city: "",
     destination_ids: [],
+    service_tags: "",
     image: "",
   });
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
 
   useEffect(() => {
-    api.get("/destinations").then(({ data }) => setDests(data)).catch(() => setDests([]));
+    api.get("/destinations", { params: { per_page: 100 } })
+      .then(({ data }) => setDests(Array.isArray(data) ? data : data.data || []))
+      .catch(() => setDests([]));
   }, []);
 
   const upd = (k) => (e) => setForm((p) => ({ ...p, [k]: e.target.value }));
@@ -40,16 +45,21 @@ export default function PartnerRegister() {
   const submit = async (e) => {
     e.preventDefault();
     if (form.destination_ids.length === 0) {
-      toast.error("Pilih minimal 1 destinasi");
+      toast.error(t.partners.selectDestinationError);
       return;
     }
     setSubmitting(true);
     try {
-      await api.post("/partners", form);
+      await api.post("/partners", {
+        ...form,
+        service_tags: form.service_tags.split(",").map((tag) => tag.trim().toLowerCase()).filter(Boolean).slice(0, 20),
+        email: form.email.trim() || null,
+        address: form.address.trim(),
+      });
       setDone(true);
       toast.success(t.partners.success);
     } catch (err) {
-      toast.error(formatError(err.response?.data?.detail) || "Error");
+      toast.error(formatError(err.response?.data?.detail) || t.common.error);
     } finally {
       setSubmitting(false);
     }
@@ -93,6 +103,17 @@ export default function PartnerRegister() {
           />
         </label>
 
+        <label className="block">
+          <span className="text-[13px] text-inkSoft">{t.partners.fields.serviceTags}</span>
+          <input
+            value={form.service_tags}
+            onChange={upd("service_tags")}
+            placeholder={t.partners.fields.serviceTagsPlaceholder}
+            className="input-flat mt-2"
+            data-testid="partner-service-tags"
+          />
+        </label>
+
         <div>
           <span className="text-[13px] text-inkSoft block mb-2">{t.partners.fields.type}</span>
           <div className="scroll-x">
@@ -131,6 +152,27 @@ export default function PartnerRegister() {
             onChange={upd("city")}
             className="input-flat mt-2"
             data-testid="partner-city"
+          />
+        </label>
+
+        <label className="block">
+          <span className="text-[13px] text-inkSoft">{t.partners.fields.email}</span>
+          <input
+            type="email"
+            value={form.email}
+            onChange={upd("email")}
+            className="input-flat mt-2"
+            data-testid="partner-email"
+          />
+        </label>
+
+        <label className="block">
+          <span className="text-[13px] text-inkSoft">{t.partners.fields.address}</span>
+          <input
+            value={form.address}
+            onChange={upd("address")}
+            className="input-flat mt-2"
+            data-testid="partner-address"
           />
         </label>
 

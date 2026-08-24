@@ -1,11 +1,12 @@
 import React, { useRef, useState } from "react";
-import { api } from "@/lib/api";
-import { useLang } from "@/contexts/LanguageContext";
-import { UploadCloud, X, Loader2 } from "lucide-react";
+import { api } from "../lib/api.js";
+import { useLang } from "../contexts/LanguageContext.jsx";
+import { UploadCloud, X, Loader2, Link2 } from "lucide-react";
 import { toast } from "sonner";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const MAX_EDGE = 1600;
+export const MAX_IMAGES = 5;
 
 // Downscale + convert to WebP in the browser so mobile visitors load lighter images.
 async function compressImage(file) {
@@ -24,11 +25,12 @@ async function compressImage(file) {
   return new File([blob], name, { type: "image/webp" });
 }
 
-export default function ImageDropzone({ value = [], onChange }) {
+export default function ImageDropzone({ value = [], onChange, maxImages = MAX_IMAGES }) {
   const { t } = useLang();
   const inputRef = useRef(null);
   const [dragging, setDragging] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [linkInput, setLinkInput] = useState("");
 
   const uploadFile = async (file) => {
     const fd = new FormData();
@@ -42,11 +44,22 @@ export default function ImageDropzone({ value = [], onChange }) {
   const handleFiles = async (files) => {
     const list = Array.from(files);
     if (!list.length) return;
+    const remaining = maxImages - (value?.length || 0);
+    if (remaining <= 0) {
+      toast.error(t.upload.maxImages);
+      return;
+    }
+    const toProcess = list.slice(0, remaining);
+    if (list.length > remaining) {
+      toast.warning(
+        `${t.upload.maxImagesReached} ${t.upload.maxImages}: ${maxImages}`
+      );
+    }
     setUploading(true);
     const uploaded = [];
-    for (const f of list) {
+    for (const f of toProcess) {
       if (!f.type.startsWith("image/")) {
-        toast.error(`${f.name}: only image files allowed`);
+        toast.error(`${f.name}: ${t.upload.onlyImages}`);
         continue;
       }
       try {
@@ -59,11 +72,29 @@ export default function ImageDropzone({ value = [], onChange }) {
         const url = await uploadFile(payload);
         uploaded.push(url);
       } catch (e) {
-        toast.error(`${f.name}: ${e.response?.data?.detail || "upload failed"}`);
+        toast.error(`${f.name}: ${e.response?.data?.detail || t.upload.failed}`);
       }
     }
     setUploading(false);
     if (uploaded.length) onChange([...(value || []), ...uploaded]);
+  };
+
+  const addByLink = () => {
+    const url = linkInput.trim();
+    if (!url) return;
+    if ((value?.length || 0) >= maxImages) {
+      toast.error(t.upload.maxImages);
+      return;
+    }
+    // Basic URL sanity check
+    try {
+      new URL(url);
+    } catch {
+      toast.error(t.upload.invalidUrl);
+      return;
+    }
+    onChange([...(value || []), url]);
+    setLinkInput("");
   };
 
   const onDrop = (e) => {
@@ -78,18 +109,74 @@ export default function ImageDropzone({ value = [], onChange }) {
     onChange(next);
   };
 
+  const openPicker = () => {
+    if ((value?.length || 0) >= maxImages) {
+      toast.error(t.upload.maxImages);
+      return;
+    }
+    inputRef.current?.click();
+  };
+
   return (
     <div className="space-y-3" data-testid="image-dropzone">
+      <div className="text-[12px] text-inkSoft">
+        {t.upload.count}: {value?.length || 0}/{maxImages}
+      </div>
+
+      {/* Add by link */}
+      <div className="flex gap-2" data-testid="image-link-input">
+        <div className="relative flex-1">
+          <Link2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-inkSoft" />
+          <input
+            type="url"
+            value={linkInput}
+            onChange={(e) => setLinkInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                addByLink();
+              }
+            }}
+            placeholder={t.upload.linkPlaceholder}
+            disabled={(value?.length || 0) >= maxImages}
+            className="input-flat pl-9"
+            data-testid="image-link-input-field"
+          />
+        </div>
+        <button
+          type="button"
+          onClick={addByLink}
+          disabled={(value?.length || 0) >= maxImages}
+          className="btn-outline shrink-0"
+          data-testid="image-link-add"
+        >
+          {t.upload.add}
+        </button>
+      </div>
+
       <div
+        role="button"
+        tabIndex={0}
+        aria-disabled={(value?.length || 0) >= maxImages}
+        onClick={openPicker}
+        onKeyDown={(event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            openPicker();
+          }
+        }}
         onDragOver={(e) => {
           e.preventDefault();
           setDragging(true);
         }}
         onDragLeave={() => setDragging(false)}
         onDrop={onDrop}
-        onClick={() => inputRef.current?.click()}
         className={`cursor-pointer rounded-lg border border-dashed px-6 py-8 text-center transition-colors ${
-          dragging ? "border-toba text-toba bg-toba/5" : "border-line text-inkSoft hover:border-toba"
+          (value?.length || 0) >= maxImages
+            ? "border-line/40 text-inkSoft/50 cursor-not-allowed"
+            : dragging
+            ? "border-toba text-toba bg-toba/5"
+            : "border-line text-inkSoft hover:border-toba"
         }`}
         data-testid="dropzone-area"
       >
@@ -110,7 +197,9 @@ export default function ImageDropzone({ value = [], onChange }) {
         ) : (
           <div className="flex flex-col items-center gap-2">
             <UploadCloud className="w-7 h-7" />
-            <div className="text-[13px]">{t.upload.dragDrop}</div>
+            <div className="text-[13px]">
+              {(value?.length || 0) >= maxImages ? t.upload.maxImages : t.upload.dragDrop}
+            </div>
           </div>
         )}
       </div>
@@ -129,7 +218,7 @@ export default function ImageDropzone({ value = [], onChange }) {
                 onClick={() => remove(i)}
                 className="absolute top-1 right-1 w-8 h-8 rounded-full bg-ink/70 text-cream flex items-center justify-center"
                 data-testid={`remove-thumb-${i}`}
-                aria-label="remove"
+                aria-label={t.upload.remove}
               >
                 <X className="w-3.5 h-3.5" />
               </button>

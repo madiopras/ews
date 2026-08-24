@@ -1,8 +1,10 @@
 import React from "react";
 import { Star } from "lucide-react";
+import { useLang } from "../contexts/LanguageContext.jsx";
 
 // Displays interactive or static star rating (1-5)
 export default function StarRating({ value = 0, onChange, size = 20, testId = "star-rating" }) {
+  const { t } = useLang();
   const readonly = !onChange;
   return (
     <div className="flex items-center gap-1" data-testid={testId}>
@@ -21,7 +23,7 @@ export default function StarRating({ value = 0, onChange, size = 20, testId = "s
             onClick={() => onChange(n)}
             data-testid={`${testId}-${n}`}
             className="p-1.5 transition-transform hover:scale-110"
-            aria-label={`Rate ${n}`}
+            aria-label={t.reviews.rateValue.replace("{value}", n)}
           >
             <Star
               className={filled ? "fill-toba text-toba" : "text-line hover:text-toba"}

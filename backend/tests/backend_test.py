@@ -33,7 +33,7 @@ def admin_session():
 def user_session():
     s = requests.Session()
     email = f"TEST_user_{uuid.uuid4().hex[:8]}@test.id"
-    r = s.post(f"{BASE_URL}/api/auth/register", json={"email": email, "password": "user1234", "name": "Test User"})
+    r = s.post(f"{BASE_URL}/api/auth/register", json={"email": email, "password": "user1234", "name": "Test User", "accepted_terms": True})
     assert r.status_code == 200, f"register failed: {r.status_code} {r.text}"
     s._email = email
     return s
@@ -123,7 +123,7 @@ class TestReviews:
         # Delete by other user: create another user and try
         other = requests.Session()
         em = f"TEST_other_{uuid.uuid4().hex[:6]}@test.id"
-        other.post(f"{BASE_URL}/api/auth/register", json={"email": em, "password": "user1234", "name": "Other"})
+        other.post(f"{BASE_URL}/api/auth/register", json={"email": em, "password": "user1234", "name": "Other", "accepted_terms": True})
         r = other.delete(f"{BASE_URL}/api/reviews/{review_id}")
         assert r.status_code == 403
 

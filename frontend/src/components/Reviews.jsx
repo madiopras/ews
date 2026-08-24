@@ -1,10 +1,12 @@
-import React, { useEffect, useState } from "react";
-import { api, formatError } from "@/lib/api";
-import { useAuth } from "@/contexts/AuthContext";
-import { useLang } from "@/contexts/LanguageContext";
-import StarRating from "@/components/StarRating";
+import React, { useCallback, useEffect, useState } from "react";
+import { api, formatError } from "../lib/api.js";
+import { useAuth } from "../contexts/AuthContext.jsx";
+import { useLang } from "../contexts/LanguageContext.jsx";
+import StarRating from "../components/StarRating.jsx";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
+import { authUrl } from "../lib/authNavigation.js";
+import ReportContentButton from "./ReportContentButton.jsx";
 
 export default function Reviews({ destinationId }) {
   const { t, lang } = useLang();
@@ -15,19 +17,27 @@ export default function Reviews({ destinationId }) {
   const [form, setForm] = useState({ rating: 5, comment: "" });
   const [submitting, setSubmitting] = useState(false);
   const [showForm, setShowForm] = useState(false);
+  const [editingId, setEditingId] = useState(null);
+  const [editForm, setEditForm] = useState({ rating: 5, comment: "" });
 
-  const load = () => {
+  const load = useCallback(() => {
     setLoading(true);
     api
       .get(`/destinations/${destinationId}/reviews`)
       .then(({ data }) => setData(data))
       .catch(() => setData({ reviews: [], average: 0, count: 0 }))
       .finally(() => setLoading(false));
-  };
+  }, [destinationId]);
 
   useEffect(() => {
     load();
-  }, [destinationId]);
+  }, [load]);
+
+  useEffect(() => {
+    if (!isAuth || sessionStorage.getItem("pending_review_destination") !== destinationId) return;
+    sessionStorage.removeItem("pending_review_destination");
+    setShowForm(true);
+  }, [destinationId, isAuth]);
 
   const submit = async (e) => {
     e.preventDefault();
@@ -40,9 +50,37 @@ export default function Reviews({ destinationId }) {
       setShowForm(false);
       load();
     } catch (err) {
-      toast.error(formatError(err.response?.data?.detail) || "Error");
+      toast.error(formatError(err.response?.data?.detail) || t.common.error);
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const updateReview = async (event) => {
+    event.preventDefault();
+    if (!editingId || !editForm.comment.trim()) return;
+    setSubmitting(true);
+    try {
+      await api.put(`/reviews/${editingId}`, editForm);
+      toast.success(t.reviews.updateSuccess);
+      setEditingId(null);
+      load();
+    } catch (error) {
+      toast.error(formatError(error.response?.data?.detail) || t.common.error);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const deleteReview = async (reviewId) => {
+    if (!window.confirm(t.reviews.confirmDelete)) return;
+    try {
+      await api.delete(`/reviews/${reviewId}`);
+      if (editingId === reviewId) setEditingId(null);
+      toast.success(t.reviews.deleteSuccess);
+      load();
+    } catch (error) {
+      toast.error(formatError(error.response?.data?.detail) || t.common.error);
     }
   };
 
@@ -72,7 +110,7 @@ export default function Reviews({ destinationId }) {
             {t.reviews.writeCta}
           </button>
         ) : (
-          <Link to="/login" className="btn-outline w-full sm:w-auto" data-testid="login-to-review-link">
+          <Link to={authUrl("/login", `/destination/${destinationId}`, `review:${destinationId}`)} className="btn-outline w-full sm:w-auto" data-testid="login-to-review-link">
             {t.reviews.loginToReview}
           </Link>
         )}
@@ -148,7 +186,27 @@ export default function Reviews({ destinationId }) {
                 </div>
                 <StarRating value={r.rating} size={14} testId={`review-stars-${r.id}`} />
               </div>
-              <p className="text-[13px] text-inkSoft leading-relaxed">{r.comment}</p>
+              {editingId === r.id ? (
+                <form onSubmit={updateReview} className="space-y-3" data-testid={`review-edit-form-${r.id}`}>
+                  <StarRating value={editForm.rating} onChange={(rating) => setEditForm((current) => ({ ...current, rating }))} size={24} testId={`review-edit-rating-${r.id}`} />
+                  <textarea required rows={3} maxLength={1000} value={editForm.comment} onChange={(event) => setEditForm((current) => ({ ...current, comment: event.target.value }))} className="input-flat resize-none" />
+                  <div className="flex flex-wrap gap-2">
+                    <button type="submit" disabled={submitting} className="btn-primary">{submitting ? t.common.loading : t.reviews.update}</button>
+                    <button type="button" onClick={() => setEditingId(null)} className="btn-outline">{t.reviews.cancel}</button>
+                  </div>
+                </form>
+              ) : (
+                <>
+                  <p className="text-[13px] text-inkSoft leading-relaxed">{r.comment}</p>
+                  {isAuth && r.user_id === user.id && (
+                    <div className="mt-4 pt-3 border-t border-line flex gap-3 text-[12px]">
+                      <button type="button" onClick={() => { setEditingId(r.id); setEditForm({ rating: r.rating, comment: r.comment }); }} className="font-semibold text-toba hover:underline">{t.reviews.edit}</button>
+                      <button type="button" onClick={() => deleteReview(r.id)} className="font-semibold text-red-700 hover:underline">{t.reviews.delete}</button>
+                    </div>
+                  )}
+                  {(!isAuth || r.user_id !== user.id) && <div className="mt-4 pt-3 border-t border-line"><ReportContentButton targetType="review" targetId={r.id} compact /></div>}
+                </>
+              )}
             </article>
           ))}
         </div>

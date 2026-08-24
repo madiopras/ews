@@ -1,6 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Manrope:wght@300..800&display=swap');
-@import url('https://unpkg.com/leaflet@1.9.4/dist/leaflet.css');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -13,6 +10,59 @@ body {
     font-size: 15px;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+    min-width: 320px;
+}
+
+html {
+    scroll-padding-top: 5rem;
+}
+
+img,
+video,
+canvas,
+svg {
+    max-width: 100%;
+}
+
+.public-main {
+    padding-bottom: calc(5.5rem + env(safe-area-inset-bottom));
+}
+
+@media (min-width: 768px) {
+    .public-main { padding-bottom: 0; }
+}
+
+.skip-link {
+    position: fixed;
+    top: max(0.5rem, env(safe-area-inset-top));
+    left: max(0.5rem, env(safe-area-inset-left));
+    z-index: 100;
+    transform: translateY(-160%);
+    border-radius: 0.5rem;
+    background: #0F3D3E;
+    color: #F5F1E8;
+    padding: 0.75rem 1rem;
+    font-weight: 700;
+}
+
+.skip-link:focus {
+    transform: translateY(0);
+}
+
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+    outline: 3px solid #C4472B;
+    outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html:focus-within { scroll-behavior: auto; }
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+    }
 }
 
 @layer base {
@@ -29,7 +79,7 @@ body {
         --secondary-foreground: 60 4% 10%;
         --muted: 43 28% 88%;
         --muted-foreground: 60 5% 35%;
-        --accent: 12 64% 47%;
+        --accent: 12 64% 43%;
         --accent-foreground: 40 33% 93%;
         --destructive: 0 68% 48%;
         --destructive-foreground: 0 0% 98%;
@@ -42,6 +92,17 @@ body {
     body {
         @apply bg-cream text-ink;
     }
+}
+
+@media print {
+    @page { margin: 14mm; }
+    body { background: #fff !important; color: #111 !important; }
+    nav, .print-hidden, [data-testid="bottom-nav"] { display: none !important; }
+    .print-area { max-width: none !important; padding: 0 !important; }
+    .print-area .card-flat { border-color: #ddd !important; background: #fff !important; }
+    .avoid-print-break, .print-area article { break-inside: avoid; }
+    .print-destination-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+    .print-destination-grid button, .print-destination-grid a { display: none !important; }
 }
 
 /* ---------- Flat component primitives ---------- */
@@ -125,4 +186,465 @@ body {
     [data-debug-wrapper="true"] {
         display: contents !important;
     }
+}
+
+/* ================================================
+   MARKDOWN RENDERER ENHANCEMENTS
+   ================================================ */
+
+.markdown-renderer {
+  @apply text-gray-700;
+}
+
+.markdown-renderer h1 {
+  @apply text-3xl md:text-4xl font-display font-bold text-gray-900 mt-8 mb-4 border-b-2 border-toba/20 pb-2;
+}
+
+.markdown-renderer h2 {
+  @apply text-2xl md:text-3xl font-display font-semibold text-gray-800 mt-7 mb-3;
+}
+
+.markdown-renderer h3::before {
+  content: '';
+  @apply w-1.5 h-6 bg-toba rounded-full inline-block;
+}
+
+.markdown-renderer h4::before {
+  content: '';
+  @apply w-1 h-4 bg-emerald-500 rounded-full inline-block;
+}
+
+.markdown-renderer p {
+  @apply text-[15px] md:text-base text-gray-700 leading-relaxed my-4 font-normal;
+}
+
+.markdown-renderer ul {
+  @apply list-disc pl-6 my-4 space-y-2 text-[15px] text-gray-700;
+}
+
+.markdown-renderer ol {
+  @apply list-decimal pl-6 my-4 space-y-2 text-[15px] text-gray-700;
+}
+
+.markdown-renderer table {
+  @apply min-w-full bg-white;
+}
+
+.markdown-renderer th {
+  @apply px-4 py-3 bg-gradient-to-r from-gray-50 to-gray-100 border-b-2 border-gray-300 font-semibold text-left text-[14px] text-gray-800 uppercase tracking-wide;
+}
+
+.markdown-renderer td {
+  @apply px-4 py-3 border-b border-gray-200 text-[14px] text-gray-700 hover:bg-gray-50 transition-colors;
+}
+
+.markdown-renderer pre {
+  @apply bg-gray-900 text-gray-100 p-4 md:p-5 rounded-xl overflow-x-auto shadow-lg;
+}
+
+.markdown-renderer a {
+  @apply text-toba hover:text-cyan-600 font-medium underline underline-offset-4 transition-colors;
+}
+
+.markdown-renderer img {
+  @apply max-w-full h-auto rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300;
+}
+
+/* ================================================
+   ADVANCED ANIMATIONS FOR STREAMING & SKELETONS
+   ================================================ */
+
+/* Smooth fade transition */
+@keyframes smoothFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-smooth-in {
+  animation: smoothFadeIn 0.5s ease-out forwards;
+}
+
+/* Word-by-word reveal effect */
+@keyframes wordReveal {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.word-by-word {
+  display: inline-block;
+  animation: wordReveal 0.3s ease-out forwards;
+}
+
+/* Pulsing background for loading states */
+@keyframes shimmer {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+.shimmer-loading {
+  background: linear-gradient(
+    90deg,
+    #e5e7eb 0%,
+    #f3f4f6 50%,
+    #e5e7eb 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* Typewriter cursor blink */
+@keyframes cursorBlink {
+  0%, 49% {
+    border-color: transparent;
+  }
+  50%, 100% {
+    border-color: currentColor;
+  }
+}
+.typewriter-cursor {
+  border-right: 2px solid currentColor;
+  animation: cursorBlink 1s step-end infinite;
+}
+
+/* Gentle wave effect for active states */
+@keyframes gentleWave {
+  0%, 100% {
+    transform: scaleY(1);
+  }
+  50% {
+    transform: scaleY(1.05);
+  }
+}
+.gentle-wave {
+  animation: gentleWave 2s ease-in-out infinite;
+}
+
+/* Staggered child animations */
+.stagger-1 {
+  animation-delay: 0.1s;
+}
+.stagger-2 {
+  animation-delay: 0.2s;
+}
+.stagger-3 {
+  animation-delay: 0.3s;
+}
+.stagger-4 {
+  animation-delay: 0.4s;
+}
+.stagger-5 {
+  animation-delay: 0.5s;
+}
+
+/* Skeleton gradient animation */
+.skeleton-gradient {
+  background: linear-gradient(
+    100deg,
+    rgba(229, 231, 235, 0) 0%,
+    rgba(229, 231, 235, 0.8) 50%,
+    rgba(229, 231, 235, 0) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
+/* Progress bar fill animation */
+@keyframes progressBarFill {
+  from {
+    width: 0%;
+  }
+  to {
+    width: 100%;
+  }
+}
+.progress-fill {
+  animation: progressBarFill 2s ease-out forwards;
+}
+
+/* Slide in from side */
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+.slide-in-left {
+  animation: slideInLeft 0.3s ease-out;
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+.slide-in-right {
+  animation: slideInRight 0.3s ease-out;
+}
+
+/* Scale up on load */
+@keyframes scaleUp {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+.scale-up {
+  animation: scaleUp 0.3s ease-out;
+}
+
+/* ================================================
+   SIDEBAR RESPONSIVE STYLES
+   ================================================ */
+
+/* Mobile full-width drawer */
+@media (max-width: 640px) {
+  .sidebar-mobile-drawer {
+    @apply w-full;
+  }
+}
+
+/* Smooth backdrop transition */
+.sidebar-backdrop {
+  animation: fadeIn 0.2s ease-out;
+}
+
+/* Sidebar slide animation */
+.sidebar-slide {
+  @apply transition-transform duration-300 ease-out;
+}
+
+/* Trip card hover effects */
+.trip-card {
+  @apply transition-all duration-200;
+}
+
+.trip-card:hover {
+  @apply shadow-md border-toba/50;
+}
+
+/* ================================================
+   EDIT TRIP MODAL ANIMATIONS
+   ================================================ */
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.3s ease-out;
+}
+
+/* ---- Planner page helper animations ---- */
+@keyframes plannerFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.animate-fade-in {
+  animation: plannerFadeIn 0.4s ease-out forwards;
+}
+
+@keyframes plannerSlideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-slide-down {
+  animation: plannerSlideDown 0.3s ease-out forwards;
+}
+
+@keyframes plannerSpinSlow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.animate-spin-slow {
+  animation: plannerSpinSlow 6s linear infinite;
+}
+
+.modal-backdrop {
+  @apply fixed inset-0 bg-black/60 backdrop-blur-sm;
+}
+
+/* ================================================
+   FAVORITES & BOOKMARKING STYLES
+   ================================================ */
+
+/* Favorite star animation */
+@keyframes starPop {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.3);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.star-pop {
+  animation: starPop 0.3s ease-out;
+}
+
+/* Gradient badge pulse effect */
+@keyframes badgePulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+.favorites-badge-pulse {
+  animation: badgePulse 2s ease-in-out infinite;
+}
+
+/* View mode tab transitions */
+.view-mode-tab {
+  @apply transition-all duration-200;
+}
+
+.view-mode-tab.active {
+  @apply shadow-sm;
+}
+
+/* ================================================
+   DARK MODE THEME SUPPORT
+   ================================================ */
+
+/* Base Dark Mode Colors */
+@media (prefers-color-scheme: dark) {
+  .dark {
+    --color-bg-primary: #0f172a;
+    --color-bg-secondary: #1e293b;
+    --color-bg-tertiary: #334155;
+    --color-text-primary: #f8fafc;
+    --color-text-secondary: #cbd5e1;
+    --color-border: #475569;
+  }
+}
+
+/* Dark Mode Classes */
+.dark body {
+  background-color: #0f172a;
+  color: #f8fafc;
+}
+
+.dark .bg-white {
+  background-color: #1e293b !important;
+  color: #f8fafc !important;
+}
+
+.dark .text-gray-900 {
+  color: #f8fafc !important;
+}
+
+.dark .text-gray-700 {
+  color: #cbd5e1 !important;
+}
+
+.dark .border-gray-200 {
+  border-color: #475569 !important;
+}
+
+.dark .border-gray-300 {
+  border-color: #475569 !important;
+}
+
+.dark .bg-gray-50 {
+  background-color: #1e293b !important;
+}
+
+.dark .hover\:bg-gray-100:hover {
+  background-color: #334155 !important;
+}
+
+.dark input,
+.dark textarea,
+.dark select {
+  background-color: #334155 !important;
+  border-color: #475569 !important;
+  color: #f8fafc !important;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background-color: #475569 !important;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background-color: #1e293b !important;
+}
+
+/* Sidebar Dark Mode */
+.dark .sidebar-panel {
+  background-color: #1e293b !important;
+  border-left-color: #475569 !important;
+}
+
+.dark .trip-card {
+  background-color: #334155 !important;
+  border-color: #475569 !important;
+}
+
+.dark .trip-card h3 {
+  color: #f8fafc !important;
+}
+
+.dark .trip-card p {
+  color: #cbd5e1 !important;
+}
+
+/* Modal Dark Mode */
+.dark .modal-dialog {
+  background-color: #1e293b !important;
+}
+
+.dark .modal-input {
+  background-color: #334155 !important;
+  border-color: #475569 !important;
+  color: #f8fafc !important;
+}
+
+/* View Mode Tabs */
+.dark .view-tabs {
+  background-color: #334155 !important;
+}
+
+.dark .view-tab-inactive {
+  color: #94a3b8 !important;
+}
+
+.dark .view-tab-active {
+  background-color: #475569 !important;
+  color: #f8fafc !important;
 }

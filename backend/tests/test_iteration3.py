@@ -30,7 +30,7 @@ def admin_session():
 def user_session():
     s = requests.Session()
     email = f"TEST_it3user_{uuid.uuid4().hex[:8]}@test.id"
-    r = s.post(f"{BASE_URL}/api/auth/register", json={"email": email, "password": "user1234", "name": "Iter3 User"})
+    r = s.post(f"{BASE_URL}/api/auth/register", json={"email": email, "password": "user1234", "name": "Iter3 User", "accepted_terms": True})
     assert r.status_code == 200, r.text
     return s
 
@@ -227,7 +227,7 @@ class TestItineraries:
         # Another user cannot delete
         other = requests.Session()
         em = f"TEST_other3_{uuid.uuid4().hex[:6]}@test.id"
-        other.post(f"{BASE_URL}/api/auth/register", json={"email": em, "password": "user1234", "name": "O"})
+        other.post(f"{BASE_URL}/api/auth/register", json={"email": em, "password": "user1234", "name": "O", "accepted_terms": True})
         r = other.delete(f"{BASE_URL}/api/itineraries/{iid}")
         assert r.status_code == 403
 

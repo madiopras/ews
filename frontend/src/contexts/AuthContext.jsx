@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from "react";
-import { api, formatError } from "@/lib/api";
-import { cacheGet, cacheSet, isOffline } from "@/lib/offline";
+import { api, formatError } from "../lib/api.js";
+import { clearAccountSession } from "../lib/offline.js";
 
 const AuthContext = createContext(null);
 
@@ -20,13 +20,11 @@ export function AuthProvider({ children }) {
       .get("/auth/me")
       .then(({ data }) => {
         if (mounted) setUser(data);
-        cacheSet("user", data);
       })
       .catch(() => {
         if (!mounted) return;
-        // Offline: fall back to the last known session so cached pages stay reachable
-        const cached = isOffline() ? cacheGet("user") : null;
-        setUser(cached?.data || false);
+        // Never infer an authenticated identity from shared browser storage.
+        setUser(false);
       })
       .finally(() => mounted && setReady(true));
     return () => {
@@ -37,19 +35,23 @@ export function AuthProvider({ children }) {
   const login = useCallback(async (email, password) => {
     try {
       const { data } = await api.post("/auth/login", { email, password });
-      setUser(data);
-      cacheSet("user", data);
+      setUser((current) => {
+        if (current && typeof current === "object" && current.id !== data.id) clearAccountSession(current.id);
+        return data;
+      });
       return { ok: true };
-    } catch (e) {
-      return { ok: false, error: formatError(e.response?.data?.detail) || e.message };
+    } catch (error) {
+      return { ok: false, error: formatError(error.response?.data?.detail) || error.message };
     }
   }, []);
 
-  const register = useCallback(async (email, password, name) => {
+  const register = useCallback(async (email, password, name, acceptedTerms = false) => {
     try {
-      const { data } = await api.post("/auth/register", { email, password, name });
-      setUser(data);
-      cacheSet("user", data);
+      const { data } = await api.post("/auth/register", { email, password, name, accepted_terms: acceptedTerms });
+      setUser((current) => {
+        if (current && typeof current === "object" && current.id !== data.id) clearAccountSession(current.id);
+        return data;
+      });
       return { ok: true };
     } catch (e) {
       return { ok: false, error: formatError(e.response?.data?.detail) || e.message };
@@ -59,16 +61,18 @@ export function AuthProvider({ children }) {
   const logout = useCallback(async () => {
     try {
       await api.post("/auth/logout");
-    } catch (e) {
+    } catch {
       // ignore
     }
-    cacheSet("user", null);
+    clearAccountSession(user && typeof user === "object" ? user.id : null);
     setUser(false);
-  }, []);
+  }, [user]);
 
   const setGoogleUser = useCallback((data) => {
-    setUser(data);
-    cacheSet("user", data);
+    setUser((current) => {
+      if (current && typeof current === "object" && current.id !== data.id) clearAccountSession(current.id);
+      return data;
+    });
     setReady(true);
   }, []);
 

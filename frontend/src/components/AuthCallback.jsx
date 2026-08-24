@@ -1,10 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { api } from "@/lib/api";
-import { useAuth } from "@/contexts/AuthContext";
-import { useLang } from "@/contexts/LanguageContext";
+import { api } from "../lib/api.js";
+import { useAuth } from "../contexts/AuthContext.jsx";
+import { useLang } from "../contexts/LanguageContext.jsx";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { authUrl, resumeAuthIntent, safeNextPath } from "../lib/authNavigation.js";
 
 // Handles the Emergent OAuth return: #session_id=... → app session cookie.
 // REMINDER: DO NOT HARDCODE THE URL, OR ADD ANY FALLBACKS OR REDIRECT URLS, THIS BREAKS THE AUTH
@@ -22,22 +23,34 @@ export default function AuthCallback() {
 
     const sessionId = new URLSearchParams(location.hash.replace(/^#/, "")).get("session_id");
     if (!sessionId) {
-      navigate("/login", { replace: true });
+      const next = safeNextPath(sessionStorage.getItem("auth_next"), "/profile");
+      navigate(authUrl("/login", next), { replace: true });
       return;
     }
 
     api
       .post("/auth/google/session", { session_id: sessionId })
-      .then(({ data }) => {
+      .then(async ({ data }) => {
         setUser(data);
-        window.history.replaceState(null, "", "/profile");
-        navigate("/profile", { replace: true });
+        const next = safeNextPath(sessionStorage.getItem("auth_next"), "/profile");
+        const intent = sessionStorage.getItem("auth_intent") || "";
+        try {
+          await resumeAuthIntent(intent, api);
+        } catch {
+          toast.error(t.auth.intentFailed);
+        }
+        sessionStorage.removeItem("auth_next");
+        sessionStorage.removeItem("auth_intent");
+        window.history.replaceState(null, "", next);
+        navigate(next, { replace: true });
       })
       .catch(() => {
         setFailed(true);
         toast.error(t.auth.googleFailed);
-        window.history.replaceState(null, "", "/login");
-        navigate("/login", { replace: true });
+        const next = safeNextPath(sessionStorage.getItem("auth_next"), "/profile");
+        const loginUrl = authUrl("/login", next);
+        window.history.replaceState(null, "", loginUrl);
+        navigate(loginUrl, { replace: true });
       });
   }, [location.hash, navigate, setUser, t]);
 

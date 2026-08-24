@@ -1,36 +1,72 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import { api } from "@/lib/api";
-import { useLang } from "@/contexts/LanguageContext";
-import PartnerCard from "@/components/PartnerCard";
-import PremiumDialog from "@/components/PremiumDialog";
-import { Handshake, Plus, Crown } from "lucide-react";
-import UlosPattern from "@/components/UlosPattern";
+import { Link, useSearchParams } from "react-router-dom";
+import { api } from "../lib/api.js";
+import { useLang } from "../contexts/LanguageContext.jsx";
+import PartnerCard from "../components/PartnerCard.jsx";
+import { ChevronLeft, ChevronRight, Handshake, Plus } from "lucide-react";
+import UlosPattern from "../components/UlosPattern.jsx";
+import { trackPartnerEvent } from "../lib/partnerAnalytics.js";
 
-const TYPES = ["guide", "rental", "homestay"];
+const TYPES = ["guide", "rental", "homestay", "souvenir"];
 
 export default function Partners() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
+  const [params, setParams] = useSearchParams();
   const [partners, setPartners] = useState([]);
   const [loading, setLoading] = useState(true);
   const [type, setType] = useState("");
-  const [upgrading, setUpgrading] = useState(null);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+
+  const urlPage = params.get("page");
+  useEffect(() => {
+    if (urlPage) {
+      const p = parseInt(urlPage, 10);
+      if (!isNaN(p) && p >= 1) setPage(p);
+    }
+  }, [urlPage]);
 
   const load = () => {
     setLoading(true);
     const params = { status: "approved" };
     if (type) params.type = type;
+    params.page = page;
+    params.per_page = 9;
+
     api
       .get("/partners", { params })
-      .then(({ data }) => setPartners(data))
-      .catch(() => setPartners([]))
+      .then(({ data }) => {
+        if (data && Array.isArray(data.data) && data.pagination) {
+          setPartners(data.data);
+          setTotalPages(data.pagination.pages || 1);
+        } else if (Array.isArray(data)) {
+          const start = (page - 1) * 9;
+          setPartners(data.slice(start, start + 9));
+          setTotalPages(Math.max(1, Math.ceil(data.length / 9)));
+        } else {
+          setPartners([]);
+          setTotalPages(1);
+        }
+      })
+      .catch(() => {
+        setPartners([]);
+        setTotalPages(1);
+      })
       .finally(() => setLoading(false));
   };
 
-  useEffect(load, [type]);
+  useEffect(load, [type, page]);
+  useEffect(() => {
+    partners.forEach(partner => trackPartnerEvent("directory_impression", partner.id, "directory"));
+  }, [partners]);
 
-  const premium = partners.filter((p) => p.is_premium);
-  const regular = partners.filter((p) => !p.is_premium);
+  const goToPage = (nextPage) => {
+    const next = new URLSearchParams(params);
+    if (nextPage === 1) next.delete("page");
+    else next.set("page", String(nextPage));
+    setParams(next);
+    setPage(nextPage);
+  };
 
   return (
     <div data-testid="partners-page">
@@ -61,7 +97,8 @@ export default function Partners() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 pb-16">
         <div className="scroll-x mb-6">
           <button
-            onClick={() => setType("")}
+            type="button"
+            onClick={() => { setType(""); goToPage(1); }}
             className={`chip ${type === "" ? "chip-active" : ""}`}
             data-testid="partner-filter-all"
           >
@@ -69,8 +106,9 @@ export default function Partners() {
           </button>
           {TYPES.map((tp) => (
             <button
+              type="button"
               key={tp}
-              onClick={() => setType(tp)}
+              onClick={() => { setType(tp); goToPage(1); }}
               className={`chip ${type === tp ? "chip-active" : ""}`}
               data-testid={`partner-filter-${tp}`}
             >
@@ -88,47 +126,53 @@ export default function Partners() {
               {t.partners.register}
             </Link>
           </div>
-        ) : (
-          <div className="space-y-8">
-            {premium.length > 0 && (
-              <section data-testid="premium-partners-section">
-                <div className="flex items-center gap-2 text-toba mb-3">
-                  <Crown className="w-4 h-4" />
-                  <span className="text-[12px] tracking-[0.18em] uppercase font-semibold">
-                    {t.partners.premium.sectionTitle}
-                  </span>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {premium.map((p) => (
-                    <PartnerCard key={p.id} partner={p} />
-                  ))}
-                </div>
-              </section>
-            )}
+        ) : <section><p className="mb-4 text-[12px] text-inkSoft">{lang === "en" ? "Featured listings are paid and labelled. All listings rotate so regular partners remain discoverable." : "Listing Unggulan berbayar selalu diberi label. Semua listing dirotasi agar Mitra reguler tetap mudah ditemukan."}</p><div className="grid grid-cols-1 md:grid-cols-2 gap-4">{partners.map((partner) => <PartnerCard key={partner.id} partner={partner} source="directory" />)}</div></section>}
 
-            {regular.length > 0 && (
-              <section>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {regular.map((p) => (
-                    <PartnerCard key={p.id} partner={p} onUpgrade={setUpgrading} />
-                  ))}
-                </div>
-              </section>
-            )}
-          </div>
-        )}
+       {totalPages > 1 && (
+         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16 flex justify-center">
+           <div className="flex items-center gap-1">
+             <button
+               type="button"
+               onClick={() => goToPage(Math.max(1, page - 1))}
+               disabled={page <= 1}
+               className={`p-2 rounded-lg ${page <= 1 ? "text-inkSoft/50 cursor-not-allowed" : "text-inkSoft hover:bg-line/40"}`}
+               aria-label={t.common.previousPage}
+             >
+               <ChevronLeft className="w-4 h-4" />
+             </button>
+             {Array.from({ length: totalPages }, (_, i) => i + 1)
+               .filter((n) => {
+                 const start = Math.max(1, page - 2);
+                 const end = Math.min(totalPages, page + 2);
+                 return n >= start && n <= end;
+               })
+               .map((n) => (
+                 <button
+                   type="button"
+                   key={n}
+                   onClick={() => goToPage(n)}
+                   className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm font-medium transition-colors ${
+                     page === n ? "bg-toba text-cream" : "text-inkSoft hover:bg-line/40"
+                   }`}
+                 >
+                   {n}
+                 </button>
+               ))}
+             <button
+               type="button"
+               onClick={() => goToPage(Math.min(totalPages, page + 1))}
+               disabled={page >= totalPages}
+               className={`p-2 rounded-lg ${page >= totalPages ? "text-inkSoft/50 cursor-not-allowed" : "text-inkSoft hover:bg-line/40"}`}
+               aria-label={t.common.nextPage}
+             >
+               <ChevronRight className="w-4 h-4" />
+             </button>
+           </div>
+         </div>
+       )}
+
       </div>
 
-      {upgrading && (
-        <PremiumDialog
-          partner={upgrading}
-          onClose={() => setUpgrading(null)}
-          onActivated={() => {
-            setUpgrading(null);
-            load();
-          }}
-        />
-      )}
     </div>
   );
 }

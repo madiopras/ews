@@ -1,20 +1,24 @@
 import React from "react";
-import { useLang } from "@/contexts/LanguageContext";
+import { useLang } from "../contexts/LanguageContext.jsx";
+import { safeNextPath } from "../lib/authNavigation.js";
 
 // REMINDER: DO NOT HARDCODE THE URL, OR ADD ANY FALLBACKS OR REDIRECT URLS, THIS BREAKS THE AUTH
-export function startGoogleLogin() {
+export function startGoogleLogin(nextPath = "/profile", intent = "") {
+  sessionStorage.setItem("auth_next", safeNextPath(nextPath, "/profile"));
+  if (intent) sessionStorage.setItem("auth_intent", intent);
+  else sessionStorage.removeItem("auth_intent");
   const redirectUrl = window.location.origin + "/profile";
   window.location.href = `https://auth.emergentagent.com/?redirect=${encodeURIComponent(
     redirectUrl
   )}`;
 }
 
-export default function GoogleButton({ testId = "google-login-btn" }) {
+export default function GoogleButton({ testId = "google-login-btn", next = "/profile", intent = "" }) {
   const { t } = useLang();
   return (
     <button
       type="button"
-      onClick={startGoogleLogin}
+      onClick={() => startGoogleLogin(next, intent)}
       className="btn-outline w-full"
       data-testid={testId}
     >

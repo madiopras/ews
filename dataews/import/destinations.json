@@ -1,0 +1,1812 @@
+[
+  {
+    "_id": ObjectId("dest_0001"),
+    "name": "Air Terjun Sipiso Piso",
+    "name_en": "Sipiso-piso Waterfall",
+    "location": "Desa Tongging, Kabupaten Karo, Sumatera Utara",
+    "category": "waterfall",
+    "price": 0,
+    "description": "Air Terjun Sipiso-piso merupakan salah satu air terjun tertinggi di Indonesia dengan ketinggian sekitar 120 meter. Aliran airnya jatuh deras langsung ke tepi Danau Toba dari tebing curam, dikelilingi hamparan hijau perbukitan Karo. Dari viewpoint di atas, pengunjung bisa menikmati panorama air terjun sekaligus keindahan Danau Toba yang membentang luas. Destinasi ini sangat cocok untuk berfoto, menikmati udara sejuk pegunungan, dan menjadi primadona wisata Sumatera Utara.",
+    "description_en": "Sipiso-piso Waterfall is one of Indonesia's tallest waterfalls, plunging about 120 meters straight toward the shore of Lake Toba from a steep cliff, surrounded by the lush green hills of Karo. From the viewpoint above, visitors can enjoy the waterfall panorama alongside the vast beauty of Lake Toba. It is perfect for photography, enjoying the cool mountain air, and is a favorite destination in North Sumatra.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787417679/ews-assets/dest_0001_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787417718/ews-assets/dest_0001_vid_dest_001.mp4",
+    "latitude": 2.9169,
+    "longitude": 98.5193,
+    "featured": true,
+    "created_at": ISODate("2026-07-13T01:47:04.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0002"),
+    "name": "Air Terjun Sikulikap",
+    "name_en": "Sikulikap Waterfall",
+    "location": "Berastagi, Kabupaten Karo, Sumatera Utara",
+    "category": "waterfall",
+    "price": 0,
+    "description": "Air Terjun Sikulikap adalah air terjun tersembunyi yang sedang naik daun di kawasan Berastagi. Suasananya sejuk, asri, dan masih alami, menjadikannya tempat yang nyaman untuk bersantai melepas penat bersama keluarga maupun teman. Airnya yang jernih mengalir melalui bebatuan, dikelilingi pepohonan hijau yang teduh, menciptakan suasana cozy yang menenangkan.",
+    "description_en": "Sikulikap Waterfall is a rising hidden gem in the Berastagi area. Its cool, lush and still-natural atmosphere makes it a comfortable place to relax with family or friends. Clear water flows over the rocks, surrounded by shady green trees, creating a cozy and soothing vibe.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787417682/ews-assets/dest_0002_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787417735/ews-assets/dest_0002_vid_dest_001.mp4",
+    "latitude": 3.179,
+    "longitude": 98.516,
+    "featured": false,
+    "created_at": ISODate("2026-08-15T03:12:13.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0003"),
+    "name": "Air Terjun Ponot",
+    "name_en": "Ponot Waterfall",
+    "location": "Kabupaten Asahan, Sumatera Utara",
+    "category": "waterfall",
+    "price": 0,
+    "description": "Air Terjun Ponot berada di antara lembah hijau yang rimbun, menampilkan aliran air yang deras dan menabjubkan. Diapit pepohonan asri, air terjun ini menghadirkan pemandangan alam yang memukau dan menyegarkan. Tempat ini menjadi spot favorit bagi pecinta alam dan fotografer untuk mengabadikan keindahan air terjun serta suasana lembah yang menawan.",
+    "description_en": "Ponot Waterfall sits amid lush green valleys, showing a powerful and stunning flow. Flanked by pristine trees, this waterfall offers breathtaking and refreshing natural scenery. It is a favorite spot for nature lovers and photographers to capture the beauty of the waterfall and its charming valley setting.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787417683/ews-assets/dest_0003_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787417738/ews-assets/dest_0003_vid_dest_001.mp4",
+    "latitude": 2.436,
+    "longitude": 99.25,
+    "featured": false,
+    "created_at": ISODate("2026-07-06T11:00:21.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0004"),
+    "name": "Panatapan Sibodiala",
+    "name_en": "Sibodiala Viewpoint",
+    "location": "Kabupaten Humbang Hasundutan, Sumatera Utara",
+    "category": "viewpoint",
+    "price": 0,
+    "description": "Puncak Sibodiala menawarkan pemandangan terbaik untuk menikmati luasnya Danau Toba dari ketinggian. Dari sini, pengunjung dapat memandang hamparan danau vulkanik terbesar di Asia Tenggara dengan latar belakang perbukitan hijau yang menawan. Tempat ini populer sebagai titik singgah untuk berfoto, bersantai, dan menikmati keindahan Danau Toba yang membentang luas.",
+    "description_en": "Sibodiala Peak offers the best vantage point to enjoy the vastness of Lake Toba from above. From here, visitors can gaze at Southeast Asia's largest volcanic lake set against charming green hills. It is a popular stop for photography, relaxing, and enjoying the expansive beauty of Lake Toba.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787417684/ews-assets/dest_0004_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787417741/ews-assets/dest_0004_vid_dest_001.mp4",
+    "latitude": 2.2666,
+    "longitude": 98.65,
+    "featured": false,
+    "created_at": ISODate("2024-12-27T13:17:37.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0005"),
+    "name": "Air Terjun Lae Pendaroh",
+    "name_en": "Lae Pendaroh Waterfall",
+    "location": "Kabupaten Dairi, Sumatera Utara",
+    "category": "waterfall",
+    "price": 0,
+    "description": "Air Terjun Lae Pendaroh terletak tepat di pinggir jalan Kabupaten Dairi, sehingga sangat mudah dijangkau. Meski berada di tepi jalan, keindahan air terjunnya tetap alami dengan aliran air jernih yang menyegarkan. Cocok untuk pemberhentian singkat, berfoto, dan menikmati udara segar khas Dairi saat melintasi jalur wisata.",
+    "description_en": "Lae Pendaroh Waterfall sits right beside the road in Dairi Regency, making it very easy to reach. Despite being at the roadside, its waterfall remains naturally beautiful with clear refreshing water. It is perfect for a short stop, taking photos, and enjoying Dairi's fresh air along the travel route.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787417685/ews-assets/dest_0005_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787417755/ews-assets/dest_0005_vid_dest_001.mp4",
+    "latitude": 2.67,
+    "longitude": 98.18,
+    "featured": false,
+    "created_at": ISODate("2026-07-23T03:27:37.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0006"),
+    "name": "Deleng Tujuh Dayang",
+    "name_en": "Mount Tujuh Dayang",
+    "location": "Kabupaten Karo, Sumatera Utara",
+    "category": "mountain",
+    "price": 0,
+    "description": "Deleng Tujuh Dayang adalah salah satu gunung favorit pendaki di Kabupaten Karo. Setelah menaklukkan puncaknya, perjalanan bisa dilengkapi dengan singgah di pemandian mata air jernih Lau Renun yang hanya berjarak sekitar 15 menit dari Laubaleng. Air mata airnya yang bening dan suasana asri menjadikannya tempat sempurna untuk melepas lelah setelah mendaki.",
+    "description_en": "Mount Tujuh Dayang is one of the favorite mountain hikes in Karo Regency. After conquering its summit, visitors can continue to the crystal-clear natural spring of Lau Renun, only about 15 minutes from Laubaleng. Its clear water and pristine surroundings make it a perfect spot to rest after the climb.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787417686/ews-assets/dest_0006_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787417771/ews-assets/dest_0006_vid_dest_001.mp4",
+    "latitude": 3.09,
+    "longitude": 98.38,
+    "featured": false,
+    "created_at": ISODate("2026-06-29T14:36:55.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0007"),
+    "name": "Gunung Sibayak",
+    "name_en": "Mount Sibayak",
+    "location": "Berastagi, Kabupaten Karo, Sumatera Utara",
+    "category": "mountain",
+    "price": 0,
+    "description": "Gunung Sibayak adalah gunung berapi yang menjadi ikon Berastagi, terkenal dengan kawah aktif yang mengeluarkan uap belerang. Pendakiannya relatif ramah bagi pemula dan menawarkan pemandangan kawah serta kota Berastagi dari ketinggian. Suasana di puncaknya sangat istimewa, terutama saat perayaan seperti 17 Agustus ketika banyak pendaki berkumpul menikmati matahari terbit.",
+    "description_en": "Mount Sibayak is a volcano that has become the icon of Berastagi, famous for its active crater releasing sulfur steam. The trek is relatively beginner-friendly and offers views of the crater and Berastagi town from above. The summit atmosphere is special, especially during celebrations like Indonesia's Independence Day when many hikers gather to watch the sunrise.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787417688/ews-assets/dest_0007_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787417779/ews-assets/dest_0007_vid_dest_001.mp4",
+    "latitude": 3.239,
+    "longitude": 98.505,
+    "featured": true,
+    "created_at": ISODate("2026-08-18T01:41:30.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0008"),
+    "name": "Gunung Sibuatan",
+    "name_en": "Mount Sibuatan",
+    "location": "Kabupaten Karo, Sumatera Utara",
+    "category": "mountain",
+    "price": 0,
+    "description": "Gunung Sibuatan adalah puncak tertinggi di Sumatera Utara dengan jalur pendakian yang menantang. Dari puncak timurnya, pendaki disuguhi hamparan pemandangan alam yang luar biasa, mulai dari kawah hingga perbukitan hijau. Gunung ini menjadi tantangan tersendiri bagi para pendaki yang mencari petualangan alam di ketinggian.",
+    "description_en": "Mount Sibuatan is the highest peak in North Sumatra with a challenging trekking route. From its eastern summit, hikers are rewarded with an extraordinary panoramic view, from the crater to the surrounding green hills. This mountain is a true adventure for those seeking high-altitude nature challenges.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787417688/ews-assets/dest_0008_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787417785/ews-assets/dest_0008_vid_dest_001.mp4",
+    "latitude": 2.984,
+    "longitude": 98.398,
+    "featured": false,
+    "created_at": ISODate("2026-06-06T04:28:05.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0009"),
+    "name": "Gunung Sinabung",
+    "name_en": "Mount Sinabung",
+    "location": "Kabupaten Karo, Sumatera Utara",
+    "category": "mountain",
+    "price": 0,
+    "description": "Gunung Sinabung adalah gunung berapi aktif yang menjulang megah di Kabupaten Karo. Kombinasi pemandangan matahari terbit dan siluet gunung Sinabung menghadirkan panorama yang sempurna dan tak terlupakan. Gunung ini menjadi magnet bagi wisatawan dan fotografer yang ingin mengabadikan keindahan alam Karo dari sudut terbaiknya.",
+    "description_en": "Mount Sinabung is an active volcano towering majestically over Karo Regency. The combination of the sunrise and Mount Sinabung's silhouette creates a perfect, unforgettable panorama. It is a magnet for travelers and photographers wanting to capture Karo's natural beauty from its best angle.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787417689/ews-assets/dest_0009_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787417789/ews-assets/dest_0009_vid_dest_001.mp4",
+    "latitude": 3.171,
+    "longitude": 98.392,
+    "featured": true,
+    "created_at": ISODate("2026-06-01T08:40:05.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0010"),
+    "name": "Pemandian Lau Renun",
+    "name_en": "Lau Renun Spring",
+    "location": "Kabupaten Dairi, Sumatera Utara",
+    "category": "hotspring",
+    "price": 0,
+    "description": "Pemandian Lau Renun adalah mata air alami yang jernih, terletak hanya sekitar 15 menit dari Laubaleng, Karo. Airnya yang bening, suasana asri, dan pepohonan hijau di sekelilingnya menjadikan tempat ini spot sempurna untuk melepas lelah setelah pendakian Deleng Tujuh Dayang. Dari dinginnya puncak, pengunjung berakhir dengan kesegaran mata air yang menenangkan.",
+    "description_en": "Lau Renun Spring is a crystal-clear natural spring located only about 15 minutes from Laubaleng, Karo. Its clear water, pristine surroundings and green trees make it the perfect spot to unwind after trekking Mount Tujuh Dayang. From the cold summit, visitors end with the soothing freshness of the spring.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787417693/ews-assets/dest_0010_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787417805/ews-assets/dest_0010_vid_dest_001.mp4",
+    "latitude": 2.85,
+    "longitude": 98.2,
+    "featured": false,
+    "created_at": ISODate("2026-06-29T14:36:55.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0011"),
+    "name": "Lau Mentar Canyon",
+    "name_en": "Lau Mentar Canyon",
+    "location": "Desa Rumah Liang, Kecamatan STM Hulu, Kabupaten Deli Serdang, Sumatera Utara",
+    "category": "nature",
+    "price": 0,
+    "description": "Lau Mentar Canyon adalah surga tersembunyi di Kabupaten Deli Serdang, hanya sekitar tiga jam dari Pematangsiantar. Ngarai dengan air jernih kebiruan dan dinding tebing alami ini menawarkan pemandangan yang sangat memukau. Tempat ini cocok bagi pencinta wisata alam yang ingin menikmati keindahan canyon tanpa harus bepergian terlalu jauh.",
+    "description_en": "Lau Mentar Canyon is a hidden paradise in Deli Serdang Regency, only about three hours from Pematangsiantar. The canyon's crystal-clear bluish water and natural rock walls offer a breathtaking view. It is ideal for nature lovers who want to enjoy canyon beauty without traveling too far.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787417694/ews-assets/dest_0011_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787417813/ews-assets/dest_0011_vid_dest_001.mp4",
+    "latitude": 3.085,
+    "longitude": 98.62,
+    "featured": false,
+    "created_at": ISODate("2026-05-18T07:07:10.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0012"),
+    "name": "Goa Ergendang",
+    "name_en": "Ergendang Cave Hot Spring",
+    "location": "Deli Serdang, Sumatera Utara",
+    "category": "hotspring",
+    "price": 0,
+    "description": "Pemandian Air Panas Goa Ergendang adalah pemandian air panas alami yang berada di dalam goa, dengan air kolam yang mengandung belerang. Suasananya masih sangat asri dan alami, menjadikan tempat ini unik dan menenangkan. Pengunjung dapat berendam air hangat sambil menikmati suasana goa yang eksotis di Deli Serdang, Sumatera Utara.",
+    "description_en": "Ergendang Cave Hot Spring is a natural hot spring located inside a cave, with sulfur-rich pool water. Its atmosphere remains very pristine and natural, making it a unique and calming destination. Visitors can soak in the warm water while enjoying the exotic cave ambiance in Deli Serdang, North Sumatra.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787417695/ews-assets/dest_0012_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787417820/ews-assets/dest_0012_vid_dest_001.mp4",
+    "latitude": 3.28,
+    "longitude": 98.58,
+    "featured": false,
+    "created_at": ISODate("2026-07-29T03:02:52.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0013"),
+    "name": "Pemandian Bah Silulu",
+    "name_en": "Bah Silulu Spring",
+    "location": "Kabupaten Simalungun, Sumatera Utara",
+    "category": "hotspring",
+    "price": 0,
+    "description": "Pemandian Bah Silulu menawarkan air yang segar dan bening di Kabupaten Simalungun, Sumatera Utara. Tempat ini menjadi favorit warga sekitar untuk berenang dan melepas penat di tengah suasana alam yang tenang. Airnya yang jernih mengalir alami, sangat menyegarkan dan cocok untuk bersantai bersama keluarga.",
+    "description_en": "Bah Silulu Spring offers fresh, clear water in Simalungun Regency, North Sumatra. It is a favorite spot for locals to swim and unwind amid a calm natural setting. The crystal-clear water flows naturally, very refreshing and perfect for relaxing with family.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787417696/ews-assets/dest_0013_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787417821/ews-assets/dest_0013_vid_dest_001.mp4",
+    "latitude": 2.96,
+    "longitude": 98.95,
+    "featured": false,
+    "created_at": ISODate("2021-09-09T05:16:45.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0014"),
+    "name": "Sungai Dua Rasa",
+    "name_en": "Dua Rasa River",
+    "location": "Sibolangit, Kabupaten Deli Serdang, Sumatera Utara",
+    "category": "nature",
+    "price": 0,
+    "description": "Sungai Dua Rasa di Sibolangit terkenal unik karena memiliki dua aliran dengan suhu berbeda, yaitu panas dan dingin yang bertemu dalam satu sungai. Pengalaman mandi di sini sangat istimewa karena pengunjung bisa merasakan sensasi air hangat dan dingin sekaligus. Lokasinya yang asri dikelilingi alam hijau menjadikannya destinasi wisata favorit Deli Serdang.",
+    "description_en": "Dua Rasa River in Sibolangit is famous for its unique feature of having two streams with different temperatures, hot and cold, merging in one river. Bathing here is special because visitors can feel both warm and cool water at once. Its lush green surroundings make it a favorite destination in Deli Serdang.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787417697/ews-assets/dest_0014_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787417826/ews-assets/dest_0014_vid_dest_001.mp4",
+    "latitude": 3.31,
+    "longitude": 98.54,
+    "featured": false,
+    "created_at": ISODate("2025-08-25T03:53:49.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0015"),
+    "name": "Bukit Botak Sibolangit",
+    "name_en": "Botak Hill Sibolangit",
+    "location": "Bandar Baru, Sibolangit, Sumatera Utara",
+    "category": "camping",
+    "price": 0,
+    "description": "Bukit Botak di Bandar Baru, Sibolangit adalah lokasi camping dengan suasana alam yang begitu indah. Dari atas bukit, pengunjung disuguhi hamparan pemandangan hijau dan langit yang luas. Tempat ini populer bagi para pecinta camping yang ingin merasakan ketenangan alam sekaligus menikmati matahari terbit dan terbenam.",
+    "description_en": "Botak Hill in Bandar Baru, Sibolangit is a camping spot with an incredibly beautiful natural setting. From the hilltop, visitors are treated to vast green landscapes and open skies. It is popular among campers who want to experience nature's calm while enjoying sunrise and sunset.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787417669/ews-assets/dest_0015_img_dest_001.webp"
+    ],
+    "video": null,
+    "latitude": 3.26,
+    "longitude": 98.51,
+    "featured": false,
+    "created_at": ISODate("2022-04-03T12:08:21.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0016"),
+    "name": "Danau Lau Kawar",
+    "name_en": "Lake Lau Kawar",
+    "location": "Kabupaten Karo, Sumatera Utara",
+    "category": "lake",
+    "price": 0,
+    "description": "Danau Lau Kawar adalah danau yang tenang di Kabupaten Karo, kini semakin menarik dengan kehadiran destinasi baru seperti Braska Rimba Highland yang menawarkan suasana syahdu dan penginapan villa. Danau ini dikelilingi pegunungan dan udara sejuk khas dataran tinggi, menjadikannya tempat ideal untuk bersantai dan menikmati ketenangan alam.",
+    "description_en": "Lake Lau Kawar is a calm lake in Karo Regency, now even more attractive with new destinations like Braska Rimba Highland offering a serene ambiance and villas. Surrounded by mountains and cool highland air, it is an ideal place to relax and enjoy nature's tranquility.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787417699/ews-assets/dest_0016_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787417831/ews-assets/dest_0016_vid_dest_001.mp4",
+    "latitude": 3.022,
+    "longitude": 98.42,
+    "featured": false,
+    "created_at": ISODate("2026-06-22T07:08:24.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0017"),
+    "name": "Danau Sidihoni",
+    "name_en": "Lake Sidihoni",
+    "location": "Kabupaten Samosir, Sumatera Utara",
+    "category": "lake",
+    "price": 0,
+    "description": "Danau Sidihoni adalah danau unik di Pulau Samosir yang dijuluki danau di atas danau karena berada di tengah Danau Toba. Menyusuri keindahannya sangat menyenangkan, dengan suasana pedesaan Batak yang tenang dan pemandangan air yang jernih. Tempat ini menjadi daya tarik tersendiri bagi wisatawan yang menjelajahi Samosir.",
+    "description_en": "Lake Sidihoni is a unique lake on Samosir Island, nicknamed the lake above a lake because it sits within Lake Toba. Exploring its beauty is delightful, with a calm Batak village atmosphere and clear water views. It is a special attraction for travelers exploring Samosir.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787417700/ews-assets/dest_0017_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787417833/ews-assets/dest_0017_vid_dest_001.mp4",
+    "latitude": 2.602,
+    "longitude": 98.748,
+    "featured": true,
+    "created_at": ISODate("2024-05-07T02:39:16.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0018"),
+    "name": "Danau Linting",
+    "name_en": "Lake Linting",
+    "location": "Kabupaten Deli Serdang, Sumatera Utara",
+    "category": "lake",
+    "price": 0,
+    "description": "Danau Linting adalah danau dengan warna air yang sangat cantik di Deli Serdang, bagian dari kawasan wisata Sibolangit. Airnya yang memesona dan suasana sekitarnya yang hijau membuat tempat ini populer sebagai salah satu rekomendasi wisata Deli Serdang. Pengunjung bisa menikmati keindahan danau sambil menjelajahi berbagai destinasi alam lain di sekitarnya.",
+    "description_en": "Lake Linting is a lake with strikingly beautiful water color in Deli Serdang, part of the Sibolangit tourism area. Its enchanting water and green surroundings make it popular as one of Deli Serdang's recommended destinations. Visitors can enjoy the lake while exploring other nearby nature spots.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787417701/ews-assets/dest_0018_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787417838/ews-assets/dest_0018_vid_dest_001.mp4",
+    "latitude": 3.23,
+    "longitude": 98.726,
+    "featured": false,
+    "created_at": ISODate("2024-06-23T05:11:25.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0019"),
+    "name": "Bonan Dolok Samosir",
+    "name_en": "Bonan Dolok Samosir",
+    "location": "Kabupaten Samosir, Sumatera Utara",
+    "category": "viewpoint",
+    "price": 0,
+    "description": "Rute Bonan Dolok menuju Ujung Silalahi menawarkan pemandangan yang sangat cantik meski jalannya cukup menantang. Sepanjang perjalanan, pengunjung disuguhi panorama Danau Toba dan perbukitan hijau yang memanjakan mata. Rute ini menjadi favorit bagi mereka yang menyukai perjalanan dengan pemandangan alam yang memukau.",
+    "description_en": "The Bonan Dolok to Ujung Silalahi route offers a very beautiful view despite its challenging road. Along the way, visitors are treated to panoramas of Lake Toba and green hills that delight the eyes. It is a favorite for those who love journeys with stunning natural scenery.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787417703/ews-assets/dest_0019_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787417849/ews-assets/dest_0019_vid_dest_001.mp4",
+    "latitude": 2.642,
+    "longitude": 98.617,
+    "featured": false,
+    "created_at": ISODate("2026-08-20T13:00:35.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0020"),
+    "name": "Siosar Puncak 2000",
+    "name_en": "Siosar Peak 2000",
+    "location": "Kabupaten Karo, Sumatera Utara",
+    "category": "camping",
+    "price": 0,
+    "description": "Siosar Puncak 2000 menawarkan pengalaman menginap di kabin yang indah dengan udara sejuk pegunungan khas Karo. Salah satu kabin terkenalnya adalah Kabin Madu Efi yang nyaman dan instagramable. Tempat ini cocok untuk melepas penat, menikmati suasana alam, dan menghabiskan waktu berkualitas bersama orang terdekat.",
+    "description_en": "Siosar Peak 2000 offers the experience of staying in beautiful cabins with the cool mountain air typical of Karo. One notable cabin is Kabin Madu Efi, which is comfortable and instagram-worthy. It is a great place to unwind, enjoy the natural atmosphere, and spend quality time with loved ones.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787417704/ews-assets/dest_0020_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787417853/ews-assets/dest_0020_vid_dest_001.mp4",
+    "latitude": 2.94,
+    "longitude": 98.48,
+    "featured": false,
+    "created_at": ISODate("2023-12-18T13:11:54.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0021"),
+    "name": "Tangkahan",
+    "name_en": "Tangkahan",
+    "location": "Kabupaten Langkat, Sumatera Utara",
+    "category": "nature",
+    "price": 0,
+    "description": "Tangkahan dikenal sebagai surga ekowisata yang dijuluki hidden paradise dengan sungai jernih dan hutan tropis yang asri. Di sini pengunjung bisa menikmati alam sambil menelusuri sungai dan berinteraksi dengan gajah. Suasana yang tenang dan alami menjadikan Tangkahan destinasi pilihan untuk menyegarkan pikiran.",
+    "description_en": "Tangkahan is known as an ecotourism haven nicknamed a hidden paradise, with a clear river and lush tropical forest. Here visitors can enjoy nature while exploring the river and interacting with elephants. Its calm, natural atmosphere makes Tangkahan a top choice for refreshing the mind.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787417705/ews-assets/dest_0021_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787417880/ews-assets/dest_0021_vid_dest_001.mp4",
+    "latitude": 3.656,
+    "longitude": 98.173,
+    "featured": true,
+    "created_at": ISODate("2026-05-25T07:11:32.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0022"),
+    "name": "Menara Pandang Tele",
+    "name_en": "Tele Tower Viewpoint",
+    "location": "Kabupaten Samosir, Sumatera Utara",
+    "category": "viewpoint",
+    "price": 0,
+    "description": "Menara Pandang Tele adalah spot wisata di Samosir yang menawarkan pemandangan Danau Toba dari ketinggian. Pengunjung bisa menikmati panorama danau yang luas dan perbukitan hijau yang menawan. Tempat ini cocok untuk berfoto sambil menikmati keindahan alam Danau Toba yang ikonik.",
+    "description_en": "Tele Tower Viewpoint is a tourist spot in Samosir offering Lake Toba views from above. Visitors can enjoy the vast lake panorama and charming green hills. It is perfect for taking photos while enjoying the iconic natural beauty of Lake Toba.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787417707/ews-assets/dest_0022_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787417883/ews-assets/dest_0022_vid_dest_001.mp4",
+    "latitude": 2.61,
+    "longitude": 98.72,
+    "featured": false,
+    "created_at": ISODate("2025-04-07T09:31:43.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0023"),
+    "name": "Kawah Putih Tinggi Raja",
+    "name_en": "Tinggi Raja White Crater",
+    "location": "Kabupaten Simalungun, Sumatera Utara",
+    "category": "nature",
+    "price": 0,
+    "description": "Kawah Putih Tinggi Raja adalah destinasi alam yang indah dengan kawah putih dan sumber air panas alami di Kabupaten Simalungun. Keunikan formasi batu kapurnya yang menyerupai hamparan putih menjadikannya menarik untuk dikunjungi. Tempat ini menawarkan pengalaman wisata alam yang berbeda dan memukau.",
+    "description_en": "Tinggi Raja White Crater is a beautiful natural destination with a white crater and natural hot springs in Simalungun Regency. Its unique limestone formations resembling a white expanse make it intriguing to visit. This place offers a different and stunning nature tourism experience.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787417708/ews-assets/dest_0023_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787417887/ews-assets/dest_0023_vid_dest_001.mp4",
+    "latitude": 2.85,
+    "longitude": 98.8,
+    "featured": false,
+    "created_at": ISODate("2025-11-17T02:23:54.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0024"),
+    "name": "Sipinsur Geosite",
+    "name_en": "Sipinsur Geosite",
+    "location": "Kabupaten Humbang Hasundutan, Sumatera Utara",
+    "category": "viewpoint",
+    "price": 0,
+    "description": "Sipinsur Geosite adalah spot foto yang instagramable dengan deretan pohon pinus di Humbang Hasundutan, Sumatera Utara. Dari sini pengunjung dapat menikmati pemandangan Danau Toba dari ketinggian yang menawan. Tempat ini menjadi favorit para wisatawan untuk berfoto dan menikmati sejuknya udara pegunungan.",
+    "description_en": "Sipinsur Geosite is a photogenic spot with rows of pine trees in Humbang Hasundutan, North Sumatra. From here visitors can enjoy Lake Toba from a charming elevation. It is a favorite for travelers to take photos and enjoy the cool mountain air.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787417709/ews-assets/dest_0024_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787418064/ews-assets/dest_0024_vid_dest_001.mp4",
+    "latitude": 2.32,
+    "longitude": 98.62,
+    "featured": false,
+    "created_at": ISODate("2022-01-21T12:20:17.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0025"),
+    "name": "Kaldera Toba Nomadic Escape",
+    "name_en": "Kaldera Toba Nomadic Escape",
+    "location": "Pardamean Sibisa, Kecamatan Ajibata, Kabupaten Toba, Sumatera Utara",
+    "category": "camping",
+    "price": 0,
+    "description": "Kaldera Toba Nomadic Escape di Pardamean Sibisa menawarkan pengalaman glamping dengan pemandangan Danau Toba yang memesona. Tempat ini memadukan kenyamanan penginapan modern dengan keindahan alam Kaldera Toba. Cocok untuk liburan bersama sahabat maupun keluarga yang ingin suasana berbeda di tepi danau.",
+    "description_en": "Kaldera Toba Nomadic Escape in Pardamean Sibisa offers a glamping experience with mesmerizing Lake Toba views. It combines modern accommodation comfort with the natural beauty of the Toba Caldera. Perfect for a getaway with friends or family wanting a different lakeside atmosphere.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787417710/ews-assets/dest_0025_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787418058/ews-assets/dest_0025_vid_dest_001.mp4",
+    "latitude": 2.53,
+    "longitude": 98.94,
+    "featured": false,
+    "created_at": ISODate("2024-02-12T08:57:48.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0026"),
+    "name": "Bukit Lawang",
+    "name_en": "Bukit Lawang",
+    "location": "Bahorok, Kabupaten Langkat, Sumatera Utara",
+    "category": "nature",
+    "price": 0,
+    "description": "Bukit Lawang adalah destinasi ekowisata terkenal di Langkat, pintu gerbang Taman Nasional Gunung Leuser. Kawasan ini dikenal sebagai habitat orangutan dan menawarkan pengalaman trekking hutan tropis yang menantang. Suasana alamnya yang masih alami menjadikannya surga bagi pencinta alam dan satwa liar.",
+    "description_en": "Bukit Lawang is a famous ecotourism destination in Langkat, the gateway to Gunung Leuser National Park. The area is known as an orangutan habitat and offers challenging tropical forest trekking. Its pristine natural atmosphere makes it a paradise for nature and wildlife lovers.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787426811/ews-assets/dest_0026_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787426865/ews-assets/dest_0026_vid_dest_001.mp4",
+    "latitude": 3.58,
+    "longitude": 98.115,
+    "featured": true,
+    "created_at": ISODate("2026-08-14T11:35:35.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0027"),
+    "name": "Gundaling Berastagi",
+    "name_en": "Gundaling Berastagi",
+    "location": "Berastagi, Kabupaten Karo, Sumatera Utara",
+    "category": "viewpoint",
+    "price": 0,
+    "description": "Gundaling adalah bukit di Berastagi yang menjadi spot terbaik untuk menikmati pemandangan Gunung Sinabung dan Gunung Sibayak. Dari ketinggian ini, pengunjung dapat melihat panorama khas dataran tinggi Karo yang menakjubkan. Tempat ini cocok untuk berfoto, berwisata keluarga, dan menikmati udara sejuk.",
+    "description_en": "Gundaling is a hill in Berastagi that serves as the best spot to enjoy views of Mount Sinabung and Mount Sibayak. From this elevation, visitors can see the amazing panorama typical of the Karo highlands. It is perfect for photos, family outings, and enjoying the cool air.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787426811/ews-assets/dest_0027_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787426830/ews-assets/dest_0027_vid_dest_001.mp4",
+    "latitude": 3.199,
+    "longitude": 98.505,
+    "featured": false,
+    "created_at": ISODate("2024-01-27T01:59:38.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0028"),
+    "name": "Kebun Teh Sidamanik",
+    "name_en": "Sidamanik Tea Plantation",
+    "location": "Sidamanik, Kabupaten Simalungun, Sumatera Utara",
+    "category": "tea",
+    "price": 0,
+    "description": "Kebun Teh Sidamanik adalah hamparan kebun teh yang hijau dan luas di Kabupaten Simalungun, Sumatera Utara. Pemandangan kebun teh yang terhampar rapi di perbukitan menciptakan suasana yang sejuk dan menenangkan. Tempat ini cocok untuk menikmati udara segar, berfoto, dan menikmati keindahan alam khas perkebunan.",
+    "description_en": "Sidamanik Tea Plantation is a vast green tea estate in Simalungun Regency, North Sumatra. The neatly spread tea fields across the hills create a cool and calming atmosphere. It is a great place to enjoy fresh air, take photos, and enjoy the typical plantation scenery.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787426811/ews-assets/dest_0028_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787426842/ews-assets/dest_0028_vid_dest_001.mp4",
+    "latitude": 2.855,
+    "longitude": 98.907,
+    "featured": false,
+    "created_at": ISODate("2025-06-30T16:08:34.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0029"),
+    "name": "Kolam Abadi Teroh-teroh",
+    "name_en": "Teroh-teroh Eternal Pool",
+    "location": "Sei Bingai, Kabupaten Langkat, Sumatera Utara",
+    "category": "nature",
+    "price": 0,
+    "description": "Kolam Abadi Teroh-teroh di Sei Bingai, Langkat merupakan sungai dengan air yang begitu jernih dan segar. Kejernihan airnya menjadikan tempat ini sangat populer untuk berenang dan menikmati kesegaran alam. Suasana asri di sekitarnya menjadikan Kolam Abadi destinasi favorit wisata alam Sumatera Utara.",
+    "description_en": "Teroh-teroh Eternal Pool in Sei Bingai, Langkat is a river with remarkably clear and fresh water. Its clarity makes this place very popular for swimming and enjoying nature's freshness. The pristine surroundings make the Eternal Pool a favorite nature destination in North Sumatra.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787426811/ews-assets/dest_0029_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787426864/ews-assets/dest_0029_vid_dest_001.mp4",
+    "latitude": 3.34,
+    "longitude": 98.21,
+    "featured": false,
+    "created_at": ISODate("2024-02-16T03:25:33.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0030"),
+    "name": "Pantai Salbe",
+    "name_en": "Salbe Beach",
+    "location": "Desa Salbe, Kecamatan Dolok Pardamean, Kabupaten Simalungun, Sumatera Utara",
+    "category": "beach",
+    "price": 0,
+    "description": "Pantai Salbe adalah destinasi indah tersembunyi di tepi Danau Toba, Desa Salbe, Kecamatan Dolok Pardamean, Kabupaten Simalungun. Dengan air danau yang jernih dan suasana yang tenang, pantai ini menjadi tempat ideal untuk bersantai. Jaraknya sekitar 1,5 jam berkendara dari Parapat ke desa Salbe, menawarkan pengalaman wisata tepi danau yang menenangkan.",
+    "description_en": "Salbe Beach is a beautiful hidden destination on the shores of Lake Toba in Salbe Village, Dolok Pardamean District, Simalungun Regency. With clear lake water and a calm atmosphere, it is an ideal place to relax. It is about 1.5 hours by car from Parapat to Salbe village, offering a soothing lakeside experience.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787426811/ews-assets/dest_0030_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787426904/ews-assets/dest_0030_vid_dest_001.mp4",
+    "latitude": 2.78,
+    "longitude": 98.83,
+    "featured": false,
+    "created_at": ISODate("2025-06-26T15:57:14.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0031"),
+    "name": "Taman Simalem Resort",
+    "name_en": "Taman Simalem Resort",
+    "location": "Merek, Kabupaten Karo, Sumatera Utara",
+    "category": "hotel",
+    "price": 0,
+    "description": "Taman Simalem Resort terletak di Merek, Karo, menawarkan pemandangan Danau Toba dari ketinggian dengan udara sejuk pegunungan. Resort ini memadukan kenyamanan penginapan dengan keindahan alam serta kebun buah dan agrowisata. Cocok untuk liburan keluarga yang ingin menikmati ketenangan dan panorama alam yang indah.",
+    "description_en": "Taman Simalem Resort is located in Merek, Karo, offering Lake Toba views from above with cool mountain air. The resort combines accommodation comfort with natural beauty, fruit gardens and agro-tourism. It is great for family vacations wanting to enjoy tranquility and beautiful natural panoramas.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787426811/ews-assets/dest_0031_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787426830/ews-assets/dest_0031_vid_dest_001.mp4",
+    "latitude": 2.75,
+    "longitude": 98.48,
+    "featured": false,
+    "created_at": ISODate("2023-09-07T00:58:37.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0032"),
+    "name": "Istana Maimun Medan",
+    "name_en": "Maimun Palace Medan",
+    "location": "Kota Medan, Sumatera Utara",
+    "category": "culture",
+    "price": 0,
+    "description": "Istana Maimun adalah istana bersejarah Kesultanan Deli yang menjadi ikon Kota Medan, dengan arsitektur khas Melayu-Islami yang megah. Pengunjung dapat menikmati keindahan interior istana dan koleksi bersejarah keluarga sultan. Tempat ini merupakan destinasi budaya wajib bagi wisatawan yang berkunjung ke Medan.",
+    "description_en": "Maimun Palace is a historic palace of the Deli Sultanate that has become an icon of Medan, with magnificent Malay-Islamic architecture. Visitors can admire the palace's interiors and the sultan's family historical collections. It is a must-visit cultural destination for travelers to Medan.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787426812/ews-assets/dest_0032_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787426853/ews-assets/dest_0032_vid_dest_001.mp4",
+    "latitude": 3.574,
+    "longitude": 98.689,
+    "featured": true,
+    "created_at": ISODate("2023-04-08T01:16:05.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0033"),
+    "name": "Ujung Silalahi",
+    "name_en": "Ujung Silalahi",
+    "location": "Kabupaten Dairi, Sumatera Utara",
+    "category": "lake",
+    "price": 0,
+    "description": "Ujung Silalahi adalah kawasan di tepi Danau Toba yang menawarkan pemandangan danau yang indah dan menenangkan. Rute menuju tempat ini melalui Bonan Dolok menyuguhkan panorama yang cantik meski jalannya menantang. Tempat ini cocok untuk menikmati keindahan Danau Toba dari sisi yang berbeda.",
+    "description_en": "Ujung Silalahi is an area on the shores of Lake Toba offering beautiful, calming lake views. The route here via Bonan Dolok presents lovely panoramas despite its challenging road. It is a great place to enjoy the beauty of Lake Toba from a different side.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787426815/ews-assets/dest_0033_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787426970/ews-assets/dest_0033_vid_dest_001.mp4",
+    "latitude": 2.57,
+    "longitude": 98.58,
+    "featured": false,
+    "created_at": ISODate("2026-08-20T13:00:35.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0034"),
+    "name": "Sibisa Samosir",
+    "name_en": "Sibisa Samosir",
+    "location": "Kecamatan Ajibata, Kabupaten Toba, Sumatera Utara",
+    "category": "camping",
+    "price": 0,
+    "description": "Sibisa adalah kawasan di tepi Danau Toba yang populer dengan destinasi glamping seperti Kaldera Toba Nomadic Escape. Dengan pemandangan danau yang memesona dan suasana yang tenang, tempat ini cocok untuk bersantai. Pengunjung juga bisa menjelajahi keindahan alam sekitar seperti air terjun Situmurun.",
+    "description_en": "Sibisa is a lakeside area of Lake Toba popular with glamping destinations like Kaldera Toba Nomadic Escape. With mesmerizing lake views and a calm atmosphere, it is perfect for relaxing. Visitors can also explore nearby natural beauty such as Situmurun Waterfall.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787426812/ews-assets/dest_0034_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787426853/ews-assets/dest_0034_vid_dest_001.mp4",
+    "latitude": 2.54,
+    "longitude": 98.94,
+    "featured": false,
+    "created_at": ISODate("2024-02-12T08:57:48.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0035"),
+    "name": "Siboro Anduhur",
+    "name_en": "Siboro Anduhur",
+    "location": "Parapat, Kabupaten Simalungun, Sumatera Utara",
+    "category": "viewpoint",
+    "price": 0,
+    "description": "Siboro Anduhur menawarkan pengalaman wisata kuliner dengan cafe aestetik di dekat Danau Toba, sekitar setengah jam dari Parapat. Tempat ini cocok untuk bersantai sambil menikmati pemandangan danau dan suasana yang nyaman. Destinasi ini populer di kalangan wisatawan yang berkunjung ke sekitaran Parapat.",
+    "description_en": "Siboro Anduhur offers a culinary experience with aesthetic cafes near Lake Toba, about half an hour from Parapat. It is a great place to relax while enjoying lake views and a comfortable atmosphere. This destination is popular among travelers visiting the Parapat area.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787426812/ews-assets/dest_0035_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787426902/ews-assets/dest_0035_vid_dest_001.mp4",
+    "latitude": 2.66,
+    "longitude": 98.93,
+    "featured": false,
+    "created_at": ISODate("2024-08-03T04:11:04.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0036"),
+    "name": "Aek Sijorni Air Terjun",
+    "name_en": "Aek Sijorni Waterfall",
+    "location": "Kabupaten Tapanuli Selatan, Sumatera Utara",
+    "category": "waterfall",
+    "price": 0,
+    "description": "Aek Sijorni adalah air terjun bertingkat dengan air yang selalu jernih karena aliran sungai melewati batu cadas dan tidak mengandung lumpur. Air terjun ini dikelilingi banyak pohon kelapa yang menambah suasana tropisnya. Destinasi ini wajib dikunjungi saat berada di Sumatera Utara bagian selatan.",
+    "description_en": "Aek Sijorni is a terraced waterfall with water that stays clear because its river flows over cadas rock without mud. The waterfall is surrounded by many coconut trees that add to its tropical feel. It is a must-visit destination in southern North Sumatra.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787426812/ews-assets/dest_0036_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787426864/ews-assets/dest_0036_vid_dest_001.mp4",
+    "latitude": 1.62,
+    "longitude": 99.23,
+    "featured": false,
+    "created_at": ISODate("2024-09-06T01:41:30.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0037"),
+    "name": "Aritonang Samosir",
+    "name_en": "Aritonang Samosir",
+    "location": "Tiga Balata, Kabupaten Simalungun, Sumatera Utara",
+    "category": "nature",
+    "price": 0,
+    "description": "Aritonang Samosir menawarkan pengalaman wisata alam yang menyegarkan, termasuk keindahan Bah Sampuran di Tiga Balata, Sumatera Utara. Air yang jernih dan suasana yang asri menjadikannya tempat yang menyenangkan untuk dikunjungi. Cocok untuk melepas penat dan menikmati kesegaran alam sekitar Danau Toba.",
+    "description_en": "Aritonang Samosir offers a refreshing nature tourism experience, including the beauty of Bah Sampuran in Tiga Balata, North Sumatra. The clear water and pristine atmosphere make it a delightful place to visit. It is perfect for unwinding and enjoying the fresh nature around Lake Toba.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787426813/ews-assets/dest_0037_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787426918/ews-assets/dest_0037_vid_dest_001.mp4",
+    "latitude": 2.76,
+    "longitude": 98.85,
+    "featured": false,
+    "created_at": ISODate("2023-01-24T14:13:43.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0038"),
+    "name": "Pamah Simelir",
+    "name_en": "Pamah Simelir",
+    "location": "Kabupaten Langkat, Sumatera Utara",
+    "category": "camping",
+    "price": 0,
+    "description": "Pamah Simelir adalah lokasi camping yang sangat nyaman di Kabupaten Langkat, Sumatera Utara. Tempat ini dikelilingi suasana alam yang asri dan udara yang sejuk, sangat cocok untuk berkemah bersama teman maupun keluarga. Keindahan alamnya menjadikan Pamah Simelir destinasi favorit para pencinta alam.",
+    "description_en": "Pamah Simelir is a very comfortable camping spot in Langkat Regency, North Sumatra. Surrounded by pristine nature and cool air, it is ideal for camping with friends or family. Its natural beauty makes Pamah Simelir a favorite destination for nature lovers.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787426813/ews-assets/dest_0038_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787426920/ews-assets/dest_0038_vid_dest_001.mp4",
+    "latitude": 3.25,
+    "longitude": 98.2,
+    "featured": false,
+    "created_at": ISODate("2026-08-11T05:59:00.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0039"),
+    "name": "Desa Tongging",
+    "name_en": "Tongging Village",
+    "location": "Desa Tongging, Kabupaten Karo, Sumatera Utara",
+    "category": "culture",
+    "price": 0,
+    "description": "Desa Tongging adalah desa wisata di Kabupaten Karo yang terkenal sebagai titik keberangkatan menuju Air Terjun Sipiso-piso. Dari desa ini, pengunjung dapat menikmati panorama Danau Toba dan air terjun yang megah. Desa ini menawarkan pengalaman wisata budaya dan alam yang autentik khas Karo.",
+    "description_en": "Tongging Village is a tourist village in Karo Regency famous as the starting point to Sipiso-piso Waterfall. From the village, visitors can enjoy the panorama of Lake Toba and the majestic waterfall. The village offers an authentic cultural and nature tourism experience typical of Karo.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787426817/ews-assets/dest_0039_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787426916/ews-assets/dest_0039_vid_dest_001.mp4",
+    "latitude": 2.9169,
+    "longitude": 98.5193,
+    "featured": false,
+    "created_at": ISODate("2026-07-13T01:47:04.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0040"),
+    "name": "Juma Lau Sibolangit",
+    "name_en": "Juma Lau Sibolangit",
+    "location": "Sibolangit, Kabupaten Deli Serdang, Sumatera Utara",
+    "category": "nature",
+    "price": 0,
+    "description": "Juma Lau di Sibolangit, Deli Serdang adalah tempat yang tepat untuk bersantai sejenak di tengah keindahan alam. Suasananya yang tenang dan asri menjadikannya pilihan yang nyaman untuk melepas penat. Tempat ini cocok bagi mereka yang ingin menikmati ketenangan alam yang menyegarkan.",
+    "description_en": "Juma Lau in Sibolangit, Deli Serdang is the right place to take a moment's rest amid natural beauty. Its calm and pristine atmosphere makes it a comfortable choice to unwind. It is suitable for those who want to enjoy refreshing nature's tranquility.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787426814/ews-assets/dest_0040_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787426934/ews-assets/dest_0040_vid_dest_001.mp4",
+    "latitude": 3.29,
+    "longitude": 98.53,
+    "featured": false,
+    "created_at": ISODate("2024-03-16T13:33:51.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0041"),
+    "name": "Sibea-bea Samosir",
+    "name_en": "Sibea-bea Samosir",
+    "location": "Kabupaten Samosir, Sumatera Utara",
+    "category": "viewpoint",
+    "price": 0,
+    "description": "Sibea-bea Samosir menawarkan pemandangan jalan berliku yang indah dengan panorama alam sekitar Danau Toba yang menawan. Sepanjang perjalanan, pengunjung disuguhi pemandangan perbukitan dan danau yang memukau. Tempat ini menjadi favorit untuk menikmati keindahan alam Samosir dari ketinggian.",
+    "description_en": "Sibea-bea Samosir offers a beautiful winding road with a charming panorama of the Lake Toba surroundings. Along the way, visitors are treated to stunning hills and lake views. This place is a favorite for enjoying the natural beauty of Samosir from above.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787426815/ews-assets/dest_0041_img_dest_001.jpg"
+    ],
+    "video": null,
+    "latitude": 2.62,
+    "longitude": 98.66,
+    "featured": false,
+    "created_at": ISODate("2021-09-27T10:02:38.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0042"),
+    "name": "Pemandian Binanga Bolon",
+    "name_en": "Binanga Bolon Spring",
+    "location": "Silalahi, Kabupaten Dairi, Sumatera Utara",
+    "category": "hotspring",
+    "price": 0,
+    "description": "Pemandian Binanga Bolon menawarkan perpaduan yang indah antara sungai dan bukit hijau di sekitar Silalahi, Sumatera Utara. Airnya yang segar dan suasana alamnya yang asri menjadikan tempat ini nyaman untuk berenang dan bersantai. Destinasi ini cocok untuk rekreasi keluarga di tepi Danau Toba.",
+    "description_en": "Binanga Bolon Spring offers a beautiful combination of river and green hills around Silalahi, North Sumatra. Its fresh water and pristine natural atmosphere make it a comfortable place to swim and relax. This destination is great for family recreation on the shores of Lake Toba.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787426814/ews-assets/dest_0042_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787426917/ews-assets/dest_0042_vid_dest_001.mp4",
+    "latitude": 2.54,
+    "longitude": 98.54,
+    "featured": false,
+    "created_at": ISODate("2024-06-16T07:50:33.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0043"),
+    "name": "Pemandian Motung",
+    "name_en": "Motung Spring",
+    "location": "Parapat, Kabupaten Simalungun, Sumatera Utara",
+    "category": "hotspring",
+    "price": 0,
+    "description": "Pemandian Motung menyimpan keindahan bukit yang menakjubkan di dekat Kota Parapat, dengan tempat yang bersih dan nyaman. Selain berenang, pengunjung juga bisa camping dan menikmati pemandangan alam yang indah. Tempat ini cocok untuk liburan bersama keluarga maupun sahabat.",
+    "description_en": "Motung Spring hides a stunning hill near Parapat city, with a clean and comfortable setting. Besides swimming, visitors can also camp and enjoy beautiful natural views. This place is perfect for a getaway with family or friends.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787426815/ews-assets/dest_0043_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787426952/ews-assets/dest_0043_vid_dest_001.mp4",
+    "latitude": 2.68,
+    "longitude": 98.9,
+    "featured": false,
+    "created_at": ISODate("2024-09-03T03:32:50.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0044"),
+    "name": "Pemandian Air Panas Sipoholon",
+    "name_en": "Sipoholon Hot Spring",
+    "location": "Kabupaten Tapanuli Utara, Sumatera Utara",
+    "category": "hotspring",
+    "price": 0,
+    "description": "Pemandian Air Panas Sipoholon terkenal dengan mata air panas alami yang digunakan pengunjung untuk berendam dan bersantai. Air panasnya yang kaya mineral memberikan sensasi relaksasi dan menyehatkan tubuh. Tempat ini populer sebagai destinasi wisata alam yang menenangkan di Sumatera Utara.",
+    "description_en": "Sipoholon Hot Spring is famous for its natural hot spring used by visitors for soaking and relaxing. Its mineral-rich hot water provides a relaxing and healthful sensation. This place is popular as a soothing nature destination in North Sumatra.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787426815/ews-assets/dest_0044_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787426934/ews-assets/dest_0044_vid_dest_001.mp4",
+    "latitude": 2.08,
+    "longitude": 98.98,
+    "featured": false,
+    "created_at": ISODate("2023-08-14T01:16:27.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0045"),
+    "name": "Rumah Galuh Karo",
+    "name_en": "Rumah Galuh Karo",
+    "location": "Kabupaten Langkat, Sumatera Utara",
+    "category": "nature",
+    "price": 0,
+    "description": "Rumah Galuh Karo adalah destinasi wisata yang terletak di Desa Rumah Galuh, Kabupaten Langkat, dekat dengan Air Terjun Namu Belanga. Kawasan ini menawarkan keindahan alam yang masih asri dan suasana yang sejuk. Cocok untuk dijadikan daftar wisata setelah liburan bersama keluarga.",
+    "description_en": "Rumah Galuh Karo is a tourist destination in Rumah Galuh Village, Langkat Regency, near Namu Belanga Waterfall. The area offers pristine natural beauty and a cool atmosphere. It is perfect to add to your family travel list after the holidays.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787426815/ews-assets/dest_0045_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787426967/ews-assets/dest_0045_vid_dest_001.mp4",
+    "latitude": 3.4,
+    "longitude": 98.3,
+    "featured": false,
+    "created_at": ISODate("2023-04-03T14:37:09.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0046"),
+    "name": "Air Panas Sopotinjak",
+    "name_en": "Sopotinjak Hot Spring",
+    "location": "Kabupaten Tapanuli Selatan, Sumatera Utara",
+    "category": "hotspring",
+    "price": 0,
+    "description": "Air Panas Sopotinjak, yang juga dikenal sebagai Aek Milas, menawarkan pengalaman berendam air panas alami di Sumatera Utara. Airnya yang hangat dan menenangkan menjadikan tempat ini populer untuk relaksasi. Suasana alam di sekitarnya menambah kenyamanan bagi para pengunjung.",
+    "description_en": "Sopotinjak Hot Spring, also known as Aek Milas, offers a natural hot-spring soaking experience in North Sumatra. Its warm, soothing water makes the place popular for relaxation. The surrounding nature adds to visitors' comfort.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787426817/ews-assets/dest_0046_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787426944/ews-assets/dest_0046_vid_dest_001.mp4",
+    "latitude": 1.55,
+    "longitude": 99.3,
+    "featured": false,
+    "created_at": ISODate("2023-10-19T14:13:22.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0047"),
+    "name": "Arum Jeram Ancol Tebing Tinggi",
+    "name_en": "Ancol Rafting Tebing Tinggi",
+    "location": "Serdang Bedagai, Sumatera Utara",
+    "category": "nature",
+    "price": 0,
+    "description": "Arum Jeram Ancol di Tebing Tinggi, Serdang Bedagai menawarkan pengalaman mengarungi sungai yang memacu adrenalin. Dengan aliran sungai yang menantang dan pemandangan alam sekitar yang indah, tempat ini cocok untuk pecinta petualangan. Destinasi ini menjadi pilihan seru untuk rekreasi bersama teman.",
+    "description_en": "Ancol Rafting in Tebing Tinggi, Serdang Bedagai offers an adrenaline-pumping river rafting experience. With challenging river flows and beautiful surrounding scenery, it is great for adventure lovers. This destination is an exciting choice for recreation with friends.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787426817/ews-assets/dest_0047_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787426974/ews-assets/dest_0047_vid_dest_001.mp4",
+    "latitude": 3.33,
+    "longitude": 99.05,
+    "featured": false,
+    "created_at": ISODate("2023-02-26T00:07:26.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0048"),
+    "name": "Pemandian Umbul Manigom",
+    "name_en": "Umbul Manigom Spring",
+    "location": "Tiga Dolok, Kabupaten Simalungun, Sumatera Utara",
+    "category": "hotspring",
+    "price": 0,
+    "description": "Pemandian Umbul Manigom di Tiga Dolok, Simalungun terkenal dengan air yang sebening kristal. Kejernihan airnya menjadikan tempat ini sangat populer untuk berenang dan menikmati kesegaran alam. Suasana yang asri dan air yang bersih menjadikannya destinasi favorit keluarga.",
+    "description_en": "Umbul Manigom Spring in Tiga Dolok, Simalungun is famous for its crystal-clear water. Its clarity makes the place very popular for swimming and enjoying nature's freshness. The pristine atmosphere and clean water make it a family favorite.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787426816/ews-assets/dest_0048_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787426941/ews-assets/dest_0048_vid_dest_001.mp4",
+    "latitude": 2.76,
+    "longitude": 98.9,
+    "featured": false,
+    "created_at": ISODate("2021-07-27T14:02:53.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0049"),
+    "name": "Batu Maroppa",
+    "name_en": "Batu Maroppa",
+    "location": "Palipi, Kabupaten Samosir, Sumatera Utara",
+    "category": "nature",
+    "price": 0,
+    "description": "Batu Maroppa menawarkan perjalanan menyenangkan dari tuk-tuk ke daerah Palipi selama sekitar 1 jam 20 menit, dengan pemandangan perbukitan hijau, sawah, dan air danau yang memukau. Tempat ini menyuguhkan keindahan alam Samosir yang tenang dan autentik. Cocok bagi wisatawan yang ingin menjelajahi sisi lain Danau Toba.",
+    "description_en": "Batu Maroppa offers a pleasant journey from Tuk-tuk to the Palipi area in about 1 hour 20 minutes, with views of green hills, rice fields, and stunning lake water. The place presents the calm, authentic beauty of Samosir. It is great for travelers wanting to explore another side of Lake Toba.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787426817/ews-assets/dest_0049_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787426984/ews-assets/dest_0049_vid_dest_001.mp4",
+    "latitude": 2.68,
+    "longitude": 98.58,
+    "featured": false,
+    "created_at": ISODate("2023-07-15T11:07:47.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0050"),
+    "name": "Hotel Tor Sibohi Sipirok",
+    "name_en": "Hotel Tor Sibohi Sipirok",
+    "location": "Sipirok, Kabupaten Tapanuli Selatan, Sumatera Utara",
+    "category": "hotel",
+    "price": 0,
+    "description": "Hotel Tor Sibohi terletak di Sipirok, Tapanuli Selatan, menawarkan suasana pagi yang indah dengan udara pegunungan yang segar. Penginapan ini menyajikan pemandangan alam yang menenangkan dan kenyamanan bagi para tamu. Cocok untuk beristirahat sambil menikmati keindahan alam Sipirok.",
+    "description_en": "Hotel Tor Sibohi is located in Sipirok, South Tapanuli, offering a beautiful morning atmosphere with fresh mountain air. The accommodation presents calming natural views and comfort for guests. It is great for resting while enjoying the natural beauty of Sipirok.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787426817/ews-assets/dest_0050_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787426978/ews-assets/dest_0050_vid_dest_001.mp4",
+    "latitude": 1.67,
+    "longitude": 99.26,
+    "featured": false,
+    "created_at": ISODate("2024-01-31T14:30:58.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0051"),
+    "name": "Pulau Pandang",
+    "name_en": "Pandang Island",
+    "location": "Kabupaten Simalungun, Sumatera Utara",
+    "category": "island",
+    "price": 0,
+    "description": "Pulau Pandang adalah pulau indah yang tak akan terlewatkan saat berlibur ke Sumatera Utara. Pulau ini menawarkan pemandangan Danau Toba yang luas dengan suasana yang tenang dan menawan. Tempat ini cocok untuk menikmati keindahan alam danau dari tengah perairan.",
+    "description_en": "Pandang Island is a beautiful island not to be missed when vacationing in North Sumatra. The island offers vast Lake Toba views with a calm and charming atmosphere. It is perfect for enjoying the lake's natural beauty from the middle of the waters.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787428328/ews-assets/dest_0051_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787428371/ews-assets/dest_0051_vid_dest_001.mp4",
+    "latitude": 2.78,
+    "longitude": 98.92,
+    "featured": false,
+    "created_at": ISODate("2023-11-26T13:18:47.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0052"),
+    "name": "Masjid Agung Sibolga",
+    "name_en": "Sibolga Grand Mosque",
+    "location": "Kota Sibolga, Sumatera Utara",
+    "category": "culture",
+    "price": 0,
+    "description": "Masjid Agung Sibolga adalah salah satu masjid terindah di Sumatera Utara dengan desain yang unik dan fasilitas yang lengkap. Arsitekturnya yang megah menjadikannya destinasi religi dan wisata yang menarik untuk dikunjungi. Masjid ini menjadi kebanggaan masyarakat Sibolga dan sekitarnya.",
+    "description_en": "Sibolga Grand Mosque is one of the most beautiful mosques in North Sumatra, with a unique design and complete facilities. Its magnificent architecture makes it an interesting religious and tourism destination. The mosque is a pride of the Sibolga community.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787428327/ews-assets/dest_0052_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787428349/ews-assets/dest_0052_vid_dest_001.mp4",
+    "latitude": 1.742,
+    "longitude": 98.78,
+    "featured": false,
+    "created_at": ISODate("2024-12-13T15:24:18.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0053"),
+    "name": "Bukit Inspirasi Dolok Sanggul",
+    "name_en": "Dolok Sanggul Inspiration Hill",
+    "location": "Dolok Sanggul, Kabupaten Humbang Hasundutan, Sumatera Utara",
+    "category": "viewpoint",
+    "price": 0,
+    "description": "Bukit Inspirasi Dolok Sanggul menawarkan pemandangan yang indah di wilayah Humbang Hasundutan, Sumatera Utara. Dari ketinggian, pengunjung dapat menikmati hamparan perbukitan hijau dan udara sejuk yang menyegarkan. Tempat ini cocok untuk berfoto dan menikmati ketenangan alam.",
+    "description_en": "Dolok Sanggul Inspiration Hill offers a beautiful view in the Humbang Hasundutan region, North Sumatra. From above, visitors can enjoy the green hills and refreshing cool air. This place is great for taking photos and enjoying nature's calm.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787428327/ews-assets/dest_0053_img_dest_001.jpg"
+    ],
+    "video": null,
+    "latitude": 2.25,
+    "longitude": 98.75,
+    "featured": false,
+    "created_at": ISODate("2021-12-20T02:20:56.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0054"),
+    "name": "Gereja Velangkani",
+    "name_en": "Velangkani Church",
+    "location": "Pematangsiantar, Sumatera Utara",
+    "category": "culture",
+    "price": 0,
+    "description": "Gereja Katolik Maria Annai Velangkani adalah gereja yang indah dengan arsitektur khas dan suasana yang khusyuk. Gereja ini menjadi destinasi religi yang terkenal bagi umat Katolik di Sumatera Utara. Keindahan bangunannya menjadikannya menarik untuk dikunjungi dan diabadikan.",
+    "description_en": "Maria Annai Velangkani Catholic Church is a beautiful church with distinctive architecture and a solemn atmosphere. It is a well-known religious destination for Catholics in North Sumatra. The beauty of the building makes it interesting to visit and photograph.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787428328/ews-assets/dest_0054_img_dest_001.jpg"
+    ],
+    "video": null,
+    "latitude": 2.96,
+    "longitude": 99.06,
+    "featured": false,
+    "created_at": ISODate("2021-12-25T03:57:15.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0055"),
+    "name": "Batu Katak Bahorok",
+    "name_en": "Batu Katak Bahorok",
+    "location": "Bahorok, Kabupaten Langkat, Sumatera Utara",
+    "category": "nature",
+    "price": 0,
+    "description": "Ekowisata Batu Katak di Bahorok dikenal sebagai surga bunga raksasa, termasuk Amorphopallus Titanum dan Amorphopallus Gigas. Di sini pengunjung juga bisa melihat bunga Rafflesia Arnoldi yang langka. Tempat ini menjadi daya tarik bagi pecinta flora dan wisata alam.",
+    "description_en": "Batu Katak Ecotourism in Bahorok is known as a paradise of giant flowers, including Amorphopallus Titanum and Amorphopallus Gigas. Here visitors can also see the rare Rafflesia Arnoldi flower. This place is an attraction for flora and nature lovers.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787428328/ews-assets/dest_0055_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787428354/ews-assets/dest_0055_vid_dest_001.mp4",
+    "latitude": 3.61,
+    "longitude": 98.15,
+    "featured": false,
+    "created_at": ISODate("2023-07-25T13:45:17.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0056"),
+    "name": "Danau Siais",
+    "name_en": "Lake Siais",
+    "location": "Kabupaten Tapanuli Selatan, Sumatera Utara",
+    "category": "lake",
+    "price": 0,
+    "description": "Danau Siais adalah destinasi wisata alam yang indah di Tapanuli Selatan, sekitar dua jam dari Kota Padangsidimpuan. Danau ini menawarkan pemandangan yang tenang dan menarik untuk dinikmati, terutama dari udara. Tempat ini cocok bagi wisatawan yang mencari ketenangan alam.",
+    "description_en": "Lake Siais is a beautiful natural destination in South Tapanuli, about two hours from Padangsidimpuan city. The lake offers calm, attractive scenery to enjoy, especially from the air. It is suitable for travelers seeking natural tranquility.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787428327/ews-assets/dest_0056_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787428362/ews-assets/dest_0056_vid_dest_001.mp4",
+    "latitude": 1.55,
+    "longitude": 99.42,
+    "featured": false,
+    "created_at": ISODate("2025-06-07T02:25:45.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0057"),
+    "name": "Air Terjun Silima Lima",
+    "name_en": "Silima Lima Waterfall",
+    "location": "Marancar, Kabupaten Tapanuli Selatan, Sumatera Utara",
+    "category": "waterfall",
+    "price": 0,
+    "description": "Air Terjun Silima Lima di Marancar, Sumatera Utara menyajikan jembatan dengan pemandangan air terjun yang menawan. Aliran air yang deras dan suasana alam sekitar yang asri menjadikan tempat ini mantap untuk dikunjungi. Destinasi ini cocok bagi pencinta alam yang ingin menikmati keindahan air terjun.",
+    "description_en": "Silima Lima Waterfall in Marancar, North Sumatra features a bridge with a charming waterfall view. The strong flow and pristine surroundings make it a great place to visit. This destination is perfect for nature lovers wanting to enjoy waterfall beauty.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787428328/ews-assets/dest_0057_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787428343/ews-assets/dest_0057_vid_dest_001.mp4",
+    "latitude": 1.57,
+    "longitude": 99.24,
+    "featured": false,
+    "created_at": ISODate("2021-05-22T16:24:35.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0058"),
+    "name": "Taman Alam Lumbini",
+    "name_en": "Lumbini Nature Park",
+    "location": "Berastagi, Kabupaten Karo, Sumatera Utara",
+    "category": "culture",
+    "price": 0,
+    "description": "Taman Alam Lumbini di Berastagi adalah destinasi wisata religi Buddha dengan replika pagoda Shwedagon yang megah. Taman ini menawarkan suasana yang damai dan arsitektur yang indah, menjadikannya populer terutama saat perayaan Waisak. Tempat ini cocok untuk wisata budaya dan spiritual yang menenangkan.",
+    "description_en": "Lumbini Nature Park in Berastagi is a Buddhist religious destination featuring a replica of the magnificent Shwedagon Pagoda. The park offers a peaceful atmosphere and beautiful architecture, making it popular especially during Waisak. It is great for calming cultural and spiritual tourism.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787428329/ews-assets/dest_0058_img_dest_001.jpg"
+    ],
+    "video": null,
+    "latitude": 3.165,
+    "longitude": 98.515,
+    "featured": false,
+    "created_at": ISODate("2021-05-26T03:38:42.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0059"),
+    "name": "Aek Simata Huting",
+    "name_en": "Aek Simata Huting",
+    "location": "Sidamanik, Kabupaten Simalungun, Sumatera Utara",
+    "category": "hotspring",
+    "price": 0,
+    "description": "Wisata Pemandian Aek Simatahuting terletak di Desa Sarimatondang, Sidamanik, Kabupaten Simalungun. Tempat ini menawarkan air pemandian yang jernih dan suasana alam yang sejuk dan asri. Cocok untuk berenang dan bersantai bersama keluarga di tengah alam.",
+    "description_en": "Aek Simatahuting Spring is located in Sarimatondang Village, Sidamanik, Simalungun Regency. The place offers clear bathing water and a cool, pristine natural atmosphere. It is great for swimming and relaxing with family amid nature.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787428330/ews-assets/dest_0059_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787428356/ews-assets/dest_0059_vid_dest_001.mp4",
+    "latitude": 2.83,
+    "longitude": 98.92,
+    "featured": false,
+    "created_at": ISODate("2023-02-21T01:23:24.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0060"),
+    "name": "Penatapan Berastagi",
+    "name_en": "Berastagi Viewpoint",
+    "location": "Berastagi, Kabupaten Karo, Sumatera Utara",
+    "category": "viewpoint",
+    "price": 0,
+    "description": "Penatapan Berastagi adalah spot favorit untuk menikmati suasana dan pemandangan dataran tinggi Karo yang menawan. Dari sini, pengunjung dapat merasakan kesejukan udara serta panorama perbukitan yang menenangkan. Tempat ini cocok untuk bersantai dan melepas rindu akan suasana Berastagi.",
+    "description_en": "Berastagi Viewpoint is a favorite spot to enjoy the charming atmosphere and scenery of the Karo highlands. From here, visitors can feel the cool air and the soothing hill panorama. This place is great for relaxing and missing the Berastagi atmosphere.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787428329/ews-assets/dest_0060_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787428374/ews-assets/dest_0060_vid_dest_001.mp4",
+    "latitude": 3.19,
+    "longitude": 98.51,
+    "featured": false,
+    "created_at": ISODate("2025-11-05T09:30:48.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0061"),
+    "name": "Sawah Lukis Cengkeh Turi",
+    "name_en": "Cengkeh Turi Painted Rice Field",
+    "location": "Binjai, Sumatera Utara",
+    "category": "nature",
+    "price": 0,
+    "description": "Sawah Lukis Cengkeh Turi di Binjai menawarkan keindahan hamparan sawah yang dapat dinikmati sambil bersantai. Pemandangan persawahan yang hijau dan menenangkan menjadikan tempat ini populer untuk bersantai. Cocok untuk menikmati suasana pedesaan yang asri dan segar.",
+    "description_en": "Cengkeh Turi Painted Rice Field in Binjai offers the beauty of expansive rice fields to enjoy while relaxing. The green, calming rice field scenery makes the place popular for unwinding. It is great for enjoying a pristine, fresh village atmosphere.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787428328/ews-assets/dest_0061_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787428356/ews-assets/dest_0061_vid_dest_001.mp4",
+    "latitude": 3.59,
+    "longitude": 98.48,
+    "featured": false,
+    "created_at": ISODate("2021-08-31T14:30:46.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0062"),
+    "name": "Sawah Pematang Johar",
+    "name_en": "Pematang Johar Rice Field",
+    "location": "Kecamatan Labuhan Deli, Kabupaten Deli Serdang, Sumatera Utara",
+    "category": "nature",
+    "price": 0,
+    "description": "Wisata Sawah Pematang Johar di Kecamatan Labuhan Deli, Deli Serdang menawarkan keindahan persawahan yang memukau. Hamparan sawah hijau yang luas memberikan suasana yang sejuk dan menenangkan. Tempat ini cocok untuk bersantai, berfoto, dan menikmati keindahan alam pedesaan.",
+    "description_en": "Pematang Johar Rice Field in Labuhan Deli District, Deli Serdang offers stunning rice field scenery. The vast green paddies provide a cool, calming atmosphere. It is great for relaxing, taking photos, and enjoying the rustic countryside.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787428329/ews-assets/dest_0062_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787428374/ews-assets/dest_0062_vid_dest_001.mp4",
+    "latitude": 3.73,
+    "longitude": 98.68,
+    "featured": false,
+    "created_at": ISODate("2021-09-06T01:51:26.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0063"),
+    "name": "Aek Manik Sidamanik",
+    "name_en": "Aek Manik Sidamanik",
+    "location": "Sidamanik, Kabupaten Simalungun, Sumatera Utara",
+    "category": "hotspring",
+    "price": 0,
+    "description": "Aek Manik di Sidamanik, Simalungun adalah pemandian dengan air yang bening dan menyegarkan. Kejernihan airnya menjadikan tempat ini favorit untuk berenang dan melepas penat. Suasana alam yang asri menambah kenyamanan bagi para pengunjung.",
+    "description_en": "Aek Manik in Sidamanik, Simalungun is a bathing spot with clear, refreshing water. Its clarity makes it a favorite for swimming and unwinding. The pristine natural atmosphere adds to visitors' comfort.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787428330/ews-assets/dest_0063_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787428363/ews-assets/dest_0063_vid_dest_001.mp4",
+    "latitude": 2.85,
+    "longitude": 98.91,
+    "featured": false,
+    "created_at": ISODate("2021-08-29T02:15:19.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0064"),
+    "name": "Pelabuhan Tiga Raja",
+    "name_en": "Tiga Raja Port",
+    "location": "Kabupaten Simalungun, Sumatera Utara",
+    "category": "culture",
+    "price": 0,
+    "description": "Pelabuhan Tiga Raja di Simalungun menawarkan suasana yang begitu damai dengan pemandangan perairan Danau Toba. Sebagai pelabuhan sungai/danau, tempat ini menjadi pusat aktivitas transportasi dan rekreasi masyarakat sekitar. Suasana yang tenang menjadikannya menarik untuk dikunjungi.",
+    "description_en": "Tiga Raja Port in Simalungun offers a very peaceful atmosphere with Lake Toba water views. As a lake port, it serves as a center of transportation and recreation for the local community. Its calm atmosphere makes it interesting to visit.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787428330/ews-assets/dest_0064_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787428364/ews-assets/dest_0064_vid_dest_001.mp4",
+    "latitude": 2.93,
+    "longitude": 98.89,
+    "featured": false,
+    "created_at": ISODate("2021-06-22T11:31:49.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0065"),
+    "name": "Pantai Sejarah Batu Bara",
+    "name_en": "Batu Bara History Beach",
+    "location": "Kabupaten Batu Bara, Sumatera Utara",
+    "category": "beach",
+    "price": 0,
+    "description": "Pantai Sejarah Batu Bara adalah destinasi wisata pantai di Kabupaten Batu Bara yang menarik untuk dikunjungi. Pantai ini menawarkan suasana pesisir yang indah dan pengalaman wisata yang menyenangkan. Cocok untuk mengatur liburan bersama keluarga maupun sahabat.",
+    "description_en": "Batu Bara History Beach is a beach destination in Batu Bara Regency that is interesting to visit. The beach offers a beautiful coastal atmosphere and a pleasant tourism experience. It is great for planning a vacation with family or friends.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787428330/ews-assets/dest_0065_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787428370/ews-assets/dest_0065_vid_dest_001.mp4",
+    "latitude": 3.16,
+    "longitude": 99.52,
+    "featured": false,
+    "created_at": ISODate("2021-06-13T13:58:03.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0066"),
+    "name": "Bakkara",
+    "name_en": "Bakkara",
+    "location": "Kabupaten Humbang Hasundutan, Sumatera Utara",
+    "category": "culture",
+    "price": 0,
+    "description": "Bakkara adalah kawasan di Humbang Hasundutan yang menawarkan pemandangan alam Danau Toba yang indah dan menenangkan. Tempat ini juga dikenal memiliki nilai budaya Batak yang kuat, menjadikannya menarik untuk dijelajahi. Cocok bagi wisatawan yang ingin menikmati keindahan alam sekaligus budaya.",
+    "description_en": "Bakkara is an area in Humbang Hasundutan offering beautiful, calming Lake Toba views. It is also known for its strong Batak cultural value, making it interesting to explore. It is great for travelers wanting to enjoy both nature and culture.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787428331/ews-assets/dest_0066_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787428375/ews-assets/dest_0066_vid_dest_001.mp4",
+    "latitude": 2.29,
+    "longitude": 98.63,
+    "featured": false,
+    "created_at": ISODate("2025-10-01T01:40:19.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0067"),
+    "name": "Bumi Perkemahan Sibolangit",
+    "name_en": "Sibolangit Campground",
+    "location": "Sibolangit, Kabupaten Deli Serdang, Sumatera Utara",
+    "category": "camping",
+    "price": 0,
+    "description": "Bumi Perkemahan Sibolangit adalah lokasi perkemahan yang populer di Deli Serdang, Sumatera Utara. Tempat ini menawarkan suasana alam yang asri dan sejuk, sangat cocok untuk kegiatan camping dan outbound. Banyak yang merindukan suasana alamnya yang menenangkan.",
+    "description_en": "Sibolangit Campground is a popular camping site in Deli Serdang, North Sumatra. The place offers a pristine, cool natural atmosphere, ideal for camping and outbound activities. Many miss its soothing natural ambiance.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787428330/ews-assets/dest_0067_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787428373/ews-assets/dest_0067_vid_dest_001.mp4",
+    "latitude": 3.27,
+    "longitude": 98.54,
+    "featured": false,
+    "created_at": ISODate("2021-08-02T06:41:57.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0068"),
+    "name": "Air Terjun Saringgana",
+    "name_en": "Saringgana Waterfall",
+    "location": "Kutambaru, Kabupaten Langkat, Sumatera Utara",
+    "category": "waterfall",
+    "price": 0,
+    "description": "Air Terjun Saringgana terletak di Kutambaru, Kabupaten Langkat dan dikenal dengan keindahan air terjunnya yang cantik. Aliran airnya yang deras dikelilingi pepohonan hijau menciptakan pemandangan yang menawan. Tempat ini menjadi destinasi favorit bagi pencinta alam di Langkat.",
+    "description_en": "Saringgana Waterfall is located in Kutambaru, Langkat Regency and is known for its lovely waterfall beauty. Its strong flow surrounded by green trees creates a charming scene. This place is a favorite destination for nature lovers in Langkat.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787428331/ews-assets/dest_0068_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787428375/ews-assets/dest_0068_vid_dest_001.mp4",
+    "latitude": 3.43,
+    "longitude": 98.19,
+    "featured": false,
+    "created_at": ISODate("2021-08-31T09:29:23.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0069"),
+    "name": "Tabo Cottage Samosir",
+    "name_en": "Tabo Cottage Samosir",
+    "location": "Tuk-tuk, Pulau Samosir, Sumatera Utara",
+    "category": "hotel",
+    "price": 0,
+    "description": "Tabo Cottage terletak di Tuk-tuk, Pulau Samosir, menawarkan penginapan dengan pemandangan Danau Toba yang menawan. Cottage ini memberikan pengalaman menginap yang nyaman dengan latar belakang danau yang indah. Cocok bagi wisatawan yang ingin bermalam sambil menikmati keindahan Danau Toba.",
+    "description_en": "Tabo Cottage is located in Tuk-tuk, Samosir Island, offering accommodation with charming Lake Toba views. The cottage provides a comfortable stay with a beautiful lake backdrop. It is great for travelers who want an overnight stay while enjoying Lake Toba's beauty.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787428330/ews-assets/dest_0069_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787428381/ews-assets/dest_0069_vid_dest_001.mp4",
+    "latitude": 2.62,
+    "longitude": 98.89,
+    "featured": false,
+    "created_at": ISODate("2021-11-30T04:06:36.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0070"),
+    "name": "Puncak Sorik Marapi",
+    "name_en": "Sorik Marapi Peak",
+    "location": "Sibanggor Julu, Kabupaten Mandailing Natal, Sumatera Utara",
+    "category": "mountain",
+    "price": 0,
+    "description": "Puncak Sorik Marapi terletak di Sibanggor Julu, Mandailing Natal, dan dikenal sebagai salah satu desa tertua dengan atap ijuk di Sumatera Utara. Kawasan ini menawarkan pemandangan alam yang indah serta kekayaan budaya yang autentik. Cocok bagi wisatawan yang ingin menjelajahi keunikan budaya dan alam.",
+    "description_en": "Sorik Marapi Peak is located in Sibanggor Julu, Mandailing Natal, known as one of the oldest villages with thatched roofs in North Sumatra. The area offers beautiful natural scenery and authentic cultural richness. It is great for travelers wanting to explore unique culture and nature.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787428331/ews-assets/dest_0070_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787428377/ews-assets/dest_0070_vid_dest_001.mp4",
+    "latitude": 0.7,
+    "longitude": 99.5,
+    "featured": false,
+    "created_at": ISODate("2021-10-17T04:55:51.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0071"),
+    "name": "Pulau Nias",
+    "name_en": "Nias Island",
+    "location": "Kabupaten Nias, Sumatera Utara",
+    "category": "island",
+    "price": 0,
+    "description": "Pulau Nias adalah destinasi wisata bahari yang terkenal dengan keindahan pantainya, termasuk Pantai Pasir Merah di Afulu. Pengunjung dapat menikmati pemandangan pasir merah dan matahari terbenam yang memukau. Pulau ini cocok untuk liburan yang mengesankan dengan menginap di tepi pantai.",
+    "description_en": "Nias Island is a marine tourism destination famous for its beautiful beaches, including Pasir Merah Beach in Afulu. Visitors can enjoy the red sand views and stunning sunsets. The island is ideal for a memorable vacation with an overnight stay by the beach.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787428331/ews-assets/dest_0071_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787428386/ews-assets/dest_0071_vid_dest_001.mp4",
+    "latitude": 1.08,
+    "longitude": 97.76,
+    "featured": true,
+    "created_at": ISODate("2025-10-30T02:28:17.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0072"),
+    "name": "Bukit Holbung",
+    "name_en": "Holbung Hill",
+    "location": "Kabupaten Samosir, Sumatera Utara",
+    "category": "viewpoint",
+    "price": 0,
+    "description": "Bukit Holbung di Samosir adalah bukit dengan pemandangan Danau Toba yang menakjubkan. Jalan menuju bukit ini menyajikan pemandangan alam yang indah sebelum mencapai puncaknya. Tempat ini menjadi favorit untuk berfoto dan menikmati keindahan Danau Toba dari ketinggian.",
+    "description_en": "Holbung Hill in Samosir is a hill with breathtaking Lake Toba views. The road to the hill offers beautiful scenery before reaching its peak. It is a favorite for taking photos and enjoying Lake Toba's beauty from above.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787428331/ews-assets/dest_0072_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787428382/ews-assets/dest_0072_vid_dest_001.mp4",
+    "latitude": 2.64,
+    "longitude": 98.74,
+    "featured": false,
+    "created_at": ISODate("2024-04-22T02:06:39.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0073"),
+    "name": "Air Terjun Sigura-gura",
+    "name_en": "Sigura-gura Waterfall",
+    "location": "Kabupaten Asahan, Sumatera Utara",
+    "category": "waterfall",
+    "price": 0,
+    "description": "Air Terjun Sigura-gura adalah salah satu air terjun tertinggi di Indonesia yang terletak di Sumatera Utara, dekat dengan Air Terjun Ponot. Aliran airnya yang deras dan megah menjadikannya daya tarik utama bagi wisatawan. Tempat ini cocok bagi pencinta alam dan fotografer.",
+    "description_en": "Sigura-gura Waterfall is one of Indonesia's tallest waterfalls in North Sumatra, near Ponot Waterfall. Its powerful, majestic flow is the main attraction for tourists. It is perfect for nature lovers and photographers.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787428331/ews-assets/dest_0073_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787428402/ews-assets/dest_0073_vid_dest_001.mp4",
+    "latitude": 2.47,
+    "longitude": 99.14,
+    "featured": false,
+    "created_at": ISODate("2023-12-05T12:37:28.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0074"),
+    "name": "Lumban Bulbul",
+    "name_en": "Lumban Bulbul",
+    "location": "Balige, Kabupaten Toba, Sumatera Utara",
+    "category": "culture",
+    "price": 0,
+    "description": "Lumban Bulbul adalah salah satu desa wisata di kawasan Danau Toba yang memenuhi standar Sapta Pesona dan CHSE. Desa ini menawarkan kekayaan budaya Batak dan keindahan alam Danau Toba yang menawan. Cocok bagi wisatawan yang ingin merasakan keramahan dan keunikan desa wisata.",
+    "description_en": "Lumban Bulbul is one of the tourist villages in the Lake Toba area that meets Sapta Pesona and CHSE standards. The village offers rich Batak culture and the charming beauty of Lake Toba. It is great for travelers wanting to experience hospitality and the uniqueness of a tourist village.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787428332/ews-assets/dest_0074_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787428414/ews-assets/dest_0074_vid_dest_001.mp4",
+    "latitude": 2.35,
+    "longitude": 99.06,
+    "featured": false,
+    "created_at": ISODate("2023-02-22T04:14:24.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0075"),
+    "name": "Sungai Wampu",
+    "name_en": "Wampu River",
+    "location": "Kabupaten Langkat, Sumatera Utara",
+    "category": "nature",
+    "price": 0,
+    "description": "Sungai Wampu di Kabupaten Langkat menawarkan pemandangan alam yang indah dengan jembatan baru yang menjadi daya tarik. Sungai ini mengalir melalui kawasan yang asri dan menyegarkan. Tempat ini cocok untuk dikunjungi sambil menikmati keindahan alam sekitar.",
+    "description_en": "Wampu River in Langkat Regency offers beautiful natural scenery with a new bridge as its attraction. The river flows through a pristine, refreshing area. This place is worth visiting while enjoying the surrounding natural beauty.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787428332/ews-assets/dest_0075_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787428403/ews-assets/dest_0075_vid_dest_001.mp4",
+    "latitude": 3.7,
+    "longitude": 98.2,
+    "featured": false,
+    "created_at": ISODate("2023-04-19T07:05:17.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0076"),
+    "name": "Pariban Sidebuk Debu",
+    "name_en": "Pariban Sidebuk Debu",
+    "location": "Sidebuk-debuk, Kabupaten Karo, Sumatera Utara",
+    "category": "hotspring",
+    "price": 0,
+    "description": "Pariban Sidebuk Debu menawarkan pengalaman berendam air hangat sambil nongkrong cafe dengan pemandangan Gunung Sibayak. Tempat ini memadukan relaksasi air panas dengan suasana cafe yang nyaman. Cocok untuk bersantai dan menikmati keindahan pegunungan Karo.",
+    "description_en": "Pariban Sidebuk Debu offers the experience of soaking in warm water while hanging out at a cafe with views of Mount Sibayak. It combines hot-spring relaxation with a comfortable cafe atmosphere. It is great for relaxing and enjoying the Karo mountain beauty.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787430461/ews-assets/dest_0076_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787431550/ews-assets/dest_0076_vid_dest_001.mp4",
+    "latitude": 3.19,
+    "longitude": 98.49,
+    "featured": false,
+    "created_at": ISODate("2025-08-11T01:53:52.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0077"),
+    "name": "Tom's Jungle",
+    "name_en": "Tom's Jungle",
+    "location": "Kota Medan, Sumatera Utara",
+    "category": "nature",
+    "price": 0,
+    "description": "Tom's Jungle adalah destinasi wisata alam yang cocok untuk mengisi liburan tanpa harus jauh keluar dari Kota Medan. Tempat ini menawarkan suasana alam yang menyenangkan dengan berbagai aktivitas rekreasi. Cocok untuk liburan keluarga dengan biaya yang terjangkau.",
+    "description_en": "Tom's Jungle is a nature destination suitable for filling the holidays without going far out of Medan city. The place offers a pleasant natural atmosphere with various recreational activities. It is great for family vacations at an affordable cost.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787430463/ews-assets/dest_0077_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787431382/ews-assets/dest_0077_vid_dest_001.mp4",
+    "latitude": 3.59,
+    "longitude": 98.67,
+    "featured": false,
+    "created_at": ISODate("2026-06-28T13:10:51.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0078"),
+    "name": "Alun-Alun Stabat",
+    "name_en": "Stabat Town Square",
+    "location": "Stabat, Kabupaten Langkat, Sumatera Utara",
+    "category": "culture",
+    "price": 0,
+    "description": "Alun-Alun Stabat adalah ruang publik di Langkat yang menjadi pusat kegiatan dan rekreasi masyarakat. Potret alun-alun ini menampilkan suasana kota yang tertata dan menjadi kebanggaan warga Stabat. Tempat ini cocok untuk bersantai dan menikmati suasana kota.",
+    "description_en": "Stabat Town Square is a public space in Langkat that serves as a center of community activities and recreation. The square portrays an orderly city atmosphere and is a pride of Stabat residents. It is great for relaxing and enjoying the city ambiance.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787430464/ews-assets/dest_0078_img_dest_001.jpg"
+    ],
+    "video": null,
+    "latitude": 3.75,
+    "longitude": 98.45,
+    "featured": false,
+    "created_at": ISODate("2021-08-03T03:40:23.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0079"),
+    "name": "Pea FarmHouse",
+    "name_en": "Pea Farmhouse",
+    "location": "Simanindo, Kabupaten Samosir, Sumatera Utara",
+    "category": "hotel",
+    "price": 0,
+    "description": "Pea Farmhouse terletak di Simanindo, Samosir, menawarkan pengalaman menginap dengan suasana pedesaan yang nyaman dan instagramable. Tempat ini memadukan konsep farmhouse dengan keindahan alam Danau Toba. Cocok untuk bersantai dan berfoto di tengah suasana yang asri.",
+    "description_en": "Pea Farmhouse is located in Simanindo, Samosir, offering a comfortable, instagram-worthy rural farmhouse stay. It combines a farmhouse concept with the natural beauty of Lake Toba. It is great for relaxing and taking photos in a pristine setting.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787430461/ews-assets/dest_0079_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787431549/ews-assets/dest_0079_vid_dest_001.mp4",
+    "latitude": 2.7,
+    "longitude": 98.88,
+    "featured": false,
+    "created_at": ISODate("2023-01-07T10:04:52.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0080"),
+    "name": "Pulo Batu Pulbat",
+    "name_en": "Pulo Batu Pulbat",
+    "location": "Kabupaten Tapanuli Utara, Sumatera Utara",
+    "category": "nature",
+    "price": 0,
+    "description": "Pulo Batu Pulbat menawarkan pemandian dengan air yang jernih dan segar di Sumatera Utara. Kejernihan airnya menjadikan tempat ini populer untuk berenang dan menikmati kesegaran alam. Suasana asri di sekitarnya menambah kenyamanan pengunjung.",
+    "description_en": "Pulo Batu Pulbat offers a bathing spot with clear, fresh water in North Sumatra. Its clarity makes it popular for swimming and enjoying nature's freshness. The pristine surroundings add to visitors' comfort.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787430461/ews-assets/dest_0080_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787431385/ews-assets/dest_0080_vid_dest_001.mp4",
+    "latitude": 2.1,
+    "longitude": 99.0,
+    "featured": false,
+    "created_at": ISODate("2025-11-04T02:10:57.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0081"),
+    "name": "Mickey Holiday Berastagi",
+    "name_en": "Mickey Holiday Berastagi",
+    "location": "Berastagi, Kabupaten Karo, Sumatera Utara",
+    "category": "hotel",
+    "price": 0,
+    "description": "Mickey Holiday Berastagi adalah destinasi wisata yang menawarkan jembatan dengan lampu warna-warni yang menarik. Tempat ini memadukan suasana liburan yang menyenangkan dengan pemandangan dataran tinggi Karo. Cocok untuk liburan keluarga dan berfoto di malam hari.",
+    "description_en": "Mickey Holiday Berastagi is a tourist destination featuring a bridge with colorful lights. It combines a pleasant holiday atmosphere with Karo highland scenery. It is great for family vacations and night-time photography.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787430465/ews-assets/dest_0081_img_dest_001.jpg",
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787430465/ews-assets/dest_0081_img_dest_002.jpg"
+    ],
+    "video": null,
+    "latitude": 3.18,
+    "longitude": 98.5,
+    "featured": false,
+    "created_at": ISODate("2021-06-11T07:20:28.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0082"),
+    "name": "KHAS Parapat Hotel",
+    "name_en": "KHAS Parapat Hotel",
+    "location": "Parapat, Kabupaten Simalungun, Sumatera Utara",
+    "category": "hotel",
+    "price": 0,
+    "description": "KHAS Parapat Hotel menawarkan panorama alam Danau Toba yang indah langsung dari hotel. Penginapan ini memadukan kenyamanan dengan pemandangan danau yang menenangkan. Cocok untuk menginap sambil menikmati keindahan Danau Toba dari dekat.",
+    "description_en": "KHAS Parapat Hotel offers a beautiful panorama of Lake Toba directly from the hotel. The accommodation combines comfort with calming lake views. It is great for an overnight stay while enjoying Lake Toba's beauty up close.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787430467/ews-assets/dest_0082_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787431423/ews-assets/dest_0082_vid_dest_001.mp4",
+    "latitude": 2.64,
+    "longitude": 98.93,
+    "featured": false,
+    "created_at": ISODate("2022-11-11T03:16:31.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0083"),
+    "name": "Air Terjun Simempar",
+    "name_en": "Simempar Waterfall",
+    "location": "Desa Simempar, Kecamatan Gunung Meriah, Kabupaten Deli Serdang, Sumatera Utara",
+    "category": "waterfall",
+    "price": 0,
+    "description": "Air Terjun Simempar terletak di Desa Simempar, Kecamatan Gunung Meriah, Deli Serdang. Air terjun ini menawarkan aliran air yang indah dikelilingi suasana alam yang asri. Tempat ini cocok bagi pencinta alam yang ingin menikmati keindahan air terjun yang tersembunyi.",
+    "description_en": "Simempar Waterfall is located in Simempar Village, Gunung Meriah District, Deli Serdang. The waterfall offers a beautiful flow surrounded by pristine nature. This place is great for nature lovers wanting to enjoy a hidden waterfall's beauty.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787430467/ews-assets/dest_0083_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787431343/ews-assets/dest_0083_vid_dest_001.mp4",
+    "latitude": 3.31,
+    "longitude": 98.57,
+    "featured": false,
+    "created_at": ISODate("2024-07-08T05:35:05.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0084"),
+    "name": "Padang Halaban Aek Kuo",
+    "name_en": "Padang Halaban Aek Kuo",
+    "location": "Labuhan Batu Utara, Sumatera Utara",
+    "category": "nature",
+    "price": 0,
+    "description": "Padang Halaban di Aek Kuo, Labuhan Batu Utara menawarkan lorong indah yang menjadi daya tarik wisata. Lorong yang memesona ini dikelilingi suasana alam yang asri dan menenangkan. Tempat ini cocok untuk berfoto dan menikmati keindahan alam yang unik.",
+    "description_en": "Padang Halaban in Aek Kuo, North Labuhan Batu offers a beautiful corridor as its main attraction. This enchanting corridor is surrounded by a pristine, calming atmosphere. The place is great for photography and enjoying unique natural beauty.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787430465/ews-assets/dest_0084_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787431552/ews-assets/dest_0084_vid_dest_001.mp4",
+    "latitude": 2.2,
+    "longitude": 99.5,
+    "featured": false,
+    "created_at": ISODate("2023-11-06T02:30:43.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0085"),
+    "name": "Batu Hoda",
+    "name_en": "Batu Hoda",
+    "location": "Tigaras, Kabupaten Simalungun, Sumatera Utara",
+    "category": "beach",
+    "price": 0,
+    "description": "Batu Hoda di Tigaras adalah destinasi wisata yang cocok untuk piknik saat libur, termasuk Natal dan tahun baru. Kawasan ini menawarkan pemandangan tepi Danau Toba yang indah dengan suasana yang tenang. Cocok untuk bersantai bersama keluarga di tepi danau.",
+    "description_en": "Batu Hoda in Tigaras is a tourist destination suitable for picnics during holidays, including Christmas and New Year. The area offers beautiful Lake Toba shoreline views with a calm atmosphere. It is great for relaxing with family by the lake.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787430466/ews-assets/dest_0085_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787430729/ews-assets/dest_0085_vid_dest_001.mp4",
+    "latitude": 2.73,
+    "longitude": 98.84,
+    "featured": false,
+    "created_at": ISODate("2023-12-20T05:50:42.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0086"),
+    "name": "Batu Rongring",
+    "name_en": "Batu Rongring",
+    "location": "Sei Musam, Kabupaten Langkat, Sumatera Utara",
+    "category": "nature",
+    "price": 0,
+    "description": "Batu Rongring di Sei Musam, Langkat menawarkan pengalaman menjelajahi hutan yang asri dan menantang. Kawasan hutannya yang masih alami menjadikan tempat ini menarik bagi pecinta alam. Cocok untuk wisata petualangan dan menikmati keindahan hutan tropis.",
+    "description_en": "Batu Rongring in Sei Musam, Langkat offers the experience of exploring pristine, challenging forests. Its still-natural forest area makes it interesting for nature lovers. It is great for adventure tourism and enjoying tropical forest beauty.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787430466/ews-assets/dest_0086_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787430884/ews-assets/dest_0086_vid_dest_001.mp4",
+    "latitude": 3.65,
+    "longitude": 98.2,
+    "featured": false,
+    "created_at": ISODate("2021-08-11T10:32:26.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0087"),
+    "name": "Debang Resort",
+    "name_en": "Debang Resort",
+    "location": "Silalahi, Kabupaten Dairi, Sumatera Utara",
+    "category": "hotel",
+    "price": 0,
+    "description": "Debang Resort terletak di Silalahi, Sumatera Utara, menawarkan suasana yang menyenangkan di tepi Danau Toba. Resort ini memadukan kenyamanan penginapan dengan pemandangan danau yang menenangkan. Cocok untuk liburan yang santai dan menyegarkan.",
+    "description_en": "Debang Resort is located in Silalahi, North Sumatra, offering a pleasant atmosphere on the shores of Lake Toba. The resort combines accommodation comfort with calming lake views. It is great for a relaxing, refreshing vacation.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787430467/ews-assets/dest_0087_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787430953/ews-assets/dest_0087_vid_dest_001.mp4",
+    "latitude": 2.62,
+    "longitude": 98.52,
+    "featured": false,
+    "created_at": ISODate("2021-07-24T10:37:04.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0088"),
+    "name": "Sajjan Heritage Farm",
+    "name_en": "Sajjan Heritage Farm",
+    "location": "Berastagi, Kabupaten Karo, Sumatera Utara",
+    "category": "hotel",
+    "price": 0,
+    "description": "Sajjan Heritage Farm menawarkan kenyamanan dan ketenangan untuk staycation di kawasan Berastagi. Farmstay ini sangat sejuk karena dikelilingi pohon pinus yang menyejukkan. Tempat ini cocok bagi yang ingin merasakan suasana staycation yang damai di tengah alam.",
+    "description_en": "Sajjan Heritage Farm offers comfort and tranquility for a staycation in the Berastagi area. This farmstay is very cool as it is surrounded by refreshing pine trees. It is great for those wanting a peaceful staycation amid nature.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787430479/ews-assets/dest_0088_img_dest_001.webp",
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787430468/ews-assets/dest_0088_img_dest_002.webp",
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787430475/ews-assets/dest_0088_img_dest_003.webp",
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787430482/ews-assets/dest_0088_img_dest_004.webp",
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787430567/ews-assets/dest_0088_img_dest_005.webp",
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787430531/ews-assets/dest_0088_img_dest_006.webp",
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787430477/ews-assets/dest_0088_img_dest_007.webp",
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787430481/ews-assets/dest_0088_img_dest_008.webp",
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787430481/ews-assets/dest_0088_img_dest_009.webp",
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787430484/ews-assets/dest_0088_img_dest_010.webp"
+    ],
+    "video": null,
+    "latitude": 3.16,
+    "longitude": 98.51,
+    "featured": false,
+    "created_at": ISODate("2022-03-14T04:06:24.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0089"),
+    "name": "Jembatan Gantung Sicanang",
+    "name_en": "Sicanang Suspension Bridge",
+    "location": "Kecamatan Kutalimbaru, Kabupaten Deli Serdang, Sumatera Utara",
+    "category": "culture",
+    "price": 0,
+    "description": "Jembatan Gantung Sicanang adalah jembatan gantung berwarna merah yang menjadi ikon dan daya tarik wisata. Pengunjung dapat menyeberangi jembatan ini sambil menikmati pemandangan alam sekitar yang asri. Di dekatnya terdapat penginapan seperti Green Travelodge Bukit Lawang yang nyaman untuk beristirahat.",
+    "description_en": "Sicanang Suspension Bridge is a red suspension bridge that has become an icon and tourist attraction. Visitors can cross the bridge while enjoying the pristine surrounding scenery. Nearby are accommodations like Green Travelodge Bukit Lawang, comfortable for resting.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787430482/ews-assets/dest_0089_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787431476/ews-assets/dest_0089_vid_dest_001.mp4",
+    "latitude": 3.52,
+    "longitude": 98.49,
+    "featured": false,
+    "created_at": ISODate("2022-03-16T09:39:31.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0090"),
+    "name": "Simpang Doulu Berastagi",
+    "name_en": "Simpang Doulu Berastagi",
+    "location": "Berastagi, Kabupaten Karo, Sumatera Utara",
+    "category": "viewpoint",
+    "price": 0,
+    "description": "Simpang Doulu Berastagi adalah titik persimpangan yang menjadi landmark di kawasan Berastagi. Tempat ini menawarkan suasana khas dataran tinggi Karo yang sejuk dan menjadi kenangan bagi para pelintas. Cocok untuk singgah sejenak dan menikmati suasana Berastagi.",
+    "description_en": "Simpang Doulu Berastagi is an intersection that has become a landmark in the Berastagi area. It offers the cool atmosphere typical of the Karo highlands and is a memory for passersby. It is great for a short stop and enjoying the Berastagi ambiance.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787430482/ews-assets/dest_0090_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787431550/ews-assets/dest_0090_vid_dest_001.mp4",
+    "latitude": 3.19,
+    "longitude": 98.53,
+    "featured": false,
+    "created_at": ISODate("2025-05-30T04:22:36.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0091"),
+    "name": "Sopo Tatea Bulan",
+    "name_en": "Sopo Tatea Bulan",
+    "location": "Pusuk Buhit, Sianjur Mula-mula, Kabupaten Samosir, Sumatera Utara",
+    "category": "culture",
+    "price": 0,
+    "description": "Sopo Tatea Bulan terletak di Pusuk Buhit, Sianjur Mula-mula, Samosir, dan memiliki nilai budaya Batak yang mendalam. Menurut sejarah, Si Raja Batak memiliki dua orang anak yaitu Ompu Tatea Bulan dan Raja Isombaon. Tempat ini menjadi destinasi penting bagi yang ingin mempelajari sejarah Batak.",
+    "description_en": "Sopo Tatea Bulan is located in Pusuk Buhit, Sianjur Mula-mula, Samosir, and holds deep Batak cultural value. According to history, Si Raja Batak had two children, namely Ompu Tatea Bulan and Raja Isombaon. It is an important destination for those wanting to learn Batak history.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787430483/ews-assets/dest_0091_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787431394/ews-assets/dest_0091_vid_dest_001.mp4",
+    "latitude": 2.62,
+    "longitude": 98.72,
+    "featured": false,
+    "created_at": ISODate("2023-02-19T13:15:48.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0092"),
+    "name": "Pasar 7 Selesai",
+    "name_en": "Pasar 7 Selesai",
+    "location": "Selesai, Kabupaten Langkat, Sumatera Utara",
+    "category": "culture",
+    "price": 0,
+    "description": "Pasar 7 di Selesai, Kabupaten Langkat adalah pasar tradisional yang menjadi pusat kegiatan ekonomi masyarakat setempat. Pasar ini menawarkan pengalaman wisata kuliner dan belanja khas daerah. Cocok untuk menjelajahi keragaman produk lokal dan suasana pasar tradisional.",
+    "description_en": "Pasar 7 in Selesai, Langkat Regency is a traditional market serving as the center of local economic activity. The market offers culinary and shopping experiences typical of the region. It is great for exploring local products and the traditional market atmosphere.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787430525/ews-assets/dest_0092_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787431377/ews-assets/dest_0092_vid_dest_001.mp4",
+    "latitude": 3.82,
+    "longitude": 98.42,
+    "featured": false,
+    "created_at": ISODate("2024-04-07T07:04:32.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0093"),
+    "name": "Barus",
+    "name_en": "Barus",
+    "location": "Kabupaten Tapanuli Tengah, Sumatera Utara",
+    "category": "culture",
+    "price": 0,
+    "description": "Barus adalah kota bersejarah di Tapanuli Tengah yang dikenal sebagai salah satu titik masuk Islam tertua di Nusantara. Kawasan ini menawarkan kekayaan sejarah dan budaya yang menarik untuk dipelajari. Cocok bagi wisatawan yang ingin menelusuri jejak sejarah dan peradaban.",
+    "description_en": "Barus is a historic town in Central Tapanuli known as one of the oldest entry points of Islam in the archipelago. The area offers rich historical and cultural heritage worth exploring. It is great for travelers wanting to trace history and civilization.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787430526/ews-assets/dest_0093_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787431418/ews-assets/dest_0093_vid_dest_001.mp4",
+    "latitude": 2.01,
+    "longitude": 98.4,
+    "featured": false,
+    "created_at": ISODate("2026-02-21T02:31:06.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0094"),
+    "name": "Masjid Al-Hasanah Pangururan",
+    "name_en": "Al-Hasanah Mosque Pangururan",
+    "location": "Pangururan, Kabupaten Samosir, Sumatera Utara",
+    "category": "culture",
+    "price": 0,
+    "description": "Masjid Al-Hasanah di Pangururan, Samosir adalah masjid dengan pemandangan langsung Danau Toba yang menakjubkan. Keindahan arsitektur dan lokasinya yang strategis menjadikan masjid ini menarik untuk dikunjungi. Tempat ini memadukan nilai religi dengan keindahan alam Danau Toba.",
+    "description_en": "Al-Hasanah Mosque in Pangururan, Samosir is a mosque with a stunning direct view of Lake Toba. Its beautiful architecture and strategic location make it interesting to visit. It combines religious value with the natural beauty of Lake Toba.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787430558/ews-assets/dest_0094_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787431445/ews-assets/dest_0094_vid_dest_001.mp4",
+    "latitude": 2.61,
+    "longitude": 98.75,
+    "featured": false,
+    "created_at": ISODate("2025-11-18T04:41:37.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0095"),
+    "name": "Air Terjun Namo Belanga",
+    "name_en": "Namo Belanga Waterfall",
+    "location": "Desa Garunggang, Kecamatan Kuala, Kabupaten Langkat, Sumatera Utara",
+    "category": "waterfall",
+    "price": 0,
+    "description": "Air Terjun Namo Belanga terletak di Desa Garunggang, Kecamatan Kuala, Kabupaten Langkat. Air terjun ini menawarkan keindahan aliran air yang menyegarkan di tengah suasana alam yang asri. Cocok bagi pencinta alam yang ingin menikmati keindahan air terjun di Langkat.",
+    "description_en": "Namo Belanga Waterfall is located in Garunggang Village, Kuala District, Langkat Regency. The waterfall offers refreshing water flow amid a pristine natural atmosphere. It is great for nature lovers wanting to enjoy waterfall beauty in Langkat.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787430527/ews-assets/dest_0095_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787431412/ews-assets/dest_0095_vid_dest_001.mp4",
+    "latitude": 3.36,
+    "longitude": 98.25,
+    "featured": false,
+    "created_at": ISODate("2025-06-11T15:29:01.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0096"),
+    "name": "Padang Sidempuan",
+    "name_en": "Padang Sidempuan",
+    "location": "Kota Padang Sidempuan, Sumatera Utara",
+    "category": "culture",
+    "price": 0,
+    "description": "Padang Sidempuan adalah kota di Sumatera Utara yang menawarkan suasana kampung halaman yang tenang dan menarik. Salah satu spot menariknya adalah View Jembatan Virgo di Sibulan Bulan yang menyajikan pemandangan sore yang indah. Kota ini cocok untuk menikmati suasana lokal yang autentik.",
+    "description_en": "Padang Sidempuan is a city in North Sumatra offering a calm, charming hometown atmosphere. One of its interesting spots is the Virgo Bridge View in Sibulan Bulan, presenting a beautiful evening scene. The city is great for enjoying an authentic local atmosphere.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787430555/ews-assets/dest_0096_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787431461/ews-assets/dest_0096_vid_dest_001.mp4",
+    "latitude": 1.38,
+    "longitude": 99.27,
+    "featured": false,
+    "created_at": ISODate("2022-11-15T04:39:56.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0097"),
+    "name": "Pusuk Buhit",
+    "name_en": "Pusuk Buhit",
+    "location": "Kabupaten Samosir, Sumatera Utara",
+    "category": "mountain",
+    "price": 0,
+    "description": "Pusuk Buhit adalah gunung yang dianggap sakral oleh masyarakat Batak, terletak di Kabupaten Samosir. Menurut sejarah, Si Raja Batak memiliki dua orang anak yaitu Ompu Tatea Bulan dan Raja Isombaon. Gunung ini menawarkan pemandangan alam yang indah sekaligus nilai budaya yang mendalam.",
+    "description_en": "Pusuk Buhit is a mountain considered sacred by the Batak people, located in Samosir Regency. According to history, Si Raja Batak had two children, namely Ompu Tatea Bulan and Raja Isombaon. The mountain offers beautiful scenery along with deep cultural value.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787430531/ews-assets/dest_0097_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787431428/ews-assets/dest_0097_vid_dest_001.mp4",
+    "latitude": 2.59,
+    "longitude": 98.74,
+    "featured": true,
+    "created_at": ISODate("2023-02-19T13:15:48.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0098"),
+    "name": "Sianjur Mula-mula",
+    "name_en": "Sianjur Mula-mula",
+    "location": "Kabupaten Samosir, Sumatera Utara",
+    "category": "culture",
+    "price": 0,
+    "description": "Desa Singkam di Kecamatan Sianjur Mula-mula adalah desa yang sangat indah di Kabupaten Samosir. Desa ini menawarkan suasana pedesaan Batak yang asri dan pemandangan alam yang memukau. Cocok bagi wisatawan yang ingin menikmati keindahan dan ketenangan desa.",
+    "description_en": "Singkam Village in Sianjur Mula-mula District is a very beautiful village in Samosir Regency. The village offers a pristine Batak countryside atmosphere and stunning natural scenery. It is great for travelers wanting to enjoy the beauty and calm of a village.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787430535/ews-assets/dest_0098_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787431444/ews-assets/dest_0098_vid_dest_001.mp4",
+    "latitude": 2.61,
+    "longitude": 98.72,
+    "featured": false,
+    "created_at": ISODate("2026-03-24T14:58:54.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0099"),
+    "name": "Simanindo Batu Passa",
+    "name_en": "Simanindo Batu Passa",
+    "location": "Desa Sangkal, Kecamatan Simanindo, Kabupaten Samosir, Sumatera Utara",
+    "category": "beach",
+    "price": 0,
+    "description": "Simanindo Batu Passa adalah tempat di tepi pantai Danau Toba, Desa Sangkal, Kecamatan Simanindo, Kabupaten Samosir yang dikenal warga sekitar sebagai Batu Passa. Bebatuan di tempat ini menjadikannya salah satu tempat yang eksotis dan menarik untuk dikunjungi. Cocok untuk menikmati keindahan tepi Danau Toba yang unik.",
+    "description_en": "Simanindo Batu Passa is a place on the shore of Lake Toba, Sangkal Village, Simanindo District, Samosir Regency, known by locals as Batu Passa. The rocks here make it one of the exotic and interesting places to visit. It is great for enjoying the unique beauty of Lake Toba's shore.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787430551/ews-assets/dest_0099_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787431435/ews-assets/dest_0099_vid_dest_001.mp4",
+    "latitude": 2.74,
+    "longitude": 98.8,
+    "featured": false,
+    "created_at": ISODate("2023-12-27T11:56:45.000Z")
+  },
+  {
+    "_id": ObjectId("dest_0100"),
+    "name": "Aek Rangat",
+    "name_en": "Aek Rangat",
+    "location": "Pangururan, Kabupaten Samosir, Sumatera Utara",
+    "category": "hotspring",
+    "price": 0,
+    "description": "Aek Rangat adalah salah satu tempat yang wajib dikunjungi saat berada di Danau Toba, tepatnya di Pangururan, Samosir. Tempat ini menawarkan pengalaman berendam air panas alami dengan pemandangan Danau Toba yang indah. Cocok untuk relaksasi dan menikmati keindahan alam.",
+    "description_en": "Aek Rangat is one of the must-visit places when at Lake Toba, specifically in Pangururan, Samosir. The place offers a natural hot-spring soaking experience with beautiful Lake Toba views. It is great for relaxation and enjoying nature's beauty.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787430533/ews-assets/dest_0100_img_dest_001.jpg"
+    ],
+    "video": "https://res.cloudinary.com/slvfplxb/video/upload/v1787431446/ews-assets/dest_0100_vid_dest_001.mp4",
+    "latitude": 2.62,
+    "longitude": 98.76,
+    "featured": false,
+    "created_at": ISODate("2024-02-27T14:13:38.000Z")
+  }
+]

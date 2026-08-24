@@ -34,7 +34,7 @@ def user_session():
     s = requests.Session()
     em = f"TEST_it6_{uuid.uuid4().hex[:8]}@test.id"
     r = s.post(f"{BASE_URL}/api/auth/register",
-               json={"email": em, "password": "user1234", "name": "Iter6 User"})
+               json={"email": em, "password": "user1234", "name": "Iter6 User", "accepted_terms": True})
     assert r.status_code == 200, r.text
     s._email = em
     return s
@@ -45,7 +45,7 @@ def other_session():
     s = requests.Session()
     em = f"TEST_it6b_{uuid.uuid4().hex[:8]}@test.id"
     r = s.post(f"{BASE_URL}/api/auth/register",
-               json={"email": em, "password": "user1234", "name": "Other User"})
+               json={"email": em, "password": "user1234", "name": "Other User", "accepted_terms": True})
     assert r.status_code == 200, r.text
     return s
 

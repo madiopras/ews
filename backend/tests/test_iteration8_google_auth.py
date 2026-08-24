@@ -85,7 +85,7 @@ class TestPasswordAuthRegression:
     def test_register_login_logout(self, s, db):
         email = f"test_iter8_{uuid.uuid4().hex[:8]}@example.com"
         r = s.post(f"{API}/auth/register",
-                   json={"email": email, "password": "pass1234", "name": "Iter8"})
+                   json={"email": email, "password": "pass1234", "name": "Iter8", "accepted_terms": True})
         assert r.status_code == 200, r.text
         assert r.json()["role"] == "user"
 

@@ -1,8 +1,8 @@
 import React from "react";
 import { WifiOff } from "lucide-react";
-import { useLang } from "@/contexts/LanguageContext";
+import { useLang } from "../contexts/LanguageContext.jsx";
 
-export default function OfflineBanner({ savedAt }) {
+export default function OfflineBanner({ savedAt, stale = false }) {
   const { t, lang } = useLang();
   if (!savedAt) return null;
   const stamp = new Date(savedAt).toLocaleString(lang === "en" ? "en-US" : "id-ID", {
@@ -18,7 +18,7 @@ export default function OfflineBanner({ savedAt }) {
     >
       <WifiOff className="w-4 h-4 shrink-0 text-[#4F6047]" />
       <span>
-        {t.offline.banner} <strong>{stamp}</strong>
+        {stale ? t.offline.stale : t.offline.banner} <strong>{stamp}</strong>
       </span>
     </div>
   );

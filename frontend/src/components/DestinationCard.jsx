@@ -1,25 +1,20 @@
 import React from "react";
-import { Link } from "react-router-dom";
-import { useLang } from "@/contexts/LanguageContext";
-import { MapPin, ArrowUpRight } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { useLang } from "../contexts/LanguageContext.jsx";
+import { MapPin, ArrowUpRight, Sparkles } from "lucide-react";
 
-export default function DestinationCard({ dest, index = 0 }) {
+export default function DestinationCard({ dest }) {
   const { lang, t } = useLang();
+  const navigate = useNavigate();
   const name = lang === "en" && dest.name_en ? dest.name_en : dest.name;
   const image =
     dest.images?.[0] ||
     "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=900&q=70";
 
-  const price = new Intl.NumberFormat(lang === "en" ? "en-US" : "id-ID").format(
-    dest.price
-  );
-
   return (
-    <Link
-      to={`/destination/${dest.id}`}
+    <article
       data-testid={`destination-card-${dest.id}`}
-      className="group block card-link overflow-hidden opacity-0 animate-fade-up"
-      style={{ animationDelay: `${index * 50}ms` }}
+      className="group block card-link overflow-hidden"
     >
       <div className="relative overflow-hidden aspect-[4/3] bg-line/40">
         <img
@@ -34,7 +29,7 @@ export default function DestinationCard({ dest, index = 0 }) {
         </span>
       </div>
 
-      <div className="p-4 flex items-start justify-between gap-3">
+      <div className="p-4 flex flex-col gap-3">
         <div className="min-w-0 flex-1">
           <h3 className="font-display text-[20px] leading-snug text-ink truncate">
             {name}
@@ -43,15 +38,28 @@ export default function DestinationCard({ dest, index = 0 }) {
             <MapPin className="w-3.5 h-3.5 shrink-0" />
             <span className="truncate">{dest.location}</span>
           </div>
-          <div className="mt-2 text-[13px]">
-            <span className="text-inkSoft">{t.common.currency}</span>{" "}
-            <span className="text-ink font-semibold">{price}</span>
-          </div>
         </div>
-        <span className="w-9 h-9 shrink-0 rounded-lg border border-line flex items-center justify-center text-toba group-hover:bg-toba group-hover:text-cream transition-colors">
-          <ArrowUpRight className="w-4 h-4" />
-        </span>
+
+        {/* CTA Button to AI Planner */}
+        <button
+          type="button"
+          onClick={(e) => {
+            e.preventDefault();
+            navigate(`/planner?dest=${dest.id}&name=${encodeURIComponent(name)}`);
+          }}
+          className="btn-primary w-full flex items-center justify-center gap-2 group/btn"
+        >
+          <Sparkles className="w-4 h-4 fill-current group-hover/btn:animate-pulse" />
+          {t.detail.planVisit}
+        </button>
+
+        <Link
+          to={`/destination/${dest.id}`}
+          className="flex items-center justify-center gap-1.5 text-[13px] text-inkSoft hover:text-toba transition-colors"
+        >
+          <ArrowUpRight className="w-3.5 h-3.5" /> {t.detail.viewDetails}
+        </Link>
       </div>
-    </Link>
+    </article>
   );
 }

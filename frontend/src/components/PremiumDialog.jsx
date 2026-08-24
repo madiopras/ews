@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { api } from "@/lib/api";
-import { useLang } from "@/contexts/LanguageContext";
-import { loadSnap } from "@/lib/midtrans";
+import { api } from "../lib/api.js";
+import { useLang } from "../contexts/LanguageContext.jsx";
+import { loadSnap } from "../lib/midtrans.js";
 import { toast } from "sonner";
 import { X, Crown, Loader2 } from "lucide-react";
 
@@ -69,7 +69,7 @@ export default function PremiumDialog({ partner, onClose, onActivated }) {
         onClose: () => setStatus(t.partners.premium.closed),
       });
     } catch (e) {
-      toast.error(e.response?.data?.detail || "Error");
+      toast.error(e.response?.data?.detail || t.common.error);
     } finally {
       setPaying(false);
     }
@@ -101,7 +101,7 @@ export default function PremiumDialog({ partner, onClose, onActivated }) {
             onClick={onClose}
             className="w-11 h-11 shrink-0 rounded-lg border border-line flex items-center justify-center text-inkSoft"
             data-testid="premium-dialog-close"
-            aria-label="close"
+            aria-label={t.common.close}
           >
             <X className="w-4 h-4" />
           </button>

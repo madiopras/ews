@@ -1,0 +1,39 @@
+[
+  {
+    "_id": ObjectId("dest_0057"),
+    "name": "Pantai Cermin",
+    "name_en": "Cermin Beach",
+    "location": "Serdang Bedagai, Sumatera Utara",
+    "category": "beach",
+    "price": 25000,
+    "description": "Pantai berpasir putih dengan air yang tenang dan jernih seperti cermin. Cocok untuk keluarga, dengan wahana air, resor, dan kuliner seafood segar di sepanjang bibir pantai.",
+    "description_en": "A white sandy beach with calm, mirror-clear waters. Perfect for families with water rides, resorts, and fresh seafood along the shore.",
+    "images": [
+      "https://images.unsplash.com/photo-1507525428034-b723cf961d3e",
+      "https://images.unsplash.com/photo-1519046904884-53103b34b206"
+    ],
+    "video": "https://example.com/videos/pantai-cermin.mp4",
+    "latitude": 3.635,
+    "longitude": 98.942,
+    "featured": true,
+    "created_at": ISODate("2024-08-18T00:00:00Z")
+  },
+  {
+    "_id": ObjectId("dest_0057"),
+    "name": "Air Terjun Sipiso-Piso",
+    "name_en": "Sipiso-Piso Waterfall",
+    "location": "Desa Tongging, Karo, Sumatera Utara",
+    "category": "nature",
+    "price": 25000,
+    "description": "Air terjun tertinggi di Indonesia dengan ketinggian ±120 meter. Aliran deras jatuh langsung ke lembah dalam dari tebing curam. Akses melalui jalan berkelok dengan viewpoint foto sempurna di atas. Pemandangan indah saat sunrise/sunset. Bisa diakses mobil atau motor.",
+    "description_en": "Indonesia's highest waterfall at approximately 120 meters tall. Powerful flow plunges directly into deep valley from steep cliff. Access via winding road with perfect photo viewpoints above. Beautiful scenery during sunrise/sunset. Accessible by car or motorcycle.",
+    "images": [
+      "https://res.cloudinary.com/slvfplxb/image/upload/v1787400808/upload_2.jpg"
+    ],
+    "video": "https://example.com/videos/pantai-cermin.mp4",
+    "latitude": 3.5928,
+    "longitude": 98.8789,
+    "featured": true,
+    "created_at": ISODate("2024-08-18T00:00:00Z")
+  }
+]

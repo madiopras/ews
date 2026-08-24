@@ -1,14 +1,17 @@
 import React from "react";
-import { useLang } from "@/contexts/LanguageContext";
-import { MessageCircle, MapPin, User, Car, Home, Crown } from "lucide-react";
+import { Link } from "react-router-dom";
+import { useLang } from "../contexts/LanguageContext.jsx";
+import { MessageCircle, MapPin, User, Car, Home, Crown, ShoppingBag, ArrowRight } from "lucide-react";
+import { trackPartnerEvent } from "../lib/partnerAnalytics.js";
 
 const ICONS = {
   guide: User,
   rental: Car,
   homestay: Home,
+  souvenir: ShoppingBag,
 };
 
-export default function PartnerCard({ partner, showBadge = false, onUpgrade }) {
+export default function PartnerCard({ partner, showBadge = false, onUpgrade, source = "directory", destinationId = null }) {
   const { t, lang } = useLang();
   const Icon = ICONS[partner.type] || User;
 
@@ -75,29 +78,24 @@ export default function PartnerCard({ partner, showBadge = false, onUpgrade }) {
         <p className="mt-3 text-[13px] text-inkSoft leading-relaxed line-clamp-3">
           {partner.description}
         </p>
-
-        {partner.is_premium && partner.premium_until && (
-          <p className="mt-2 text-[12px] text-inkSoft" data-testid={`partner-premium-until-${partner.id}`}>
-            {t.partners.premium.activeUntil}{" "}
-            {new Date(partner.premium_until).toLocaleDateString(lang === "en" ? "en-US" : "id-ID", {
-              day: "numeric",
-              month: "short",
-              year: "numeric",
-            })}
-          </p>
+        {partner.service_tags?.length > 0 && (
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            {partner.service_tags.slice(0, 4).map((tag) => (
+              <span key={tag} className="chip min-h-0 px-2 py-1 text-[10px]">{tag}</span>
+            ))}
+          </div>
         )}
 
         <div className="mt-4 flex flex-col sm:flex-row gap-2">
-          <a
-            href={waUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn-outline w-full sm:w-auto"
-            data-testid={`partner-wa-btn-${partner.id}`}
-          >
-            <MessageCircle className="w-4 h-4 text-toba" />
-            {t.partners.contactWA}
-          </a>
+          <Link to={`/partners/${partner.id}`} className="btn-outline w-full sm:w-auto"><ArrowRight className="w-4 h-4 text-toba" />{lang === "en" ? "View details" : "Lihat detail"}</Link>
+          {partner.accepting_contacts !== false && partner.whatsapp && <a
+              href={waUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => trackPartnerEvent("whatsapp_click", partner.id, source, destinationId)}
+              className="btn-outline w-full sm:w-auto"
+              data-testid={`partner-wa-btn-${partner.id}`}
+            ><MessageCircle className="w-4 h-4 text-toba" />{t.partners.contactWA}</a>}
           {onUpgrade && !partner.is_premium && (
             <button
               onClick={() => onUpgrade(partner)}

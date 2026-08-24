@@ -19,7 +19,7 @@ module.exports = {
         inkSoft: '#5A5A52',
         toba: '#0F3D3E',
         tobaDeep: '#0A2B2C',
-        brick: '#C4472B',
+        brick: '#B94127',
         moss: '#8B9D83',
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
