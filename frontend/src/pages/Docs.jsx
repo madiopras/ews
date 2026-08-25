@@ -22,6 +22,7 @@ const Docs = () => {
   const currentContent = docsContent[activeMenu];
   const changeMenu = (menu) => {
     setActiveMenu(menu);
+    setSidebarOpen(false);
     const next = new URLSearchParams(params);
     if (menu === 'home') next.delete('section');
     else next.set('section', menu);
@@ -53,9 +54,7 @@ const Docs = () => {
         <DocsLayout 
           sidebarChildren={<DocsSidebar activeMenu={activeMenu} onMenuChange={changeMenu} />}
           mainChildren={
-            <div 
-              className={`flex-1 overflow-y-auto ${sidebarOpen ? 'hidden lg:block' : 'block'}`}
-            >
+            <div className="min-w-0">
               <DocsContent 
                 title={t.docs.menu[activeMenu] || currentContent?.title || t.docs.eyebrow}
                 activeMenu={activeMenu}

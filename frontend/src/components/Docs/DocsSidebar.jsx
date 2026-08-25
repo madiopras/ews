@@ -31,6 +31,7 @@ const DocsSidebar = ({ activeMenu, onMenuChange }) => {
         return (
           <button
             key={item.id}
+            type="button"
             onClick={() => onMenuChange(item.id)}
             className={`
               w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg transition-colors

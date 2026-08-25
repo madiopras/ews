@@ -92,4 +92,4 @@ Namun, kami berkomitmen untuk:
 
 ---
 
-© 2024 Explore Wisata Sumut — Platform Pariwisata Sumatera Utara. Horas!
+© 2026 Explore Wisata Sumut — Platform Pariwisata Sumatera Utara. Horas!

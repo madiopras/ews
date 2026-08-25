@@ -20,6 +20,7 @@ export const TRANSLATIONS = {
     docs: {
       eyebrow: "Dokumentasi",
       subtitle: "Informasi lengkap tentang platform wisata Sumatera Utara",
+      openNavigation: "Daftar isi",
       closeNavigation: "Tutup navigasi dokumentasi",
       fileHint: "Pastikan file berikut tersedia:",
       contentNotFound: "Konten tidak ditemukan pada file",
@@ -964,6 +965,7 @@ export const TRANSLATIONS = {
     docs: {
       eyebrow: "Documentation",
       subtitle: "Complete information about the North Sumatra tourism platform",
+      openNavigation: "Contents",
       closeNavigation: "Close documentation navigation",
       fileHint: "Make sure this file is available:",
       contentNotFound: "Content was not found in file",

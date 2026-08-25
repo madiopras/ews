@@ -93,4 +93,4 @@ A: Ya, tetapi kami akan memberi pemberitahuan 14 hari sebelum efektif — dan ve
 
 ---
 
-© 2024 Explore Wisata Sumut — Platform Pariwisata Sumatera Utara. Horas!
+© 2026 Explore Wisata Sumut — Platform Pariwisata Sumatera Utara. Horas!
