@@ -10,11 +10,11 @@ export default function AnalyticsConsent() {
   if (!visible) return null;
   const copy = lang === "en" ? {
     title: "Help us improve partner recommendations",
-    body: "With your permission, we count anonymous partner views and contact clicks. We do not store your IP address or contact message.",
+    body: "With your permission, we count anonymous feature use, partner views, and contact clicks. We never store your IP address, AI trip story, or contact message.",
     allow: "Allow analytics", decline: "Not now", close: "Close",
   } : {
     title: "Bantu kami memperbaiki rekomendasi Mitra",
-    body: "Dengan izin Anda, kami menghitung tayangan Mitra dan klik kontak secara anonim. Kami tidak menyimpan alamat IP atau isi pesan Anda.",
+    body: "Dengan izin Anda, kami menghitung penggunaan fitur, tayangan Mitra, dan klik kontak secara anonim. Kami tidak menyimpan alamat IP, isi cerita AI, atau isi pesan Anda.",
     allow: "Izinkan analitik", decline: "Tidak sekarang", close: "Tutup",
   };
   const choose = (value) => { setAnalyticsConsent(value); setVisible(false); };

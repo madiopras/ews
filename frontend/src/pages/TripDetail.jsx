@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, CalendarDays, Copy, Download, Edit3, Map, Printer, RefreshCw, Save, Sparkles, Trash2, Wallet, X } from "lucide-react";
+import { ArrowLeft, CalendarDays, Copy, Download, Edit3, Map, Printer, RefreshCw, Save, Sparkles, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 import { api, formatError } from "../lib/api.js";
 import { privateCacheGet, privateCacheSet } from "../lib/offline.js";
@@ -11,6 +11,7 @@ import DestinationCard from "../components/DestinationCard.jsx";
 import OfflineBanner from "../components/OfflineBanner.jsx";
 import Seo from "../components/Seo.jsx";
 import TripShareControls from "../components/TripShareControls.jsx";
+import { travelStyleLabel, travelStyleOptions } from "../lib/travelStyle.js";
 
 const TripMap = React.lazy(() => import("../components/TripMap.jsx"));
 
@@ -18,7 +19,7 @@ function metadataFromTrip(trip) {
   return {
     title: trip.title || "",
     days: trip.days || 1,
-    budget: trip.budget || 0,
+    budget_style: trip.budget_style || "",
     interests: (trip.interests || []).join(", "),
     lang: trip.lang === "en" ? "en" : "id",
     extra_context: trip.extra_context || "",
@@ -93,7 +94,7 @@ export default function TripDetail() {
       const payload = {
         title: form.title.trim(),
         days: Number(form.days),
-        budget: Number(form.budget),
+        budget_style: form.budget_style,
         interests: form.interests.split(",").map((value) => value.trim()).filter(Boolean),
         lang: form.lang,
         extra_context: form.extra_context.trim(),
@@ -142,7 +143,7 @@ export default function TripDetail() {
     const payload = {
       title: trip.title,
       days: trip.days,
-      budget: trip.budget,
+      budget_style: trip.budget_style || null,
       interests: trip.interests,
       destinations: destinations.map(({ id: destinationId, name, location }) => ({ id: destinationId, name, location })),
       itinerary: trip.content,
@@ -184,7 +185,7 @@ export default function TripDetail() {
             <h1 className="font-display text-[28px] sm:text-[36px] leading-tight mt-1 break-words">{trip.title}</h1>
             <div className="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-[13px] text-inkSoft">
               <span className="flex items-center gap-1.5"><CalendarDays className="w-4 h-4" /> {trip.days} {t.savedTrips.daysLabel}</span>
-              <span className="flex items-center gap-1.5"><Wallet className="w-4 h-4" /> Rp {new Intl.NumberFormat("id-ID").format(trip.budget || 0)}</span>
+              <span className="flex items-center gap-1.5"><Sparkles className="w-4 h-4" /> {travelStyleLabel(trip.budget_style, lang, lang === "en" ? "Legacy travel preference" : "Preferensi perjalanan lama")}</span>
               <span>{t.savedTrips.updatedAt} {formatDate(trip.updated_at || trip.created_at, lang)}</span>
             </div>
           </div>
@@ -206,7 +207,7 @@ export default function TripDetail() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Field label={t.savedTrips.titleLabel} wide><input required maxLength={200} className="input-flat" value={form.title} onChange={(event) => setForm({ ...form, title: event.target.value })} /></Field>
             <Field label={t.planner.days}><input required type="number" min="1" max="30" className="input-flat" value={form.days} onChange={(event) => setForm({ ...form, days: event.target.value })} /></Field>
-            <Field label={t.planner.budget}><input required type="number" min="0" className="input-flat" value={form.budget} onChange={(event) => setForm({ ...form, budget: event.target.value })} /></Field>
+            <Field label={t.planner.travelStyle}><select required className="input-flat" value={form.budget_style} onChange={(event) => setForm({ ...form, budget_style: event.target.value })}><option value="" disabled>{t.planner.selectTravelStyle}</option>{travelStyleOptions(lang).map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select></Field>
             <Field label={t.savedTrips.language}><select className="input-flat" value={form.lang} onChange={(event) => setForm({ ...form, lang: event.target.value })}><option value="id">Indonesia</option><option value="en">English</option></select></Field>
             <Field label={t.planner.interests}><input className="input-flat" value={form.interests} onChange={(event) => setForm({ ...form, interests: event.target.value })} placeholder={t.savedTrips.interestsHint} /></Field>
             <Field label={t.planner.extraContext} wide><textarea rows="3" maxLength={500} className="input-flat resize-y" value={form.extra_context} onChange={(event) => setForm({ ...form, extra_context: event.target.value })} /></Field>

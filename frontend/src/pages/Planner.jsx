@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useLang } from "../contexts/LanguageContext.jsx";
-import { CATEGORY_KEYS } from "../lib/i18n.js";
-import { Sparkles, Compass, Wallet, Calendar, RefreshCw, Save, Shuffle, Loader2, X, LogIn } from "lucide-react";
+import { Sparkles, RefreshCw, Save, Shuffle, Loader2, X, LogIn } from "lucide-react";
 import UlosPattern from "../components/UlosPattern.jsx";
 import { api } from "../lib/api.js";
 import { useAuth } from "../contexts/AuthContext.jsx";
@@ -11,28 +10,13 @@ import { renderMarkdown } from "../lib/markdown.jsx";
 import PartnerCard from "../components/PartnerCard.jsx";
 import GoogleButton from "../components/GoogleButton.jsx";
 import { authUrl } from "../lib/authNavigation.js";
-import { trackPartnerEvent } from "../lib/partnerAnalytics.js";
+import { trackPartnerEvent, trackPlannerEvent } from "../lib/partnerAnalytics.js";
+import { isTravelStyle, travelStyleFromLegacyBudget, travelStyleLabel } from "../lib/travelStyle.js";
+import { extractPlannerPreferences, nextPlannerStep, PLANNER_NEXT_STEP } from "../lib/plannerPreferenceExtractor.js";
+import PlannerWizard from "../components/Planner/PlannerWizard.jsx";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const PLANNER_DRAFT_KEY = "planner_draft_v2";
-const BUDGET_DAILY_TARGETS = {
-  budget: 350000,
-  mid_range: 750000,
-  luxury: 1500000,
-};
-
-function totalForBudgetTier(tier, days) {
-  return BUDGET_DAILY_TARGETS[tier] * Math.max(1, Number(days) || 1);
-}
-
-function tierFromBudget(budget, days) {
-  const dailyBudget = (Number(budget) || 0) / Math.max(1, Number(days) || 1);
-  return Object.keys(BUDGET_DAILY_TARGETS).reduce((closestTier, tier) => (
-    Math.abs(BUDGET_DAILY_TARGETS[tier] - dailyBudget) < Math.abs(BUDGET_DAILY_TARGETS[closestTier] - dailyBudget)
-      ? tier
-      : closestTier
-  ), "mid_range");
-}
 
 function readPlannerDraft() {
   try {
@@ -44,18 +28,28 @@ function readPlannerDraft() {
   }
 }
 
+function plannerForm(value = {}) {
+  const parsedDays = Number(value.days);
+  const days = Number.isInteger(parsedDays) && parsedDays >= 1 && parsedDays <= 14 ? parsedDays : null;
+  return {
+    days,
+    budget_style: isTravelStyle(value.budget_style)
+      ? value.budget_style
+      : value.budget != null
+        ? travelStyleFromLegacyBudget(value.budget, days || 1)
+        : null,
+    interests: Array.isArray(value.interests) ? value.interests : [],
+    extra_context: value.extra_context || "",
+    preferred_destination_ids: value.preferred_destination_ids || [],
+  };
+}
+
 export default function Planner() {
   const { t, lang } = useLang();
   const { user } = useAuth();
   const [params, setParams] = useSearchParams();
   const restoredDraft = readPlannerDraft();
-  const [form, setForm] = useState(restoredDraft?.form || {
-    days: 3,
-    budget: totalForBudgetTier("mid_range", 3),
-    interests: ["nature"],
-    extra_context: "",
-    preferred_destination_ids: [],
-  });
+  const [form, setForm] = useState(() => plannerForm(restoredDraft?.form));
   const [output, setOutput] = useState(restoredDraft?.output || "");
   const [streaming, setStreaming] = useState(false);
   const [error, setError] = useState("");
@@ -70,31 +64,13 @@ export default function Planner() {
   const [recommendations, setRecommendations] = useState(restoredDraft?.recommendations || []);
   const [destinationIds, setDestinationIds] = useState(restoredDraft?.destinationIds || []);
   const [preferredDestination, setPreferredDestination] = useState(null);
-  const [budgetTier, setBudgetTier] = useState(() => tierFromBudget(
-    restoredDraft?.form?.budget || totalForBudgetTier("mid_range", 3),
-    restoredDraft?.form?.days || 3,
-  ));
+  const [wizardStep, setWizardStep] = useState(() => restoredDraft?.wizard?.step || "story");
+  const [stepTrail, setStepTrail] = useState(() => restoredDraft?.wizard?.trail || []);
+  const [transitioning, setTransitioning] = useState(false);
+  const [transitionMessage, setTransitionMessage] = useState("");
+  const [analyticsConsentRevision, setAnalyticsConsentRevision] = useState(0);
   const isAuth = Boolean(user && typeof user === "object");
   const nextPath = `/planner${window.location.search}`;
-  const budgetCopy = lang === "en"
-    ? {
-      title: "Travel style",
-      hint: "This guides the plan, not a fixed price.",
-      options: [
-        { value: "budget", label: "Budget", description: "Essential experiences" },
-        { value: "mid_range", label: "Mid-range", description: "Comfortable balance" },
-        { value: "luxury", label: "Luxury", description: "More premium comfort" },
-      ],
-    }
-    : {
-      title: "Gaya budget",
-      hint: "Ini menjadi panduan rencana, bukan harga pasti.",
-      options: [
-        { value: "budget", label: "Hemat", description: "Pengalaman esensial" },
-        { value: "mid_range", label: "Nyaman", description: "Seimbang dan fleksibel" },
-        { value: "luxury", label: "Mewah", description: "Kenyamanan lebih premium" },
-      ],
-    };
 
   useEffect(() => {
     if (streaming || recommendations.length === 0) return;
@@ -112,27 +88,34 @@ export default function Planner() {
     "sedang mengatur"
   ];
 
-  const persistDraft = (draftOutput = output, draftRecommendations = recommendations, draftDestinationIds = destinationIds) => {
+  const persistDraft = (
+    draftOutput = output,
+    draftRecommendations = recommendations,
+    draftDestinationIds = destinationIds,
+    draftForm = form,
+    draftWizard = { step: wizardStep, trail: stepTrail },
+  ) => {
     sessionStorage.setItem(PLANNER_DRAFT_KEY, JSON.stringify({
       savedAt: Date.now(),
-      form,
+      form: draftForm,
       output: draftOutput,
       recommendations: draftRecommendations,
       destinationIds: draftDestinationIds,
+      wizard: draftWizard,
     }));
   };
-
-  const refreshQuota = () => api.get("/planner/quota")
-    .then(({ data }) => setQuota(data))
-    .catch(() => setQuota(null));
-
-  useEffect(() => {
-    refreshQuota();
-  }, [user]);
 
   useEffect(() => {
     const destinationId = params.get("dest");
     if (!destinationId) return;
+    // Put the route context in the final request immediately; the detail fetch
+    // below is only needed for its localized display label.
+    setForm((current) => ({
+      ...current,
+      preferred_destination_ids: current.preferred_destination_ids?.includes(destinationId)
+        ? current.preferred_destination_ids
+        : [...(current.preferred_destination_ids || []), destinationId],
+    }));
     api.get(`/destinations/${destinationId}`)
       .then(({ data }) => {
         const displayName = lang === "en" && data.name_en ? data.name_en : data.name;
@@ -155,14 +138,14 @@ export default function Planner() {
   useEffect(() => {
     if (!sourceItineraryId || !isAuth) return;
     api.get(`/itineraries/${sourceItineraryId}`).then(({ data }) => {
-      setForm({
+      setForm(plannerForm({
         days: data.days,
+        budget_style: data.budget_style,
         budget: data.budget,
         interests: data.interests || [],
         extra_context: data.extra_context || "",
         preferred_destination_ids: [],
-      });
-      setBudgetTier(tierFromBudget(data.budget, data.days));
+      }));
       setOutput(data.content || "");
       setDestinationIds(data.destination_ids || []);
       setRecommendations([]);
@@ -178,6 +161,18 @@ export default function Planner() {
   };
 
   const guestQuotaUsed = !isAuth && quota?.remaining === 0;
+
+  useEffect(() => {
+    const handleConsentChange = () => setAnalyticsConsentRevision((value) => value + 1);
+    window.addEventListener("analytics-consent-change", handleConsentChange);
+    return () => window.removeEventListener("analytics-consent-change", handleConsentChange);
+  }, []);
+
+  useEffect(() => {
+    if (showSearchCard && !transitioning) {
+      trackPlannerEvent("planner_step_shown", wizardStep);
+    }
+  }, [analyticsConsentRevision, showSearchCard, transitioning, wizardStep]);
 
   const removePreferredDestination = () => {
     setPreferredDestination(null);
@@ -197,23 +192,98 @@ export default function Planner() {
   };
 
   const updateDays = (value) => {
-    const days = Math.max(1, Number(value) || 1);
+    const parsed = Number(value);
+    const days = Number.isInteger(parsed) && parsed >= 1 && parsed <= 14 ? parsed : null;
     setForm((current) => ({
       ...current,
       days,
-      budget: totalForBudgetTier(budgetTier, days),
     }));
   };
 
   const selectBudgetTier = (tier) => {
-    setBudgetTier(tier);
     setForm((current) => ({
       ...current,
-      budget: totalForBudgetTier(tier, current.days),
+      budget_style: tier,
     }));
   };
 
-  const generate = async (e, regenerate = false) => {
+  const waitForWizardTransition = () => new Promise((resolve) => window.setTimeout(resolve, 420));
+
+  const transitionToStep = async (nextStep, message, rememberCurrent = true) => {
+    setTransitionMessage(message);
+    setTransitioning(true);
+    await waitForWizardTransition();
+    if (rememberCurrent) setStepTrail((trail) => [...trail, wizardStep]);
+    setWizardStep(nextStep);
+    setTransitioning(false);
+  };
+
+  const startGeneration = async (values) => {
+    setTransitionMessage(lang === "en" ? "Preparing your itinerary…" : "Menyiapkan itinerary Anda…");
+    setTransitioning(true);
+    await waitForWizardTransition();
+    setTransitioning(false);
+    generate(null, false, values);
+  };
+
+  const submitStory = async (event) => {
+    event.preventDefault();
+    trackPlannerEvent("planner_story_submitted", "story");
+    trackPlannerEvent("planner_step_completed", "story");
+    const extracted = extractPlannerPreferences(form.extra_context);
+    const values = {
+      ...form,
+      days: extracted.days,
+      budget_style: extracted.budget_style,
+      interests: extracted.interests,
+      extra_context: form.extra_context.trim(),
+    };
+    setForm(values);
+    const nextStep = nextPlannerStep(values);
+    if (nextStep === PLANNER_NEXT_STEP.GENERATE) {
+      await startGeneration(values);
+      return;
+    }
+    await transitionToStep(
+      nextStep,
+      lang === "en" ? "Preparing the next question…" : "Menyiapkan pertanyaan berikutnya…",
+    );
+  };
+
+  const submitBasics = async (event) => {
+    event.preventDefault();
+    if (!Number.isInteger(form.days) || form.days < 1 || form.days > 14 || !isTravelStyle(form.budget_style)) return;
+    trackPlannerEvent("planner_step_completed", "basics");
+    const nextStep = nextPlannerStep(form);
+    if (nextStep === PLANNER_NEXT_STEP.GENERATE) {
+      await startGeneration(form);
+      return;
+    }
+    await transitionToStep(
+      nextStep,
+      lang === "en" ? "Preparing your interests…" : "Menyiapkan pilihan minat Anda…",
+    );
+  };
+
+  const submitInterests = async (event) => {
+    event.preventDefault();
+    if (form.interests.length) {
+      trackPlannerEvent("planner_step_completed", "interests");
+      await startGeneration(form);
+    }
+  };
+
+  const goBackInWizard = async () => {
+    const previous = stepTrail[stepTrail.length - 1] || "story";
+    setTransitionMessage(lang === "en" ? "Returning to the previous step…" : "Kembali ke langkah sebelumnya…");
+    setTransitioning(true);
+    await waitForWizardTransition();
+    setStepTrail((trail) => trail.slice(0, -1));
+    setWizardStep(previous);
+    setTransitioning(false);
+  };
+
+  const generate = async (e, regenerate = false, requestForm = form) => {
     if (e) e.preventDefault();
     if (guestQuotaUsed) {
       showAuthenticationGate();
@@ -239,13 +309,14 @@ export default function Planner() {
     let streamedOutput = "";
     let streamedRecommendations = [];
     let streamedDestinationIds = [];
+    let generationCompleted = false;
 
     try {
       const res = await fetch(`${BACKEND_URL}/api/trip-planner/stream`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ ...form, lang, previous_content: previous.slice(0, 20000) }),
+        body: JSON.stringify({ ...requestForm, lang, previous_content: previous.slice(0, 20000) }),
       });
       if (!res.ok || !res.body) {
         const body = await res.json().catch(() => ({}));
@@ -286,6 +357,7 @@ export default function Planner() {
               streamedDestinationIds = evt.destination_ids;
               setDestinationIds(evt.destination_ids);
             }
+            if (evt.done === true) generationCompleted = true;
             if (evt.error) setError(evt.error);
           } catch {
             /* ignore */
@@ -298,8 +370,8 @@ export default function Planner() {
       setStreaming(false);
       setRerolling(false);
       if (streamedOutput) {
-        persistDraft(streamedOutput, streamedRecommendations, streamedDestinationIds);
-        refreshQuota();
+        persistDraft(streamedOutput, streamedRecommendations, streamedDestinationIds, requestForm, { step: "result", trail: [] });
+        if (generationCompleted) trackPlannerEvent("planner_generated", "result");
       }
     }
   };
@@ -316,6 +388,9 @@ export default function Planner() {
   }, [streaming, output, phrases.length]);
 
   const reset = () => {
+    const nextForm = plannerForm({
+      preferred_destination_ids: preferredDestination ? [preferredDestination.id] : [],
+    });
     setOutput("");
     setError("");
     setSavedId(null);
@@ -323,15 +398,15 @@ export default function Planner() {
     setSaveTitle("");
     setRecommendations([]);
     setDestinationIds([]);
-    setShowSearchCard(true); // Show search card again
+    setForm(nextForm);
+    setWizardStep("story");
+    setStepTrail([]);
+    setTransitioning(false);
+    setShowSearchCard(true);
     sessionStorage.removeItem(PLANNER_DRAFT_KEY);
   };
 
   const requestNewPlan = () => {
-    if (guestQuotaUsed) {
-      showAuthenticationGate();
-      return;
-    }
     reset();
   };
 
@@ -348,7 +423,7 @@ export default function Planner() {
       const { data } = await api.post("/itineraries", {
         title,
         days: form.days,
-        budget: form.budget,
+        budget_style: form.budget_style,
         interests: form.interests,
         content: output,
         lang,
@@ -383,158 +458,35 @@ export default function Planner() {
 
       <div className="relative mx-auto -mt-16 flex min-h-[calc(100vh-232px)] max-w-4xl flex-col items-center px-4 pb-36 sm:-mt-20 sm:px-6 md:pb-24 lg:px-8">
         {showSearchCard && (
-          <form onSubmit={generate} className="planner-form-card w-full overflow-hidden rounded-[28px] border border-white/50 bg-surface/95 p-4 shadow-[0_20px_55px_rgba(5,31,31,0.24)] backdrop-blur-xl sm:p-6">
-            <div className="mb-5 rounded-2xl bg-[linear-gradient(135deg,rgba(15,61,62,0.11),rgba(139,157,131,0.20))] px-4 py-4 sm:mb-6 sm:px-5">
-              <div className="flex items-start gap-3">
-                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-toba text-cream shadow-lg shadow-toba/20"><Sparkles className="h-5 w-5" /></span>
-                <div className="min-w-0">
-                  <h2 className="text-base font-bold leading-snug text-ink sm:text-lg">{t.planner.agentReady}</h2>
-                  {/* <p className="mt-1 text-xs leading-5 text-inkSoft">{t.planner.subtitle}</p> */}
-                </div>
-              </div>
-            </div>
-
+          <section className="planner-form-card w-full overflow-hidden rounded-[28px] border border-white/50 bg-surface/95 p-4 shadow-[0_20px_55px_rgba(5,31,31,0.24)] backdrop-blur-xl sm:p-6">
             {!isAuth && quota && (
               <div
                 className={`mb-5 rounded-xl border px-4 py-3 text-[13px] ${guestQuotaUsed ? "border-amber-300 bg-amber-50 text-amber-900" : "border-toba/20 bg-toba/5 text-ink"}`}
                 data-testid="planner-guest-quota"
               >
-                <p className="font-semibold">
-                  {guestQuotaUsed ? t.planner.trialUsed : t.planner.freeTrial}
-                </p>
-                {guestQuotaUsed && (
-                  <button type="button" onClick={showAuthenticationGate} className="mt-2 inline-flex items-center gap-1.5 font-semibold text-toba underline underline-offset-2">
-                    <LogIn className="h-3.5 w-3.5" /> {t.planner.continueLogin}
-                  </button>
-                )}
+                <p className="font-semibold">{guestQuotaUsed ? t.planner.trialUsed : t.planner.freeTrial}</p>
+                {guestQuotaUsed && <button type="button" onClick={showAuthenticationGate} className="mt-2 inline-flex items-center gap-1.5 font-semibold text-toba underline underline-offset-2"><LogIn className="h-3.5 w-3.5" /> {t.planner.continueLogin}</button>}
               </div>
             )}
-
-            {preferredDestination && (
-              <div className="mb-5 rounded-xl border border-moss/30 bg-moss/10 px-4 py-3" data-testid="planner-preferred-destination">
-                <div className="flex items-center justify-between gap-3">
-                  <div>
-                    <p className="text-[11px] font-semibold uppercase tracking-wider text-inkSoft">{t.planner.preferredDestination}</p>
-                    <p className="mt-1 font-semibold text-ink">{preferredDestination.name}</p>
-                  </div>
-                  <button type="button" onClick={removePreferredDestination} className="rounded-full p-2 text-inkSoft hover:bg-white" aria-label={t.planner.removePreferred}>
-                    <X className="h-4 w-4" />
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* Search Card - Content */}
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-[minmax(0,0.6fr)_minmax(0,1.4fr)] sm:gap-4">
-            <label className="planner-field block rounded-2xl border border-line/80 bg-cream/60 p-3 sm:p-0 sm:border-0 sm:bg-transparent">
-              <span className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-inkSoft sm:text-[13px] sm:normal-case sm:tracking-normal">
-                <Calendar className="w-3.5 h-3.5" /> {t.planner.days}
-              </span>
-              <input
-                type="number"
-                min="1"
-                max="14"
-                required
-                value={form.days}
-                onChange={(e) => updateDays(e.target.value)}
-                className="input-flat mt-2 bg-surface px-3 sm:px-4"
-                data-testid="planner-days"
-              />
-            </label>
-            <fieldset className="planner-field min-w-0 rounded-2xl border border-line/80 bg-cream/60 p-3 sm:border-0 sm:bg-transparent sm:p-0" data-testid="planner-budget">
-              <legend className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-inkSoft sm:text-[13px] sm:normal-case sm:tracking-normal">
-                <Wallet className="h-3.5 w-3.5" /> {budgetCopy.title}
-              </legend>
-              <div className="mt-2 grid grid-cols-3 gap-2">
-                {budgetCopy.options.map((option) => {
-                  const selected = budgetTier === option.value;
-                  return (
-                    <button
-                      key={option.value}
-                      type="button"
-                      onClick={() => selectBudgetTier(option.value)}
-                      aria-pressed={selected}
-                      className={`min-w-0 rounded-xl border px-2 py-2 text-center transition sm:px-3 ${selected ? "border-toba bg-toba text-cream shadow-sm" : "border-line bg-surface text-ink hover:border-toba/60"}`}
-                    >
-                      <span className="block text-[11px] font-semibold leading-tight sm:text-xs">{option.label}</span>
-                      <span className={`mt-1 hidden text-[10px] leading-tight sm:block ${selected ? "text-cream/75" : "text-inkSoft"}`}>{option.description}</span>
-                    </button>
-                  );
-                })}
-              </div>
-              {/* <p className="mt-2 text-[11px] leading-4 text-inkSoft">{budgetCopy.hint}</p> */}
-            </fieldset>
-          </div>
-
-          <div className="mt-5">
-            <span className="mb-2.5 flex items-center gap-1.5 text-[13px] font-semibold text-inkSoft">
-              <Compass className="w-3.5 h-3.5" /> {t.planner.interests}
-            </span>
-            <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
-              {CATEGORY_KEYS.map((cat) => (
-                <button
-                  key={cat}
-                  type="button"
-                  onClick={() => toggleInterest(cat)}
-                  data-testid={`planner-interest-${cat}`}
-                  className={`min-h-[48px] justify-start rounded-2xl px-3 text-left text-[12px] sm:min-h-[44px] sm:justify-center sm:rounded-full sm:px-4 sm:text-[13px] ${form.interests.includes(cat) ? "bg-toba text-cream font-semibold shadow-sm" : "border border-line bg-surface text-ink hover:border-toba"}`}
-                >
-                  {t.categories[cat]}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="mt-5">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-[13px] text-inkSoft flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5" /> {t.planner.extraContext}{" "}
-                <span className="text-inkSoft/60">({t.planner.optional})</span>
-              </span>
-              <span className="text-[11px] text-inkSoft/70" data-testid="planner-ctx-count">
-                {form.extra_context.length}/200
-              </span>
-            </div>
-            <textarea
-              rows={3}
-              maxLength={200}
-              value={form.extra_context}
-              onChange={(e) =>
-                setForm((p) => ({ ...p, extra_context: e.target.value.slice(0, 200) }))
-              }
-              placeholder={t.planner.extraContextPlaceholder}
-              className="input-flat resize-none bg-surface"
-              data-testid="planner-extra-context"
+            <PlannerWizard
+              step={wizardStep}
+              transitioning={transitioning}
+              transitionMessage={transitionMessage}
+              form={form}
+              lang={lang}
+              t={t}
+              preferredDestination={preferredDestination}
+              onStoryChange={(extra_context) => setForm((current) => ({ ...current, extra_context }))}
+              onStorySubmit={submitStory}
+              onDaysChange={updateDays}
+              onStyleChange={selectBudgetTier}
+              onInterestToggle={toggleInterest}
+              onBasicsSubmit={submitBasics}
+              onInterestsSubmit={submitInterests}
+              onBack={goBackInWizard}
+              onRemovePreferred={removePreferredDestination}
             />
-          </div>
-
-          {/* Form actions (mobile and desktop - inside card) */}
-          <div className="mt-6 flex justify-end border-t border-line/70 pt-4">
-            <button type="submit" disabled={streaming} className="btn-primary w-full rounded-2xl shadow-lg shadow-brick/20 sm:w-auto" data-testid="planner-generate-btn">
-              <Sparkles className="w-4 h-4" />
-              {streaming && !rerolling ? t.planner.generating : t.planner.generate}
-            </button>
-          </div>
-
-          {/* Desktop actions */}
-          <div className="mt-6 hidden md:flex gap-3">
-            {output && !streaming && (
-              <button
-                type="button"
-                onClick={() => generate(null, true)}
-                className="btn-outline"
-                data-testid="planner-reroll-btn"
-              >
-                <Shuffle className="w-4 h-4" /> {t.planner.regenerate}
-              </button>
-            )}
-            {(output || error) && !streaming && (
-              <button type="button" onClick={requestNewPlan} className="btn-outline" data-testid="planner-reset-btn">
-                <RefreshCw className="w-4 h-4" /> {t.planner.newPlan}
-              </button>
-            )}
-          </div>
-        </form>
+          </section>
         )}
 
         {/* Floating Action Buttons - Show only when search card is hidden */}
@@ -572,7 +524,7 @@ export default function Planner() {
         {(output || streaming) && (
           <article className="mt-5 w-full overflow-hidden rounded-[28px] border border-white/60 bg-surface shadow-[0_18px_48px_rgba(5,31,31,0.12)]" data-testid="planner-output">
             <div className="flex flex-wrap items-start justify-between gap-3 bg-toba px-5 py-4 text-cream sm:px-7 sm:py-5">
-              <div><div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-cream/65">{t.planner.tagline}</div><h2 className="mt-1 font-display text-2xl">{t.planner.itineraryTitle}</h2></div>
+              <div><div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-cream/65">{t.planner.tagline}</div><h2 className="mt-1 font-display text-2xl">{t.planner.itineraryTitle}</h2>{!streaming && <div className="mt-3 flex flex-wrap gap-1.5 text-[10px] text-cream/80"><span className="rounded-full border border-cream/20 px-2 py-1">{form.days} {lang === "en" ? "days" : "hari"}</span><span className="rounded-full border border-cream/20 px-2 py-1">{travelStyleLabel(form.budget_style, lang)}</span>{form.interests.slice(0, 3).map((interest) => <span key={interest} className="rounded-full border border-cream/20 px-2 py-1">{t.categories[interest]}</span>)}</div>}</div>
               {!streaming && output && !savedId && (
                 <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto">
                   {showSave ? (
@@ -609,6 +561,7 @@ export default function Planner() {
                   ✓ {t.savedTrips.saved}
                 </span>
               )}
+              {!streaming && output && <button type="button" onClick={() => { setShowSearchCard(true); setWizardStep("story"); setStepTrail([]); }} className="btn-outline w-full sm:w-auto"><Sparkles className="h-4 w-4" /> {lang === "en" ? "Edit preferences" : "Ubah preferensi"}</button>}
             </div>
             <div className="p-4 sm:p-7">
             {streaming && !output && (

@@ -8,7 +8,7 @@ export function startGoogleLogin(nextPath = "/profile", intent = "") {
   if (intent) sessionStorage.setItem("auth_intent", intent);
   else sessionStorage.removeItem("auth_intent");
   const redirectUrl = window.location.origin + "/profile";
-  window.location.href = `https://auth.emergentagent.com/?redirect=${encodeURIComponent(
+  window.location.href = `https://auth.explorewisatasumut.com/?redirect=${encodeURIComponent(
     redirectUrl
   )}`;
 }

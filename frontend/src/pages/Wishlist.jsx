@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { CalendarDays, CloudOff, ExternalLink, Heart, Lock, Search, Share2, Sparkles } from "lucide-react";
 import { api } from "../lib/api.js";
+import { travelStyleLabel } from "../lib/travelStyle.js";
 import { privateCacheGet, privateCacheSet } from "../lib/offline.js";
 import { useAuth } from "../contexts/AuthContext.jsx";
 import { useLang } from "../contexts/LanguageContext.jsx";
@@ -162,7 +163,7 @@ export default function Wishlist() {
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
                   <h2 className="font-display text-[21px] text-ink truncate">{trip.title}</h2>
-                  <p className="mt-1 text-[13px] text-inkSoft">{trip.days} {t.savedTrips.daysLabel} · Rp {new Intl.NumberFormat("id-ID").format(trip.budget || 0)}</p>
+                  <p className="mt-1 text-[13px] text-inkSoft">{trip.days} {t.savedTrips.daysLabel} · {travelStyleLabel(trip.budget_style, lang, lang === "en" ? "Legacy travel preference" : "Preferensi perjalanan lama")}</p>
                 </div>
                 <span className={`shrink-0 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold ${trip.is_public ? "bg-moss/20 text-toba" : "bg-line/50 text-inkSoft"}`}>
                   {trip.is_public ? <Share2 className="w-3 h-3" /> : <Lock className="w-3 h-3" />}
