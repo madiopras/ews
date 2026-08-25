@@ -3,10 +3,11 @@ import { useParams, Link } from "react-router-dom";
 import { api } from "../lib/api.js";
 import { useLang } from "../contexts/LanguageContext.jsx";
 import { renderMarkdown } from "../lib/markdown.jsx";
-import { Sparkles, Calendar, Wallet, User } from "lucide-react";
+import { Sparkles, Calendar, User } from "lucide-react";
 import UlosPattern from "../components/UlosPattern.jsx";
 import DestinationCard from "../components/DestinationCard.jsx";
 import Seo from "../components/Seo.jsx";
+import { travelStyleLabel } from "../lib/travelStyle.js";
 
 export default function PublicTrip() {
   const { slug } = useParams();
@@ -88,8 +89,7 @@ export default function PublicTrip() {
               <Calendar className="w-3.5 h-3.5" /> {trip.days} {lang === "en" ? "days" : "hari"}
             </span>
             <span className="flex items-center gap-1.5">
-              <Wallet className="w-3.5 h-3.5" /> Rp{" "}
-              {new Intl.NumberFormat("id-ID").format(trip.budget)}
+              <Sparkles className="w-3.5 h-3.5" /> {travelStyleLabel(trip.budget_style, lang, lang === "en" ? "Legacy travel preference" : "Preferensi perjalanan lama")}
             </span>
           </div>
         </div>

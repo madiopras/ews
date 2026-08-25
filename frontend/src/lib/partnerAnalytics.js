@@ -43,3 +43,22 @@ export async function trackPartnerEvent(eventType, partnerId, source, destinatio
   }
 }
 
+/**
+ * Track the planner funnel without sending the user's trip story or preferences.
+ * The backend accepts only the event type, visible wizard step, and a pseudonymous
+ * session identifier.
+ */
+export async function trackPlannerEvent(eventType, step) {
+  if (analyticsConsent() !== "granted") return false;
+  try {
+    await api.post("/analytics/planner-events", {
+      event_id: randomId(),
+      event_type: eventType,
+      step,
+      anonymous_session_id: sessionId(),
+    }, { headers: { "X-Analytics-Consent": "granted" } });
+    return true;
+  } catch {
+    return false;
+  }
+}
