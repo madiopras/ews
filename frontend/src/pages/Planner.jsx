@@ -324,6 +324,11 @@ export default function Planner() {
         if (["guest_trial_used", "authentication_required", "guest_network_limit_reached"].includes(detail.code)) {
           setQuota((current) => ({ ...(current || {}), remaining: 0, login_required: true }));
           showAuthenticationGate();
+        } else if (detail.code === "planner_out_of_scope") {
+          setShowSearchCard(true);
+          setWizardStep("story");
+          setStepTrail([]);
+          setError(detail.message || t.planner.outOfScope);
         } else {
           setError(detail.message || (typeof detail === "string" ? detail : t.planner.startError));
         }

@@ -6,7 +6,7 @@ import { travelStyleOptions } from "../../lib/travelStyle.js";
 const COPY = {
   id: {
     storyTitle: "Ceritakan perjalanan yang Anda inginkan",
-    storyDescription: "Tuliskan suasana, teman perjalanan, atau tempat yang ingin dikunjungi. Kami akan menangkap preferensi yang sudah Anda sebutkan.",
+    storyDescription: "Tuliskan suasana, teman perjalanan, atau tempat yang ingin dikunjungi. Fitur ini khusus menyusun perjalanan wisata Sumatera Utara.",
     storyPlaceholder: "Contoh: Saya ingin liburan 3 hari yang santai bersama keluarga, suka alam dan kuliner, dengan gaya nyaman.",
     examples: ["3 hari nyaman, alam dan kuliner", "Liburan keluarga yang santai", "Mau melihat air terjun dan danau"],
     planWithStory: "Bantu rencanakan",
@@ -26,7 +26,7 @@ const COPY = {
   },
   en: {
     storyTitle: "Tell us about the trip you want",
-    storyDescription: "Describe the mood, your travel companions, or places you want to visit. We will pick up the preferences you already mention.",
+    storyDescription: "Describe the mood, your travel companions, or places you want to visit. This feature is only for planning North Sumatra trips.",
     storyPlaceholder: "Example: I want a relaxed 3-day family trip, love nature and food, with a mid-range travel style.",
     examples: ["3 days, mid-range, nature and food", "A relaxed family trip", "I want waterfalls and lakes"],
     planWithStory: "Help me plan",

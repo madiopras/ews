@@ -293,6 +293,7 @@ export const TRANSLATIONS = {
       extraContextPlaceholder:
         "Contoh: liburan bareng anak umur 5 tahun, atau ingin suasana romantis untuk honeymoon",
       startError: "AI Planner belum dapat dimulai. Silakan coba lagi.",
+      outOfScope: "AI Trip Planner hanya membantu membuat itinerary wisata Sumatera Utara. Ceritakan kebutuhan perjalanan Anda untuk melanjutkan.",
       freeTrial: "Anda mendapat 1 kali pembuatan itinerary gratis sebagai pengunjung.",
       trialUsed: "Kuota gratis pengunjung sudah digunakan. Masuk untuk membuat rencana baru.",
       authGateTitle: "Lanjutkan perjalanan Anda",
@@ -1240,6 +1241,7 @@ export const TRANSLATIONS = {
       extraContextPlaceholder:
         "e.g. traveling with a 5-year-old kid, or romantic honeymoon vibe",
       startError: "The AI Planner could not start. Please try again.",
+      outOfScope: "AI Trip Planner only creates North Sumatra travel itineraries. Describe your travel needs to continue.",
       freeTrial: "You get 1 free itinerary generation as a guest.",
       trialUsed: "Your free guest generation has been used. Sign in to create a new plan.",
       authGateTitle: "Continue your journey",
