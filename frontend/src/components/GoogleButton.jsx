@@ -1,46 +1,73 @@
-import React from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 import { useLang } from "../contexts/LanguageContext.jsx";
-import { safeNextPath } from "../lib/authNavigation.js";
-
-// REMINDER: DO NOT HARDCODE THE URL, OR ADD ANY FALLBACKS OR REDIRECT URLS, THIS BREAKS THE AUTH
-export function startGoogleLogin(nextPath = "/profile", intent = "") {
-  sessionStorage.setItem("auth_next", safeNextPath(nextPath, "/profile"));
-  if (intent) sessionStorage.setItem("auth_intent", intent);
-  else sessionStorage.removeItem("auth_intent");
-  const redirectUrl = window.location.origin + "/profile";
-  window.location.href = `https://auth.explorewisatasumut.com/?redirect=${encodeURIComponent(
-    redirectUrl
-  )}`;
-}
+import { useAuth } from "../contexts/AuthContext.jsx";
+import { api } from "../lib/api.js";
+import { resumeAuthIntent, safeNextPath } from "../lib/authNavigation.js";
+import { renderGoogleIdentityButton } from "../lib/googleIdentity.js";
 
 export default function GoogleButton({ testId = "google-login-btn", next = "/profile", intent = "" }) {
   const { t } = useLang();
+  const { setUser } = useAuth();
+  const navigate = useNavigate();
+  const buttonHost = useRef(null);
+  const [state, setState] = useState("loading");
+
+  const handleCredential = useCallback(async (response) => {
+    if (!response?.credential) {
+      setState("error");
+      return;
+    }
+    setState("signing-in");
+    try {
+      const { data } = await api.post("/auth/google", { credential: response.credential });
+      setUser(data);
+      try {
+        await resumeAuthIntent(intent, api);
+      } catch {
+        toast.error(t.auth.intentFailed);
+      }
+      window.dispatchEvent(new CustomEvent("app-auth-success", { detail: { provider: "google" } }));
+      navigate(safeNextPath(next, "/profile"), { replace: true });
+    } catch {
+      setState("error");
+      toast.error(t.auth.googleFailed);
+    }
+  }, [intent, navigate, next, setUser, t.auth.googleFailed, t.auth.intentFailed]);
+
+  useEffect(() => {
+    let disposed = false;
+    let cleanup;
+    setState("loading");
+    api.get("/auth/google/config")
+      .then(({ data }) => {
+        if (!data?.enabled || !data.client_id) throw new Error("Google sign-in is not configured");
+        return renderGoogleIdentityButton(buttonHost.current, data.client_id, handleCredential);
+      })
+      .then((disposeButton) => {
+        if (disposed) disposeButton();
+        else {
+          cleanup = disposeButton;
+          setState("ready");
+        }
+      })
+      .catch(() => {
+        if (!disposed) setState("unavailable");
+      });
+    return () => {
+      disposed = true;
+      cleanup?.();
+    };
+  }, [handleCredential]);
+
   return (
-    <button
-      type="button"
-      onClick={() => startGoogleLogin(next, intent)}
-      className="btn-outline w-full"
-      data-testid={testId}
-    >
-      <svg className="w-4 h-4" viewBox="0 0 24 24" aria-hidden="true">
-        <path
-          fill="#4285F4"
-          d="M23.49 12.27c0-.79-.07-1.54-.19-2.27H12v4.51h6.47a5.54 5.54 0 0 1-2.4 3.63v3h3.86c2.26-2.09 3.56-5.17 3.56-8.87Z"
-        />
-        <path
-          fill="#34A853"
-          d="M12 24c3.24 0 5.96-1.08 7.93-2.91l-3.86-3c-1.07.72-2.45 1.15-4.07 1.15-3.13 0-5.78-2.11-6.73-4.96H1.29v3.09A11.99 11.99 0 0 0 12 24Z"
-        />
-        <path
-          fill="#FBBC05"
-          d="M5.27 14.28a7.2 7.2 0 0 1 0-4.56V6.63H1.29a12 12 0 0 0 0 10.74l3.98-3.09Z"
-        />
-        <path
-          fill="#EA4335"
-          d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.7 0 3.99 2.47 1.29 6.63l3.98 3.09C6.22 6.87 8.87 4.75 12 4.75Z"
-        />
-      </svg>
-      {t.auth.google}
-    </button>
+    <div className="w-full" data-testid={testId}>
+      <div ref={buttonHost} className={`flex min-h-11 w-full items-center justify-center overflow-hidden ${state !== "ready" ? "rounded border border-line bg-white" : ""}`} aria-busy={["loading", "signing-in"].includes(state)} />
+      {state === "loading" && <p className="mt-1 text-center text-[11px] text-inkSoft" role="status">{t.common.loading}</p>}
+      {state === "signing-in" && <p className="mt-1 text-center text-[11px] text-inkSoft" role="status">{t.auth.signingIn}</p>}
+      {state === "unavailable" && <p className="mt-1 text-center text-[11px] text-red-600" role="alert">{t.auth.googleUnavailable}</p>}
+      {state === "error" && <p className="mt-1 text-center text-[11px] text-red-600" role="alert">{t.auth.googleFailed}</p>}
+    </div>
   );
 }

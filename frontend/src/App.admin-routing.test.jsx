@@ -18,7 +18,6 @@ jest.mock("react-router/dom", () => ({
 jest.mock("./components/Navbar.jsx", () => () => <div data-testid="main-navbar" />);
 jest.mock("./components/BottomNav.jsx", () => () => <div data-testid="bottom-nav" />);
 jest.mock("./components/AnalyticsConsent.jsx", () => () => null);
-jest.mock("./components/AuthCallback.jsx", () => () => <div />);
 jest.mock("./pages/Home.jsx", () => () => <div />);
 jest.mock("./pages/Directory.jsx", () => () => <div />);
 jest.mock("./pages/DestinationDetail.jsx", () => () => <div />);

@@ -1,6 +1,6 @@
 """
-Iteration 8 — Emergent Google Auth integration tests
-- POST /api/auth/google/session validation + error surface
+Iteration 8 — Direct Google Identity Services integration tests
+- Public GIS configuration and POST /api/auth/google validation
 - Password auth regression (register/login/me/logout, admin)
 - Merge-by-email logic tested via direct DB inspection + JWT cookie
 """
@@ -39,31 +39,24 @@ def s():
     return requests.Session()
 
 
-# ---------- 1) /auth/google/session validation ----------
-class TestGoogleSessionEndpoint:
-    def test_missing_session_id_422(self, s):
-        r = s.post(f"{API}/auth/google/session", json={})
+# ---------- 1) Direct Google credential endpoint ----------
+class TestGoogleCredentialEndpoint:
+    def test_public_config_contract(self, s):
+        r = s.get(f"{API}/auth/google/config")
+        assert r.status_code == 200, r.text
+        assert set(r.json()) == {"enabled", "client_id"}
+
+    def test_missing_credential_422(self, s):
+        r = s.post(f"{API}/auth/google", json={})
         assert r.status_code == 422, r.text
 
-    def test_short_session_id_422(self, s):
-        r = s.post(f"{API}/auth/google/session", json={"session_id": "abc"})
+    def test_short_credential_422(self, s):
+        r = s.post(f"{API}/auth/google", json={"credential": "abc"})
         assert r.status_code == 422, r.text
 
-    def test_invalid_session_401(self, s):
-        r = s.post(f"{API}/auth/google/session",
-                   json={"session_id": "invalid-session-id-xxxxxxxxxxxxxxx"})
-        assert r.status_code == 401, r.text
-        # never 500
-        assert "detail" in r.json()
-
-    def test_endpoint_never_500_on_junk(self, s):
-        for payload in [
-            {"session_id": "x" * 8},
-            {"session_id": "with spaces and stuff!!!"},
-            {"session_id": "a" * 499},
-        ]:
-            r = s.post(f"{API}/auth/google/session", json=payload)
-            assert r.status_code in (400, 401, 422), f"got {r.status_code} for {payload}"
+    def test_retired_emergent_endpoint_is_absent(self, s):
+        r = s.post(f"{API}/auth/google/session", json={"session_id": "x" * 32})
+        assert r.status_code == 404, r.text
 
 
 # ---------- 2) Password auth regression ----------
@@ -114,9 +107,9 @@ class TestPasswordAuthRegression:
 # ---------- 3) Merge-by-email logic ----------
 class TestGoogleMergeLogic:
     """
-    We can't exchange a real Emergent session, so we simulate the merge outcome
-    the way /app/auth_testing.md documents: build a JWT for a user that would
-    result from the merge branch, then assert the DB shape + protected endpoints.
+    A live suite cannot embed a real Google ID token, so it verifies the resulting
+    application session and database invariants. Token verification is covered by
+    the direct unit contract in test_google_auth_direct.py.
     """
 
     def _mint_jwt(self, uid: str, email: str) -> str:
