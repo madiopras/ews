@@ -34,6 +34,8 @@ from urllib.parse import urlparse
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 from email.message import EmailMessage
 import smtplib
+from google.auth.transport import requests as google_auth_requests
+from google.oauth2 import id_token as google_id_token
 from planner_contract import BudgetStyle, planner_style_instruction, resolved_budget_style, style_label
 from planner_guard import planner_context_violation, planner_scope_message
 
@@ -57,6 +59,10 @@ LLM_BASE_URL = os.environ.get("LLM_BASE_URL", "http://localhost:20128/v1").rstri
 LLM_API_KEY = os.environ.get("LLM_API_KEY", "")
 LLM_MODEL_NAME = os.environ.get("LLM_MODEL_NAME", "dios-chat")
 USE_LLM = os.environ.get("USE_LLM", "true").lower() in {"1", "true", "yes", "on"}
+GOOGLE_OAUTH_ENABLED = os.environ.get("GOOGLE_OAUTH_ENABLED", "false").lower() in {
+    "1", "true", "yes", "on"
+}
+GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", "").strip()
 BACKUP_DIR = Path(os.environ.get("BACKUP_DIR", ROOT_DIR / "backups")).resolve()
 
 
@@ -765,91 +771,125 @@ async def login(payload: LoginIn, response: Response, request: Request):
     return user_to_out(user)
 
 
-EMERGENT_AUTH_SESSION_URL = (
-    "https://demobackend.emergentagent.com/auth/v1/env/oauth/session-data"
-)
+class GoogleCredentialIn(BaseModel):
+    credential: str = Field(..., min_length=100, max_length=10000)
 
 
-class GoogleSessionIn(BaseModel):
-    session_id: str = Field(..., min_length=8, max_length=500)
+def verify_google_credential(credential: str) -> dict:
+    """Verify a Google Identity Services ID token using Google's public keys."""
+    claims = google_id_token.verify_oauth2_token(
+        credential,
+        google_auth_requests.Request(),
+        GOOGLE_CLIENT_ID,
+    )
+    google_id = str(claims.get("sub") or "").strip()
+    email = str(claims.get("email") or "").strip().lower()
+    email_verified = claims.get("email_verified") is True or str(
+        claims.get("email_verified", "")
+    ).lower() == "true"
+    if not google_id or not email or not email_verified:
+        raise ValueError("Google account identity is incomplete or unverified")
+    return {
+        "id": google_id[:255],
+        "email": email[:320],
+        "name": str(claims.get("name") or "").strip()[:120],
+        "picture": str(claims.get("picture") or "").strip()[:2000],
+    }
 
 
-@api_router.post("/auth/google/session", response_model=UserOut)
-async def google_session(payload: GoogleSessionIn, response: Response):
-    """Exchange an Emergent OAuth session_id for our own app session (JWT cookie)."""
-    async with httpx.AsyncClient(timeout=20) as http:
-        res = await http.get(
-            EMERGENT_AUTH_SESSION_URL, headers={"X-Session-ID": payload.session_id}
-        )
-    if res.status_code != 200:
-        raise HTTPException(status_code=401, detail="Invalid or expired Google session")
-    data = res.json()
-    email = (data.get("email") or "").lower()
-    if not email:
-        raise HTTPException(status_code=400, detail="Google account has no email")
-
-    now = datetime.now(timezone.utc)
-    user = await db.users.find_one({"email": email})
+async def upsert_google_user(data: dict) -> dict:
+    """Link a verified Google identity without overwriting role/password access."""
+    now = datetime.now(timezone.utc).isoformat()
+    email = data["email"]
+    user = await db.users.find_one({"google_id": data["id"]})
+    if not user:
+        user = await db.users.find_one({"email": email})
     if user:
         if user.get("account_active", True) is False:
             raise HTTPException(status_code=403, detail="Account is inactive")
-        # Merge into the existing account, keep its role and password login intact
-        await db.users.update_one(
-            {"_id": user["_id"]},
-            {
-                "$set": {
-                    "google_id": data.get("id", ""),
-                    "picture": data.get("picture", ""),
-                    "email_verified": True,
-                    "name": user.get("name") or data.get("name") or email.split("@")[0],
-                }
-            },
-        )
-        uid = str(user["_id"])
-        name = user.get("name") or data.get("name") or email.split("@")[0]
-        role = user.get("role", "user")
-    else:
-        doc = {
-            "email": email,
-            "name": data.get("name") or email.split("@")[0],
-            "role": "user",
-            "account_active": True,
-            "wishlist": [],
-            "google_id": data.get("id", ""),
+        changes = {
+            "google_id": data["id"],
             "picture": data.get("picture", ""),
-            "auth_provider": "google",
             "email_verified": True,
-            "auth_session_version": 0,
-            "password_reset_version": 0,
-            "email_verification_version": 0,
-            "preferred_language": "id",
-            "interests": [],
-            "home_city": "",
-            "created_at": now.isoformat(),
-            "updated_at": now.isoformat(),
+            "updated_at": now,
         }
-        res_ins = await db.users.insert_one(doc)
-        uid = str(res_ins.inserted_id)
-        name = doc["name"]
-        role = "user"
+        if not user.get("name"):
+            changes["name"] = data.get("name") or email.split("@")[0]
+        await db.users.update_one({"_id": user["_id"]}, {"$set": changes})
+        return await db.users.find_one({"_id": user["_id"]})
 
-    if data.get("session_token"):
-        await db.user_sessions.update_one(
-            {"session_token": data["session_token"]},
-            {
-                "$set": {
-                    "user_id": uid,
-                    "session_token": data["session_token"],
-                    "expires_at": (now + timedelta(days=7)).isoformat(),
-                    "created_at": now.isoformat(),
-                }
-            },
-            upsert=True,
+    doc = {
+        "email": email,
+        "name": data.get("name") or email.split("@")[0],
+        "role": "user",
+        "account_active": True,
+        "wishlist": [],
+        "google_id": data["id"],
+        "picture": data.get("picture", ""),
+        "auth_provider": "google",
+        "email_verified": True,
+        "auth_session_version": 0,
+        "password_reset_version": 0,
+        "email_verification_version": 0,
+        "preferred_language": "id",
+        "interests": [],
+        "home_city": "",
+        "created_at": now,
+        "updated_at": now,
+    }
+    try:
+        result = await db.users.insert_one(doc)
+        doc["_id"] = result.inserted_id
+        return doc
+    except DuplicateKeyError:
+        # A simultaneous first login may win the unique-email insert race.
+        existing = await db.users.find_one({"email": email})
+        if not existing:
+            raise
+        if existing.get("account_active", True) is False:
+            raise HTTPException(status_code=403, detail="Account is inactive")
+        await db.users.update_one(
+            {"_id": existing["_id"]},
+            {"$set": {
+                "google_id": data["id"],
+                "picture": data.get("picture", ""),
+                "email_verified": True,
+                "updated_at": now,
+            }},
         )
+        return await db.users.find_one({"_id": existing["_id"]})
 
-    refreshed_user = await db.users.find_one({"_id": ObjectId(uid)})
-    set_auth_cookie(response, create_access_token(uid, email, int(refreshed_user.get("auth_session_version", 0))))
-    return user_to_out(refreshed_user)
+
+@api_router.get("/auth/google/config")
+async def google_auth_config():
+    """Expose only the public GIS Client ID needed by the browser."""
+    return {
+        "enabled": bool(GOOGLE_OAUTH_ENABLED and GOOGLE_CLIENT_ID),
+        "client_id": GOOGLE_CLIENT_ID if GOOGLE_OAUTH_ENABLED else "",
+    }
+
+
+@api_router.post("/auth/google", response_model=UserOut)
+async def google_login(payload: GoogleCredentialIn, response: Response, request: Request):
+    if not GOOGLE_OAUTH_ENABLED or not GOOGLE_CLIENT_ID:
+        raise HTTPException(status_code=503, detail="Google sign-in is not configured")
+    try:
+        data = await asyncio.to_thread(verify_google_credential, payload.credential)
+    except ValueError:
+        client_ip = request.client.host if request.client else "unknown"
+        await enforce_auth_rate_limit("google_login_failure", client_ip, 10, 900)
+        raise HTTPException(status_code=401, detail="Invalid or expired Google credential")
+    except Exception as exc:
+        logger.warning("Google token verification unavailable: %s", type(exc).__name__)
+        raise HTTPException(status_code=503, detail="Google sign-in is temporarily unavailable")
+
+    user = await upsert_google_user(data)
+    uid = str(user["_id"])
+    set_auth_cookie(
+        response,
+        create_access_token(uid, user["email"], int(user.get("auth_session_version", 0))),
+    )
+    return user_to_out(user)
 
 
 @api_router.post("/auth/logout")
@@ -2303,11 +2343,7 @@ async def integration_status(admin: dict = Depends(require_admin)):
     midtrans_configured = all(os.environ.get(key) for key in (
         "MIDTRANS_SERVER_KEY", "MIDTRANS_CLIENT_KEY", "MIDTRANS_MERCHANT_ID"
     ))
-    google_configured = bool(
-        os.environ.get("GOOGLE_OAUTH_ENABLED", "false").lower() in {"1", "true", "yes", "on"}
-        and os.environ.get("GOOGLE_CLIENT_ID")
-        and os.environ.get("GOOGLE_CLIENT_SECRET")
-    )
+    google_configured = bool(GOOGLE_OAUTH_ENABLED and GOOGLE_CLIENT_ID)
     return {
         "database": {"configured": True, "healthy": database_ok},
         "ai_planner": {
@@ -5113,6 +5149,7 @@ async def migrate_partner_memberships() -> None:
 @app.on_event("startup")
 async def startup():
     await db.users.create_index("email", unique=True)
+    await db.users.create_index("google_id", sparse=True)
     await db.users.create_index("name")
     await db.users.create_index([("role", 1), ("account_active", 1)])
     await db.users.create_index("created_at")

@@ -10,12 +10,6 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     let mounted = true;
-    // CRITICAL: If returning from OAuth callback, skip the /me check.
-    // AuthCallback will exchange the session_id and establish the session first.
-    if (window.location.hash?.includes("session_id=")) {
-      setReady(true);
-      return;
-    }
     api
       .get("/auth/me")
       .then(({ data }) => {

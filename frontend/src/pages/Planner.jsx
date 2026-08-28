@@ -169,6 +169,12 @@ export default function Planner() {
   }, []);
 
   useEffect(() => {
+    const handleAuthSuccess = () => setAuthGate(false);
+    window.addEventListener("app-auth-success", handleAuthSuccess);
+    return () => window.removeEventListener("app-auth-success", handleAuthSuccess);
+  }, []);
+
+  useEffect(() => {
     if (showSearchCard && !transitioning) {
       trackPlannerEvent("planner_step_shown", wizardStep);
     }

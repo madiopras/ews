@@ -7,7 +7,6 @@ import { LanguageProvider } from "./contexts/LanguageContext.jsx";
 import Navbar from "./components/Navbar.jsx";
 import BottomNav from "./components/BottomNav.jsx";
 import Home from "./pages/Home.jsx";
-import AuthCallback from "./components/AuthCallback.jsx";
 import AnalyticsConsent from "./components/AnalyticsConsent.jsx";
 import ExperienceFeatureGate from "./components/ExperienceFeatureGate.jsx";
 import { authUrl } from "./lib/authNavigation.js";
@@ -77,8 +76,6 @@ function Protected({ children, adminOnly = false }) {
 
 function AppShell() {
   const location = useLocation();
-  // Emergent OAuth returns to {origin}/profile#session_id=... — handle it before routing
-  const isAuthCallback = location.hash?.includes("session_id=");
   const isAdminRoute = location.pathname === "/admin" || location.pathname.startsWith("/admin/");
   const isMitraRoute = location.pathname === "/mitra" || location.pathname.startsWith("/mitra/");
   const hasDedicatedShell = isAdminRoute || isMitraRoute;
@@ -90,9 +87,6 @@ function AppShell() {
       <RouteAnnouncer />
       {!hasDedicatedShell && <Navbar />}
       <ContentRoot id="main-content" tabIndex="-1" className={hasDedicatedShell ? "outline-none" : "public-main outline-none"}>
-        {isAuthCallback ? (
-          <AuthCallback />
-        ) : (
         <React.Suspense fallback={<PageFallback />}>
         <Routes>
           <Route path="/" element={<Home />} />
@@ -173,7 +167,6 @@ function AppShell() {
           <Route path="*" element={<NotFound />} />
         </Routes>
         </React.Suspense>
-        )}
       </ContentRoot>
       {!hasDedicatedShell && <BottomNav />}
       {!hasDedicatedShell && <AnalyticsConsent />}
