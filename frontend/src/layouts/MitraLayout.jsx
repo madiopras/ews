@@ -55,11 +55,11 @@ export default function MitraLayout() {
       <div className="hidden lg:block fixed inset-y-0 left-0 z-40 w-[272px]"><MitraNavigation /></div>
       {mobileOpen && <div className="fixed inset-0 z-50 lg:hidden"><button type="button" className="absolute inset-0 w-full h-full bg-black/50" onClick={() => setMobileOpen(false)} aria-label={t.mitra.closeNavigation} /><div ref={panelRef} className="relative h-full w-fit"><MitraNavigation onNavigate={() => setMobileOpen(false)} /><button type="button" onClick={() => setMobileOpen(false)} className="absolute top-2 right-2 w-11 h-11 flex items-center justify-center text-cream" aria-label={t.mitra.closeNavigation}><X className="w-5 h-5" /></button></div></div>}
       <div className="min-h-screen lg:pl-[272px]">
-        <header className="sticky top-0 z-30 h-16 border-b border-line bg-cream/95 backdrop-blur px-4 sm:px-6 flex items-center gap-3">
+        <header className="app-gutter sticky top-0 z-30 flex min-h-16 items-center gap-1.5 border-b border-line bg-cream/95 pt-[env(safe-area-inset-top)] backdrop-blur sm:gap-3">
           <button type="button" onClick={() => setMobileOpen(true)} className="lg:hidden w-11 h-11 rounded-lg border border-line bg-surface flex items-center justify-center" aria-label={t.mitra.openNavigation}><Menu className="w-5 h-5" /></button>
           <BriefcaseBusiness className="hidden sm:block w-5 h-5 text-toba" />
           <div className="flex-1 min-w-0"><div className="text-[11px] text-inkSoft">{t.mitra.workspace}</div><div className="text-[13px] font-semibold truncate">{user?.name}</div></div>
-          <button type="button" onClick={toggle} className="min-h-[44px] px-3 rounded-lg border border-line bg-surface inline-flex items-center gap-2 text-[12px] font-semibold"><Languages className="w-4 h-4" /> {lang.toUpperCase()}</button>
+          <button type="button" onClick={toggle} className="inline-flex min-h-[44px] items-center gap-1 rounded-lg border border-line bg-surface px-2 text-[11px] font-semibold sm:gap-2 sm:px-3 sm:text-[12px]"><Languages className="hidden h-4 w-4 min-[360px]:block" /> {lang.toUpperCase()}</button>
           <NotificationBell />
           <button type="button" onClick={signOut} className="w-11 h-11 rounded-lg border border-line bg-surface flex items-center justify-center text-inkSoft hover:text-red-700" aria-label={t.nav.logout}><LogOut className="w-4 h-4" /></button>
         </header>

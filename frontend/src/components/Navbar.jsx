@@ -21,16 +21,16 @@ export default function Navbar() {
     }`;
 
   return (
-    <header className="sticky top-0 z-40 bg-cream/95 backdrop-blur border-b border-line">
+    <header className="sticky top-0 z-40 border-b border-line bg-cream/95 pt-[env(safe-area-inset-top)] backdrop-blur">
       <nav
-        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 md:h-16 flex items-center justify-between gap-3"
+        className="app-gutter mx-auto flex h-14 max-w-7xl min-w-0 items-center justify-between gap-2 md:h-16 md:gap-3"
         data-testid="main-navbar"
       >
-        <Link to="/" className="flex items-center gap-2 min-h-[44px]" data-testid="nav-logo">
-          <span className="w-8 h-8 rounded-lg bg-toba flex items-center justify-center overflow-hidden">
+        <Link to="/" className="flex min-h-[44px] min-w-0 flex-1 items-center gap-2 md:flex-none" data-testid="nav-logo">
+          <span className="h-8 w-8 shrink-0 overflow-hidden rounded-lg bg-toba">
             <img src={logoImage} alt="Logo" className="w-full h-full object-cover" />
           </span>
-          <span className="font-display text-base md:text-lg leading-none text-ink">
+          <span className="min-w-0 truncate font-display text-sm leading-none text-ink min-[360px]:text-base md:text-lg">
             <span className="italic text-toba">Explore Wisata Sumut</span>
           </span>
         </Link>
@@ -69,12 +69,12 @@ export default function Navbar() {
           )}
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
           {isAuth && <NotificationBell />}
           {/* Mobile: just language toggle */}
           <button
             onClick={toggle}
-            className="inline-flex items-center gap-1.5 min-h-[44px] px-3 rounded-lg border border-line text-[13px] font-semibold text-inkSoft hover:text-toba transition-colors"
+            className="inline-flex min-h-[44px] items-center gap-1 rounded-lg border border-line px-2.5 text-[12px] font-semibold text-inkSoft transition-colors hover:text-toba sm:gap-1.5 sm:px-3 sm:text-[13px]"
             data-testid="lang-toggle"
             aria-label={t.common.toggleLanguage}
           >

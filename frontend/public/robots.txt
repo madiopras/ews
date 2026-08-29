@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://explorewisatasumut.com/sitemap.xml

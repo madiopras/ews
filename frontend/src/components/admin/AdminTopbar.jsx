@@ -17,8 +17,8 @@ export default function AdminTopbar({ onOpenNavigation, navigationButtonRef }) {
   };
 
   return (
-    <header className="sticky top-0 z-30 h-16 border-b border-line bg-cream/95 backdrop-blur">
-      <div className="h-full px-4 sm:px-6 xl:px-8 flex items-center gap-3 sm:gap-5">
+    <header className="sticky top-0 z-30 border-b border-line bg-cream/95 pt-[env(safe-area-inset-top)] backdrop-blur">
+      <div className="app-gutter flex h-16 items-center gap-2 sm:gap-5">
         <button
           ref={navigationButtonRef}
           type="button"
@@ -37,10 +37,10 @@ export default function AdminTopbar({ onOpenNavigation, navigationButtonRef }) {
         <button
           type="button"
           onClick={toggle}
-          className="min-h-[44px] px-3 rounded-lg border border-line bg-surface inline-flex items-center gap-2 text-[12px] font-semibold text-inkSoft hover:text-toba"
+          className="inline-flex min-h-[44px] items-center gap-1 rounded-lg border border-line bg-surface px-2 text-[11px] font-semibold text-inkSoft hover:text-toba min-[360px]:gap-2 min-[360px]:px-3 min-[360px]:text-[12px]"
           aria-label={copy.changeLanguage}
         >
-          <Languages className="w-4 h-4" />
+          <Languages className="hidden h-4 w-4 min-[360px]:block" />
           {lang.toUpperCase()}
         </button>
 

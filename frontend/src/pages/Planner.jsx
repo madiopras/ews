@@ -14,6 +14,7 @@ import { trackPartnerEvent, trackPlannerEvent } from "../lib/partnerAnalytics.js
 import { isTravelStyle, travelStyleFromLegacyBudget, travelStyleLabel } from "../lib/travelStyle.js";
 import { extractPlannerPreferences, nextPlannerStep, PLANNER_NEXT_STEP } from "../lib/plannerPreferenceExtractor.js";
 import PlannerWizard from "../components/Planner/PlannerWizard.jsx";
+import Seo from "../components/Seo.jsx";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const PLANNER_DRAFT_KEY = "planner_draft_v2";
@@ -454,11 +455,12 @@ export default function Planner() {
 
   return (
     <div data-testid="planner-page" className="planner-workspace min-h-screen overflow-x-clip bg-[radial-gradient(circle_at_80%_0%,rgba(139,157,131,0.22),transparent_31%),linear-gradient(180deg,#0a2b2c_0,#0f3d3e_280px,#f5f1e8_280px)]">
+      <Seo title={t.planner.title} description={t.planner.subtitle} path="/planner" />
       <header className="relative overflow-hidden pb-24 pt-7 sm:pb-28 sm:pt-10">
         <div className="absolute inset-0 text-cream/[0.08]">
           <UlosPattern />
         </div>
-        <div className="relative mx-auto max-w-4xl px-5 sm:px-6 lg:px-8">
+        <div className="app-gutter relative mx-auto max-w-4xl">
           {/* <div className="inline-flex items-center gap-2 rounded-full border border-cream/20 bg-cream/10 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-cream/85 backdrop-blur">
             <Sparkles className="h-3.5 w-3.5" /> {t.planner.tagline}
           </div> */}
@@ -467,9 +469,9 @@ export default function Planner() {
         </div>
       </header>
 
-      <div className="relative mx-auto -mt-16 flex min-h-[calc(100vh-232px)] max-w-4xl flex-col items-center px-4 pb-36 sm:-mt-20 sm:px-6 md:pb-24 lg:px-8">
+      <div className="app-gutter relative mx-auto -mt-16 flex min-h-[calc(100dvh-232px)] max-w-4xl flex-col items-center pb-16 sm:-mt-20 md:pb-24">
         {showSearchCard && (
-          <section className="planner-form-card w-full overflow-hidden rounded-[28px] border border-white/50 bg-surface/95 p-4 shadow-[0_20px_55px_rgba(5,31,31,0.24)] backdrop-blur-xl sm:p-6">
+          <section className="planner-form-card responsive-card-pad w-full overflow-hidden rounded-[22px] border border-white/50 bg-surface/95 shadow-[0_20px_55px_rgba(5,31,31,0.24)] backdrop-blur-xl sm:rounded-[28px]">
             {!isAuth && quota && (
               <div
                 className={`mb-5 rounded-xl border px-4 py-3 text-[13px] ${guestQuotaUsed ? "border-amber-300 bg-amber-50 text-amber-900" : "border-toba/20 bg-toba/5 text-ink"}`}
@@ -502,7 +504,7 @@ export default function Planner() {
 
         {/* Floating Action Buttons - Show only when search card is hidden */}
         {!showSearchCard && (
-          <div className="fixed inset-x-0 bottom-[calc(5.5rem+env(safe-area-inset-bottom))] z-40 mx-auto flex w-fit max-w-[calc(100%-2rem)] gap-2 rounded-2xl border border-white/50 bg-surface/95 p-2 shadow-[0_12px_35px_rgba(5,31,31,0.22)] backdrop-blur-xl md:bottom-6" style={{ maxHeight: 'calc(100vh - 180px)', overflow: 'auto' }}>
+          <div className="fixed inset-x-0 bottom-[calc(5rem+max(0.625rem,env(safe-area-inset-bottom)))] z-40 mx-auto flex w-fit max-w-[calc(100%-1.75rem)] gap-2 rounded-2xl border border-white/50 bg-surface/95 p-2 shadow-[0_12px_35px_rgba(5,31,31,0.22)] backdrop-blur-xl md:bottom-6" style={{ maxHeight: 'calc(100dvh - 180px)', overflow: 'auto' }}>
             <button
               type="button"
               onClick={requestNewPlan}

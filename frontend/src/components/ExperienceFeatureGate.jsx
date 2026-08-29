@@ -31,7 +31,7 @@ export default function ExperienceFeatureGate({ feature, children }) {
       body: "Akun Anda belum termasuk dalam rollout ini. Akun publik dan data perjalanan yang sudah ada tidak terpengaruh.",
       back: "Kembali ke website",
     };
-    return <div className="mx-auto max-w-xl px-4 py-16 text-center" data-testid={`feature-gate-${feature}`}>
+    return <div className="app-gutter mx-auto max-w-xl py-16 text-center" data-testid={`feature-gate-${feature}`}>
       <LockKeyhole className="mx-auto h-10 w-10 text-toba" aria-hidden="true" />
       <h1 className="mt-4 font-display text-3xl">{copy.title}</h1>
       <p className="mt-3 text-sm leading-6 text-inkSoft">{copy.body}</p>

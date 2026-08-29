@@ -37,11 +37,11 @@ export default function PublicTrip() {
   }, [trip?.destination_ids]);
 
   if (loading)
-    return <div className="max-w-3xl mx-auto px-4 mt-10 text-inkSoft text-[13px]">{t.common.loading}</div>;
+    return <div className="app-gutter mx-auto mt-10 max-w-3xl text-[13px] text-inkSoft">{t.common.loading}</div>;
 
   if (notFound || !trip)
     return (
-      <div className="max-w-md mx-auto px-4 mt-12 pb-16 text-center" data-testid="public-trip-notfound">
+      <div className="app-gutter mx-auto mt-12 max-w-md text-center md:pb-16" data-testid="public-trip-notfound">
         <h1 className="font-display text-[24px] mb-3">{t.savedTrips.publicNotFound}</h1>
         <Link to="/planner" className="btn-primary mt-2">
           {t.savedTrips.makeYourOwn}
@@ -68,7 +68,7 @@ export default function PublicTrip() {
         <div className="absolute inset-0 text-cream/[0.07]">
           <UlosPattern />
         </div>
-        <div className="relative max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+        <div className="app-gutter relative mx-auto max-w-3xl py-7 sm:py-12">
           <div className="text-[12px] tracking-[0.18em] uppercase text-cream/70 flex items-center gap-2">
             <Sparkles className="w-4 h-4" /> {t.planner.tagline}
           </div>
@@ -95,7 +95,7 @@ export default function PublicTrip() {
         </div>
       </header>
 
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 mt-6 pb-16">
+      <div className="app-gutter mx-auto mt-5 max-w-3xl sm:mt-6 md:pb-16">
         <article className="card-flat p-4 sm:p-7" data-testid="public-trip-content">
           {renderMarkdown(trip.content)}
         </article>

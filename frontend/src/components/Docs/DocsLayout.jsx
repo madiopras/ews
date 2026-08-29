@@ -18,7 +18,7 @@ const DocsLayout = ({ sidebarChildren, mainChildren, sidebarOpen, setSidebarOpen
       
       <button
         type="button"
-        className="fixed bottom-[calc(6rem+env(safe-area-inset-bottom))] right-4 z-10 inline-flex min-h-12 items-center gap-2 rounded-full bg-toba px-4 text-sm font-semibold text-cream shadow-lg shadow-toba/25 transition hover:bg-toba/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-toba lg:hidden"
+        className="fixed bottom-[calc(5rem+max(0.625rem,env(safe-area-inset-bottom)))] right-[max(0.875rem,env(safe-area-inset-right))] z-10 inline-flex min-h-11 items-center gap-2 rounded-full bg-toba px-3.5 text-[13px] font-semibold text-cream shadow-lg shadow-toba/25 transition hover:bg-toba/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-toba lg:hidden"
         onClick={() => setSidebarOpen(true)}
         aria-controls="docs-sidebar"
         aria-expanded={sidebarOpen}
@@ -52,7 +52,7 @@ const DocsLayout = ({ sidebarChildren, mainChildren, sidebarOpen, setSidebarOpen
       </aside>
       
       {/* Main Content */}
-      <main className="min-w-0 flex-1 p-4 sm:p-6 lg:p-8">
+      <main className="min-w-0 flex-1 p-3 sm:p-6 lg:p-8">
         <div className="max-w-4xl mx-auto">
           {mainChildren}
         </div>

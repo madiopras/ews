@@ -6,6 +6,7 @@ import PartnerCard from "../components/PartnerCard.jsx";
 import { ChevronLeft, ChevronRight, Handshake, Plus } from "lucide-react";
 import UlosPattern from "../components/UlosPattern.jsx";
 import { trackPartnerEvent } from "../lib/partnerAnalytics.js";
+import Seo from "../components/Seo.jsx";
 
 const TYPES = ["guide", "rental", "homestay", "souvenir"];
 
@@ -70,11 +71,12 @@ export default function Partners() {
 
   return (
     <div data-testid="partners-page">
+      <Seo title={t.partners.title} description={t.partners.subtitle} path="/partners" />
       <header className="relative bg-toba overflow-hidden">
         <div className="absolute inset-0 text-cream/[0.07]">
           <UlosPattern />
         </div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+        <div className="app-gutter relative mx-auto max-w-7xl py-7 sm:py-12">
           <div className="text-[12px] tracking-[0.18em] uppercase text-cream/70 flex items-center gap-2">
             <Handshake className="w-4 h-4" /> {t.nav.partners}
           </div>
@@ -94,7 +96,7 @@ export default function Partners() {
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 pb-16">
+      <div className="app-gutter mx-auto mt-5 max-w-7xl sm:mt-6 md:pb-16">
         <div className="scroll-x mb-6">
           <button
             type="button"
@@ -129,7 +131,7 @@ export default function Partners() {
         ) : <section><p className="mb-4 text-[12px] text-inkSoft">{lang === "en" ? "Featured listings are paid and labelled. All listings rotate so regular partners remain discoverable." : "Listing Unggulan berbayar selalu diberi label. Semua listing dirotasi agar Mitra reguler tetap mudah ditemukan."}</p><div className="grid grid-cols-1 md:grid-cols-2 gap-4">{partners.map((partner) => <PartnerCard key={partner.id} partner={partner} source="directory" />)}</div></section>}
 
        {totalPages > 1 && (
-         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16 flex justify-center">
+         <div className="app-gutter mx-auto mb-4 flex max-w-7xl justify-center md:mb-16">
            <div className="flex items-center gap-1">
              <button
                type="button"

@@ -121,14 +121,14 @@ export default function Directory() {
     <div data-testid="directory-page" className="min-w-0 overflow-x-clip">
       <Seo title={t.directory.title} description={t.directory.seoDescription} path={`/explore${window.location.search}`} />
       <header className="bg-toba overflow-x-clip">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+        <div className="app-gutter mx-auto max-w-7xl py-7 sm:py-12">
           <div className="text-[12px] tracking-[0.18em] uppercase text-cream/70">{t.nav.destinations}</div>
           <h1 className="mt-2 font-display text-[26px] sm:text-4xl lg:text-5xl leading-tight text-cream">{t.directory.title}</h1>
           <p className="mt-3 max-w-2xl text-sm text-cream/75">{t.directory.subtitle}</p>
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto min-w-0 px-4 sm:px-6 lg:px-8 mt-6 pb-16">
+      <div className="app-gutter mx-auto mt-5 max-w-7xl min-w-0 sm:mt-6 md:pb-16">
         <div className="card-flat p-4 mb-6 space-y-3">
           <label className="flex min-w-0 items-center gap-3 input-flat">
             <Search className="w-4 h-4 text-inkSoft shrink-0" />

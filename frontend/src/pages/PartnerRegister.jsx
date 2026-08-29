@@ -67,7 +67,7 @@ export default function PartnerRegister() {
 
   if (done) {
     return (
-      <div className="max-w-xl mx-auto px-4 mt-16 pb-16 text-center" data-testid="partner-register-success">
+      <div className="app-gutter mx-auto mt-12 max-w-xl text-center sm:mt-16 md:pb-16" data-testid="partner-register-success">
         <div className="w-16 h-16 mx-auto rounded-full bg-moss/20 flex items-center justify-center text-[#4F6047] mb-5">
           <CheckCircle2 className="w-8 h-8" />
         </div>
@@ -80,7 +80,7 @@ export default function PartnerRegister() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto px-4 sm:px-6 mt-6 pb-16" data-testid="partner-register-page">
+    <div className="app-gutter mx-auto mt-5 max-w-2xl sm:mt-6 md:pb-16" data-testid="partner-register-page">
       <header className="mb-6">
         <div className="eyebrow flex items-center gap-2">
           <Handshake className="w-4 h-4" /> {t.nav.partners}

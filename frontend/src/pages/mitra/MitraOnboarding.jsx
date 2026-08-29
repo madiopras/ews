@@ -192,7 +192,7 @@ export default function MitraOnboarding() {
   const selectedDestinationNames = useMemo(() => destinations.filter((item) => form.destination_ids.includes(item.id)), [destinations, form.destination_ids]);
 
   if (!id) return (
-    <div className="max-w-5xl px-4 sm:px-6 py-8" data-testid="mitra-onboarding-start">
+    <div className="app-gutter max-w-5xl py-7 sm:py-8" data-testid="mitra-onboarding-start">
       <Seo title={t.mitra.startOnboarding} description={t.mitra.startDescription} path="/mitra/onboarding" noIndex />
       <Link to="/mitra" className="inline-flex items-center gap-2 text-[13px] text-inkSoft"><ArrowLeft className="w-4 h-4" /> {t.mitra.dashboard}</Link>
       <div className="mt-6"><div className="eyebrow">{t.mitra.step} 1</div><h1 className="font-display text-[30px] sm:text-[38px] mt-1">{t.mitra.chooseBusinessType}</h1><p className="text-[14px] text-inkSoft mt-2">{t.mitra.startDescription}</p></div>
@@ -200,11 +200,11 @@ export default function MitraOnboarding() {
     </div>
   );
 
-  if (state === "loading") return <div className="p-8 text-[13px] text-inkSoft">{t.common.loading}</div>;
-  if (state === "error" || !partner) return <div className="max-w-lg p-8"><div className="card-flat p-6 text-center"><p className="text-red-700">{t.mitra.loadError}</p><button type="button" onClick={load} className="btn-outline mt-4">{t.common.retry}</button></div></div>;
+  if (state === "loading") return <div className="app-gutter py-8 text-[13px] text-inkSoft">{t.common.loading}</div>;
+  if (state === "error" || !partner) return <div className="app-gutter max-w-lg py-8"><div className="card-flat p-5 text-center sm:p-6"><p className="text-red-700">{t.mitra.loadError}</p><button type="button" onClick={load} className="btn-outline mt-4">{t.common.retry}</button></div></div>;
 
   return (
-    <div className="max-w-6xl px-4 sm:px-6 py-7 pb-20" data-testid="mitra-onboarding">
+    <div className="app-gutter max-w-6xl py-6 pb-20 sm:py-7" data-testid="mitra-onboarding">
       <Seo title={partner.business_name || t.mitra.onboarding} description={t.mitra.startDescription} path={`/mitra/onboarding/${id}`} noIndex />
       <div className="flex flex-wrap items-center justify-between gap-3"><Link to="/mitra" className="inline-flex items-center gap-2 text-[13px] text-inkSoft"><ArrowLeft className="w-4 h-4" /> {t.mitra.dashboard}</Link><div className="flex items-center gap-3"><MitraStatusBadge status={partner.status} t={t} /><span className={`text-[11px] ${saveState === "error" ? "text-red-700" : "text-inkSoft"}`}>{saveState === "saving" ? t.mitra.saving : saveState === "saved" ? t.mitra.autosaved : saveState === "error" ? t.mitra.saveError : ""}</span></div></div>
       <header className="mt-5"><h1 className="font-display text-[28px] sm:text-[36px]">{partner.business_name || t.mitra.unnamedDraft}</h1><p className="text-[13px] text-inkSoft mt-1">{t.partners.types[partner.type]} · {t.mitra.roles[partner.membership_role] || partner.membership_role}</p></header>

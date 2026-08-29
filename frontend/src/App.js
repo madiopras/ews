@@ -51,7 +51,7 @@ const LogListPage = React.lazy(() => import("./features/admin/logs/LogListPage.j
 const TripDetail = React.lazy(() => import("./pages/TripDetail.jsx"));
 
 function PageFallback() {
-  return <div className="p-10 text-sm text-inkSoft" role="status" aria-live="polite">Loading…</div>;
+  return <div className="app-gutter py-10 text-sm text-inkSoft" role="status" aria-live="polite">Loading…</div>;
 }
 
 function RouteAnnouncer() {
@@ -66,7 +66,7 @@ function RouteAnnouncer() {
 function Protected({ children, adminOnly = false }) {
   const { user, ready } = useAuth();
   const location = useLocation();
-  if (!ready) return <div className="p-10 text-inkSoft">Loading...</div>;
+  if (!ready) return <div className="app-gutter py-10 text-inkSoft">Loading...</div>;
   if (!user || typeof user !== "object") {
     return <Navigate to={authUrl("/login", `${location.pathname}${location.search}`)} replace />;
   }
@@ -98,7 +98,7 @@ function AppShell() {
           <Route path="/partners/register" element={<Protected><Navigate to="/mitra/onboarding" replace /></Protected>} />
           <Route path="/destination/:id" element={<DestinationDetail />} />
           <Route path="/trip/:slug" element={<PublicTrip />} />
-          <Route path="/saved/trips/:id" element={<Protected><React.Suspense fallback={<div className="p-10 text-inkSoft">Loading...</div>}><TripDetail /></React.Suspense></Protected>} />
+          <Route path="/saved/trips/:id" element={<Protected><React.Suspense fallback={<div className="app-gutter py-10 text-inkSoft">Loading...</div>}><TripDetail /></React.Suspense></Protected>} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />

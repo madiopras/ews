@@ -58,8 +58,8 @@ export default function PartnerDetailPage() {
           : pendingAction?.type === "needs_revision" ? [copy.revisionTitle, copy.revisionDescription, copy.requestRevision]
           : [copy.pendingTitle, copy.pendingDescription, copy.returnPending];
 
-  if (detailQuery.isLoading) return <div className="px-4 sm:px-6 xl:px-8 py-8 text-[13px] text-inkSoft">{copy.loadingDetail}</div>;
-  if (detailQuery.isError || !partner) return <div className="px-4 sm:px-6 xl:px-8 py-8"><div className="card-flat p-6 text-center text-red-700">{copy.detailError}</div></div>;
+  if (detailQuery.isLoading) return <div className="app-gutter py-8 text-[13px] text-inkSoft">{copy.loadingDetail}</div>;
+  if (detailQuery.isError || !partner) return <div className="app-gutter py-8"><div className="card-flat p-5 text-center text-red-700 sm:p-6">{copy.detailError}</div></div>;
 
   const tabs = [
     { id: "overview", label: copy.overviewTab, icon: MapPin },
@@ -71,7 +71,7 @@ export default function PartnerDetailPage() {
     queryClient.invalidateQueries({ queryKey: ["admin", "partners", "list"] });
   };
   return (
-    <div className="w-full px-4 sm:px-6 xl:px-8 py-6 pb-16" data-testid="partner-detail-page">
+    <div className="app-gutter w-full py-6 pb-16" data-testid="partner-detail-page">
       <Link to="/admin/partners" className="inline-flex items-center gap-2 text-[12px] text-inkSoft hover:text-toba mb-4"><ArrowLeft className="w-4 h-4" /> {copy.title}</Link>
       <header className="card-flat p-4 sm:p-6 mb-5">
         <div className="flex flex-col lg:flex-row lg:items-start gap-4">

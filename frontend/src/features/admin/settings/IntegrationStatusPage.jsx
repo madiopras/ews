@@ -9,7 +9,7 @@ export default function IntegrationStatusPage() {
   const { t } = useLang(); const copy = t.admin.settings;
   const query = useQuery({ queryKey: ["admin", "settings", "integrations"], queryFn: ({ signal }) => getIntegrationStatus(signal) });
   const entries = Object.entries(query.data || {});
-  return <div className="w-full px-4 sm:px-6 xl:px-8 py-6 pb-16" data-testid="integration-settings-page">
+  return <div className="app-gutter w-full py-6 pb-16" data-testid="integration-settings-page">
     <header className="mb-5"><div className="eyebrow">Admin · Settings</div><h1 className="mt-2 font-display text-[26px] sm:text-4xl">{copy.integrationsTitle}</h1><p className="text-[13px] text-inkSoft mt-2">{copy.integrationsSub}</p></header>
     <div className="mb-4 rounded-xl border border-amber-200 bg-amber-50 p-4 text-[12px] text-amber-900 flex gap-2"><ShieldCheck className="w-4 h-4 shrink-0" />{t.admin.settings.secretNote}</div>
     {query.isLoading ? <div className="p-8 text-inkSoft">Loading...</div> : query.isError ? <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-red-700">{copy.loadError}</div> : <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-4">{entries.map(([key, item]) => {

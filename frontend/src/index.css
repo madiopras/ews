@@ -11,11 +11,40 @@ body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     overflow-x: hidden;
-    min-width: 320px;
+    min-width: 0;
 }
 
 html {
     scroll-padding-top: 5rem;
+    overflow-x: hidden;
+}
+
+html,
+body,
+#root,
+.App,
+.public-main {
+    width: 100%;
+    max-width: 100%;
+}
+
+#root,
+.App,
+.public-main {
+    min-width: 0;
+}
+
+input,
+select,
+textarea {
+    max-width: 100%;
+}
+
+@supports (overflow: clip) {
+    html,
+    body {
+        overflow-x: clip;
+    }
 }
 
 img,
@@ -26,7 +55,7 @@ svg {
 }
 
 .public-main {
-    padding-bottom: calc(5.5rem + env(safe-area-inset-bottom));
+    padding-bottom: calc(5rem + max(0.625rem, env(safe-area-inset-bottom)));
 }
 
 @media (min-width: 768px) {
@@ -107,6 +136,30 @@ svg {
 
 /* ---------- Flat component primitives ---------- */
 @layer components {
+    /* One responsive horizontal rhythm for every public screen. */
+    .app-gutter {
+        padding-inline-start: max(clamp(0.875rem, 4vw, 1.25rem), env(safe-area-inset-left));
+        padding-inline-end: max(clamp(0.875rem, 4vw, 1.25rem), env(safe-area-inset-right));
+    }
+
+    @media (min-width: 640px) {
+        .app-gutter {
+            padding-inline-start: max(1.5rem, env(safe-area-inset-left));
+            padding-inline-end: max(1.5rem, env(safe-area-inset-right));
+        }
+    }
+
+    @media (min-width: 1024px) {
+        .app-gutter {
+            padding-inline-start: max(2rem, env(safe-area-inset-left));
+            padding-inline-end: max(2rem, env(safe-area-inset-right));
+        }
+    }
+
+    .responsive-card-pad {
+        padding: clamp(0.875rem, 4vw, 1.5rem);
+    }
+
     .card-flat {
         @apply bg-surface border border-line rounded-xl;
     }

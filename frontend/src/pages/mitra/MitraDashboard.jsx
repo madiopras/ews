@@ -20,7 +20,7 @@ export default function MitraDashboard() {
   }, []);
   useEffect(() => { load(); }, [load]);
   return (
-    <div className="max-w-6xl px-4 sm:px-6 py-7 sm:py-10" data-testid="mitra-dashboard">
+    <div className="app-gutter max-w-6xl py-6 sm:py-10" data-testid="mitra-dashboard">
       <Seo title={t.mitra.dashboard} description={t.mitra.dashboardSubtitle} path="/mitra" noIndex />
       <header className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-6"><div><div className="eyebrow">{t.mitra.workspace}</div><h1 className="font-display text-[30px] sm:text-[38px] mt-1">{t.mitra.dashboard}</h1><p className="text-[14px] text-inkSoft mt-1">{t.mitra.dashboardSubtitle}</p></div><Link to="/mitra/onboarding" className="btn-primary"><Plus className="w-4 h-4" /> {t.mitra.addBusiness}</Link></header>
       {state === "loading" ? <div className="py-16 text-[13px] text-inkSoft">{t.common.loading}</div> : state === "error" ? <div className="card-flat p-6 text-center"><p className="text-red-700">{t.mitra.loadError}</p><button type="button" onClick={load} className="btn-outline mt-4"><RefreshCw className="w-4 h-4" /> {t.common.retry}</button></div> : partners.length === 0 ? (
