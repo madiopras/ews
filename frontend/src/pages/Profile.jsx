@@ -33,7 +33,7 @@ export default function Profile() {
   }, [isAuth, lang, user]);
 
   if (!ready) return <div className="p-8 text-[13px] text-inkSoft">{t.common.loading}</div>;
-  if (!isAuth) return <div className="mx-auto mt-10 max-w-md px-4 pb-16" data-testid="profile-page"><Seo title={t.profile.title} description={t.profile.guestSubtitle} noIndex /><div className="card-flat p-6 text-center"><span className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full border border-line bg-cream text-toba"><User className="h-6 w-6" /></span><h1 className="mb-2 font-display text-[24px]">{t.profile.guestTitle}</h1><p className="mb-6 text-[13px] text-inkSoft">{t.profile.guestSubtitle}</p><div className="space-y-3"><GoogleButton testId="google-profile-btn" /><Link to="/login" className="btn-primary w-full">{t.nav.login}</Link><Link to="/register" className="btn-outline w-full">{t.nav.register}</Link></div></div></div>;
+  if (!isAuth) return <div className="app-gutter mx-auto mt-8 max-w-md sm:mt-10 md:pb-16" data-testid="profile-page"><Seo title={t.profile.title} description={t.profile.guestSubtitle} noIndex /><div className="card-flat p-5 text-center sm:p-6"><span className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full border border-line bg-cream text-toba"><User className="h-6 w-6" /></span><h1 className="mb-2 font-display text-[24px]">{t.profile.guestTitle}</h1><p className="mb-6 text-[13px] text-inkSoft">{t.profile.guestSubtitle}</p><div className="space-y-3"><GoogleButton testId="google-profile-btn" /><Link to="/login" className="btn-primary w-full">{t.nav.login}</Link><Link to="/register" className="btn-outline w-full">{t.nav.register}</Link></div></div></div>;
 
   const toggleInterest = (interest) => setForm((current) => ({ ...current, interests: current.interests.includes(interest) ? current.interests.filter((item) => item !== interest) : [...current.interests, interest] }));
   const save = async (event) => {
@@ -84,7 +84,7 @@ export default function Profile() {
   };
 
   return (
-    <main className="mx-auto mt-6 max-w-2xl px-4 pb-16" data-testid="profile-page">
+    <main className="app-gutter mx-auto mt-5 max-w-2xl sm:mt-6 md:pb-16" data-testid="profile-page">
       <Seo title={t.profile.title} description={t.profile.manageDescription} noIndex />
       <div className="card-flat mb-4 flex items-center gap-4 p-5"><span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-toba font-display text-2xl text-cream">{(user.name || user.email).charAt(0).toUpperCase()}</span><div className="min-w-0"><h1 className="truncate font-display text-[22px] leading-tight">{user.name}</h1><div className="truncate text-[13px] text-inkSoft">{user.email}</div></div></div>
       {!user.email_verified && <div className="mb-4 flex items-center gap-3 rounded-xl border border-brick/25 bg-brick/5 p-4"><MailWarning className="h-5 w-5 shrink-0 text-brick" /><p className="flex-1 text-sm text-inkSoft">{t.profile.emailUnverified}</p><Link to="/verify-email" className="text-sm font-semibold text-toba hover:underline">{t.profile.verifyNow}</Link></div>}

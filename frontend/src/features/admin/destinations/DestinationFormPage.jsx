@@ -37,12 +37,12 @@ export default function DestinationFormPage() {
   });
 
   if (editing && detailQuery.isLoading) {
-    return <div className="w-full px-4 sm:px-6 xl:px-8 py-8 text-[13px] text-inkSoft">{copy.loadingDetail}</div>;
+    return <div className="app-gutter w-full py-8 text-[13px] text-inkSoft">{copy.loadingDetail}</div>;
   }
 
   if (editing && detailQuery.isError) {
     return (
-      <div className="w-full px-4 sm:px-6 xl:px-8 py-8">
+      <div className="app-gutter w-full py-8">
         <div className="card-flat p-6 text-center">
           <p className="text-sm text-red-700">{copy.detailError}</p>
           <Link to="/admin/destinations" className="btn-outline mt-4"><ArrowLeft className="w-4 h-4" /> {t.admin.cancel}</Link>
@@ -52,7 +52,7 @@ export default function DestinationFormPage() {
   }
 
   return (
-    <div className="w-full max-w-6xl px-4 sm:px-6 xl:px-8 py-6 pb-16" data-testid="destination-form-page">
+    <div className="app-gutter w-full max-w-6xl py-6 pb-16" data-testid="destination-form-page">
       <header className="mb-6">
         <Link to="/admin/destinations" className="inline-flex items-center gap-2 text-[12px] text-inkSoft hover:text-toba mb-3">
           <ArrowLeft className="w-4 h-4" /> {copy.title}

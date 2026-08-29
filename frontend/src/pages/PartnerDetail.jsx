@@ -36,11 +36,30 @@ export default function PartnerDetail() {
     contact: "Hubungi lewat WhatsApp", unavailable: "Mitra ini sementara tidak menerima kontak.",
     featured: "Mitra Unggulan berbayar", availability: "Ketersediaan", tags: "Cocok untuk",
   }, [lang]);
-  if (state === "loading") return <div className="mx-auto max-w-6xl px-4 py-16 text-sm text-inkSoft">{t.common.loading}</div>;
-  if (state === "error" || !partner) return <div className="mx-auto max-w-3xl px-4 py-16 text-center"><p>{copy.notFound}</p><Link to="/partners" className="btn-outline mt-5">{copy.back}</Link></div>;
+  if (state === "loading") return <div className="app-gutter mx-auto max-w-6xl py-16 text-sm text-inkSoft">{t.common.loading}</div>;
+  if (state === "error" || !partner) return <div className="app-gutter mx-auto max-w-3xl py-16 text-center"><p>{copy.notFound}</p><Link to="/partners" className="btn-outline mt-5">{copy.back}</Link></div>;
   const waUrl = partner.whatsapp ? `https://wa.me/${partner.whatsapp}?text=${encodeURIComponent(`Halo ${partner.business_name}, saya menemukan profil Anda di Explore Sumut.`)}` : null;
-  return <div className="mx-auto max-w-6xl px-4 sm:px-6 py-7 sm:py-10" data-testid="partner-public-detail">
-    <Seo title={partner.business_name} description={partner.description} path={`/partners/${partner.id}`} />
+  const profileImage = assetUrl(partner.gallery?.[0]?.url || "");
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    name: partner.business_name,
+    description: partner.description,
+    image: profileImage || undefined,
+    telephone: partner.whatsapp || undefined,
+    email: partner.email || undefined,
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: partner.address || undefined,
+      addressLocality: partner.city || undefined,
+      addressRegion: "Sumatera Utara",
+      addressCountry: "ID",
+    },
+    areaServed: partner.destinations?.map((destination) => destination.name) || [],
+    url: `https://explorewisatasumut.com/partners/${partner.id}`,
+  };
+  return <div className="app-gutter mx-auto max-w-6xl py-6 sm:py-10" data-testid="partner-public-detail">
+    <Seo title={partner.business_name} description={partner.description} path={`/partners/${partner.id}`} image={profileImage || undefined} imageAlt={`Profil ${partner.business_name}`} structuredData={structuredData} />
     {adminPreview && <div className="mb-4 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-xs font-semibold text-amber-950">Admin preview · {lang.toUpperCase()}</div>}
     <Link to="/partners" className="inline-flex min-h-[44px] items-center gap-2 text-sm font-semibold text-toba"><ArrowLeft className="h-4 w-4" />{copy.back}</Link>
     <header className="card-flat mt-3 overflow-hidden">

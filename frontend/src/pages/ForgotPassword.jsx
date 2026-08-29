@@ -24,7 +24,7 @@ export default function ForgotPassword() {
     }
   };
   return (
-    <main className="mx-auto mt-8 max-w-md px-4 pb-16">
+    <main className="app-gutter mx-auto mt-6 max-w-md sm:mt-8 md:pb-16">
       <Seo title={t.auth.forgotPassword} description={t.auth.forgotDescription} noIndex />
       <div className="card-flat p-6 sm:p-8">
         <h1 className="font-display text-3xl">{t.auth.forgotPassword}</h1>

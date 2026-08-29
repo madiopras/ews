@@ -43,7 +43,7 @@ export default function Login() {
   if (ready && user && typeof user === "object") return <Navigate to={next} replace />;
 
   return (
-    <div className="max-w-md mx-auto px-4 mt-8 pb-16">
+    <div className="app-gutter mx-auto mt-6 max-w-md sm:mt-8 md:pb-16">
       <Seo title={t.auth.loginTitle} description={t.profile.guestSubtitle} noIndex />
       <div className="card-flat p-5 sm:p-8">
         <div className="eyebrow">{t.nav.login}</div>

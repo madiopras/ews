@@ -103,7 +103,7 @@ export default function Wishlist() {
 
   const hasCache = savedAt !== null;
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-7 sm:py-10" data-testid="trip-workspace">
+    <div className="app-gutter mx-auto max-w-6xl py-6 sm:py-10" data-testid="trip-workspace">
       <Seo title={t.savedTrips.workspaceTitle} description={t.savedTrips.workspaceSubtitle} path="/wishlist" noIndex />
 
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-6">

@@ -63,14 +63,14 @@ export default function Home() {
   };
 
   return (
-    <div className="pb-16">
+    <div>
       <Seo title={t.hero.title} description={t.hero.subtitle} path="/" />
       {/* HERO — dark teal */}
       <section className="relative bg-toba overflow-hidden" data-testid="home-hero">
         <div className="absolute inset-0 text-cream/[0.07]">
           <UlosPattern />
         </div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-8 sm:py-14 lg:py-20 grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-14 items-center">
+        <div className="app-gutter relative mx-auto grid max-w-7xl grid-cols-1 items-center gap-7 pb-7 pt-8 sm:gap-8 sm:py-14 lg:grid-cols-2 lg:gap-14 lg:py-20">
           <div>
             <span className="inline-flex items-center gap-2 text-[12px] tracking-[0.18em] uppercase text-cream/70">
               <Compass className="w-4 h-4" /> {t.hero.tagline}
@@ -143,7 +143,7 @@ export default function Home() {
       </section>
 
       {/* AI PLANNER STRIP */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 sm:mt-10">
+      <section className="app-gutter mx-auto mt-6 max-w-7xl sm:mt-10">
         <div className="card-flat p-4 sm:p-6 flex flex-col sm:flex-row sm:items-center gap-4 justify-between">
           <div>
             <div className="flex items-center gap-2 text-toba">
@@ -161,9 +161,9 @@ export default function Home() {
       </section>
 
       {/* CATEGORIES */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16">
+      <section className="app-gutter mx-auto mt-10 max-w-7xl sm:mt-16">
         <h2 className="section-title mb-5">{t.home.categoriesTitle}</h2>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 md:grid-cols-4">
           {CATEGORY_KEYS.map((cat) => {
             // Icon mapping
             const iconMap = {
@@ -193,7 +193,7 @@ export default function Home() {
               <Link
                 key={cat}
                 to={`/explore?category=${cat}`}
-                className={`group relative p-5 rounded-2xl bg-gradient-to-br ${gradient} border border-line/30 hover:border-toba/50 transition-all duration-300 shadow-sm hover:shadow-md overflow-hidden`}
+                className={`group relative overflow-hidden rounded-2xl border border-line/30 bg-gradient-to-br p-3.5 shadow-sm transition-all duration-300 hover:border-toba/50 hover:shadow-md sm:p-5 ${gradient}`}
                 data-testid={`category-card-${cat}`}
               >
                 <div className="absolute inset-0 bg-black/5 group-hover:bg-black/10 transition-colors"></div>
@@ -219,7 +219,7 @@ export default function Home() {
       {/* TRENDING */}
       {trending.length > 0 && (
         <section
-          className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16"
+          className="app-gutter mx-auto mt-10 max-w-7xl sm:mt-16"
           data-testid="trending-section"
         >
           <div className="mb-5">
@@ -242,7 +242,7 @@ export default function Home() {
       )}
 
       {/* FEATURED */}
-      <section id="featured" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-16">
+      <section id="featured" className="app-gutter mx-auto mt-10 max-w-7xl sm:mt-16">
         <div className="flex items-end justify-between gap-4 mb-5 flex-wrap">
           <div>
             <div className="eyebrow">{lang === "en" ? "Editor's picks" : "Pilihan editor"}</div>
@@ -270,7 +270,7 @@ export default function Home() {
         <div className="absolute inset-0 text-cream/[0.06]">
           <UlosPattern />
         </div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex flex-wrap items-center justify-between gap-3 text-[13px] text-cream/75">
+        <div className="app-gutter relative mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 py-8 text-[13px] text-cream/75 sm:py-10">
           <div>
             <span className="font-display text-base text-cream">Explore Wisata Sumut</span> ·{" "}
             {lang === "en" ? "A tribute to North Sumatra" : "Bumi Sumatera Utara"}

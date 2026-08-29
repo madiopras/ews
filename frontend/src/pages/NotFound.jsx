@@ -7,7 +7,7 @@ import Seo from "../components/Seo.jsx";
 export default function NotFound() {
   const { t } = useLang();
   return (
-    <main className="mx-auto flex min-h-[65vh] max-w-2xl items-center px-4 py-12" data-testid="not-found-page">
+    <main className="app-gutter mx-auto flex min-h-[65vh] max-w-2xl items-center py-10 sm:py-12" data-testid="not-found-page">
       <Seo title={t.notFound.title} description={t.notFound.description} noIndex />
       <div className="card-flat w-full p-7 text-center sm:p-10">
         <Compass className="mx-auto h-12 w-12 text-toba" />

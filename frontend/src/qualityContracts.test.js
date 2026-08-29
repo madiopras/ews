@@ -28,7 +28,9 @@ describe("quality, accessibility, and mobile contracts", () => {
     expect(css).toContain(":focus-visible");
     expect(css).toContain("prefers-reduced-motion: reduce");
     expect(css).toContain("env(safe-area-inset-bottom)");
-    expect(css).toContain("min-width: 320px");
+    expect(css).toContain(".app-gutter");
+    expect(css).toContain("env(safe-area-inset-left)");
+    expect(css).not.toContain("min-width: 320px");
   });
 
   test("device uploads declare narrow accepted MIME types", () => {

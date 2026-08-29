@@ -7,6 +7,7 @@ import { docsContent } from '../data/docs-content.js';
 import { BookOpen } from 'lucide-react';
 import UlosPattern from '../components/UlosPattern.jsx';
 import { useLang } from '../contexts/LanguageContext.jsx';
+import Seo from '../components/Seo.jsx';
 
 const Docs = () => {
   const [params, setParams] = useSearchParams();
@@ -31,12 +32,17 @@ const Docs = () => {
 
   return (
     <div data-testid="docs-page">
+      <Seo
+        title={t.docs.menu[activeMenu] || t.docs.eyebrow}
+        description={t.docs.subtitle}
+        path="/docs"
+      />
       {/* Header - Following Partners style */}
       <header className="relative bg-toba overflow-hidden">
         <div className="absolute inset-0 text-cream/[0.07]">
           <UlosPattern />
         </div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+        <div className="app-gutter relative mx-auto max-w-7xl py-7 sm:py-12">
           <div className="text-[12px] tracking-[0.18em] uppercase text-cream/70 flex items-center gap-2">
             <BookOpen className="w-4 h-4" /> {t.docs.eyebrow}
           </div>
@@ -49,7 +55,7 @@ const Docs = () => {
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 pb-16">
+      <div className="app-gutter mx-auto mt-5 max-w-7xl sm:mt-6 md:pb-16">
         {/* Main Layout */}
         <DocsLayout 
           sidebarChildren={<DocsSidebar activeMenu={activeMenu} onMenuChange={changeMenu} />}

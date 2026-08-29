@@ -129,7 +129,7 @@ export default function DestinationListPage() {
   );
 
   return (
-    <div className="w-full px-4 sm:px-6 xl:px-8 py-6 pb-16" data-testid="destination-list-page">
+    <div className="app-gutter w-full py-6 pb-16" data-testid="destination-list-page">
       <header className="mb-5 flex items-end justify-between flex-wrap gap-3">
         <div>
           <div className="eyebrow">Admin</div>

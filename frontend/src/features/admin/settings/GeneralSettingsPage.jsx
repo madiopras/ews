@@ -27,7 +27,7 @@ export default function GeneralSettingsPage() {
   const set = (key, value) => setForm((current) => ({ ...current, [key]: value }));
   if (query.isLoading) return <div className="p-8 text-sm text-inkSoft">Loading...</div>;
   if (query.isError || !form) return <div className="m-6 rounded-xl border border-red-200 bg-red-50 p-4 text-red-700">{copy.loadError}</div>;
-  return <div className="w-full px-4 sm:px-6 xl:px-8 py-6 pb-16" data-testid="general-settings-page">
+  return <div className="app-gutter w-full py-6 pb-16" data-testid="general-settings-page">
     <header className="mb-5"><div className="eyebrow">Admin · Settings</div><h1 className="mt-2 font-display text-[26px] sm:text-4xl">{copy.generalTitle}</h1><p className="text-[13px] text-inkSoft mt-2">{copy.generalSub}</p></header>
     <form className="card-flat p-5 sm:p-6 max-w-4xl space-y-5" onSubmit={(e) => { e.preventDefault(); mutation.mutate({
       ...form,

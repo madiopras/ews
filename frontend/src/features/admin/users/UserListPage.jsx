@@ -49,7 +49,7 @@ export default function UserListPage() {
   const mobileCard = (item) => <article className="p-4 flex items-center gap-3"><div className="flex-1 min-w-0"><div className="font-semibold text-sm truncate">{item.name || copy.unnamed}</div><div className="text-[11px] text-inkSoft truncate mt-1">{item.email}</div><div className="flex flex-wrap gap-1.5 mt-2"><StatusBadge variant={item.role === "admin" ? "info" : "neutral"}>{item.role}</StatusBadge><StatusBadge variant={item.account_active === false ? "danger" : "success"}>{item.account_active === false ? copy.inactive : copy.active}</StatusBadge></div></div><button type="button" onClick={() => setEditing(item)} className="w-10 h-10 rounded-lg border border-line flex items-center justify-center" aria-label={`${copy.edit}: ${item.email}`}><Pencil className="w-4 h-4" /></button></article>;
 
   return (
-    <div className="w-full px-4 sm:px-6 xl:px-8 py-6 pb-16" data-testid="user-list-page">
+    <div className="app-gutter w-full py-6 pb-16" data-testid="user-list-page">
       <header className="mb-5"><div className="eyebrow">Admin</div><h1 className="mt-2 font-display text-[26px] sm:text-4xl">{copy.title}</h1><p className="text-[13px] text-inkSoft mt-2">{copy.subtitle}</p></header>
       <div className="space-y-4">
         <DataTableToolbar searchValue={params.q} onSearchChange={(value) => setParams({ q: value.length >= 2 ? value : "" })} searchPlaceholder={copy.search} resultCount={usersQuery.isSuccess ? total : undefined} hasActiveFilters={hasActiveFilters} onReset={resetParams}>

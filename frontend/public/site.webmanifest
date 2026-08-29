@@ -1,0 +1,14 @@
+{
+  "name": "Explore Wisata Sumut",
+  "short_name": "Wisata Sumut",
+  "description": "Jelajahi destinasi Sumatera Utara dan susun perjalanan dengan informasi lokal.",
+  "lang": "id-ID",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#F5F1E8",
+  "theme_color": "#0F3D3E",
+  "icons": [
+    { "src": "/favicon.png", "sizes": "128x128", "type": "image/png", "purpose": "any" }
+  ]
+}

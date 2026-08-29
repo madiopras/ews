@@ -18,7 +18,7 @@ export default function AnalyticsConsent() {
     allow: "Izinkan analitik", decline: "Tidak sekarang", close: "Tutup",
   };
   const choose = (value) => { setAnalyticsConsent(value); setVisible(false); };
-  return <aside className="fixed bottom-20 md:bottom-5 left-4 right-4 z-[70] mx-auto max-w-2xl rounded-xl border border-line bg-surface p-4 shadow-xl" role="dialog" aria-label={copy.title} data-testid="analytics-consent">
+  return <aside className="fixed bottom-[calc(5rem+max(0.625rem,env(safe-area-inset-bottom)))] left-[max(0.625rem,env(safe-area-inset-left))] right-[max(0.625rem,env(safe-area-inset-right))] z-[70] mx-auto max-w-2xl rounded-xl border border-line bg-surface p-3 shadow-xl min-[360px]:p-4 md:bottom-5" role="dialog" aria-label={copy.title} data-testid="analytics-consent">
     <div className="flex items-start gap-3">
       <span className="mt-0.5 rounded-lg bg-toba/10 p-2 text-toba"><BarChart3 className="h-5 w-5" /></span>
       <div className="min-w-0 flex-1"><h2 className="font-semibold text-sm">{copy.title}</h2><p className="mt-1 text-[12px] leading-relaxed text-inkSoft">{copy.body}</p><div className="mt-3 flex flex-wrap gap-2"><button type="button" onClick={() => choose("granted")} className="btn-primary text-[12px]">{copy.allow}</button><button type="button" onClick={() => choose("denied")} className="btn-outline text-[12px]">{copy.decline}</button></div></div>

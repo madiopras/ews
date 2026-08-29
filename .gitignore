@@ -47,6 +47,7 @@ node_modules/
 yarn.lock
 pnpm-lock.yaml
 package-lock.json
+!frontend/package-lock.json
 .bun.lock
 
 /.next/

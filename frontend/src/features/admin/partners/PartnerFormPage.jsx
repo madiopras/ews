@@ -39,13 +39,13 @@ export default function PartnerFormPage() {
     onError: (error) => toast.error(error.response?.data?.detail ? formatError(error.response.data.detail) : copy.saveError),
   });
 
-  if (editing && detailQuery.isLoading) return <div className="px-4 sm:px-6 xl:px-8 py-8 text-[13px] text-inkSoft">{copy.loadingDetail}</div>;
+  if (editing && detailQuery.isLoading) return <div className="app-gutter py-8 text-[13px] text-inkSoft">{copy.loadingDetail}</div>;
   if (editing && detailQuery.isError) {
-    return <div className="px-4 sm:px-6 xl:px-8 py-8"><div className="card-flat p-6 text-center text-red-700">{copy.detailError}</div></div>;
+    return <div className="app-gutter py-8"><div className="card-flat p-5 text-center text-red-700 sm:p-6">{copy.detailError}</div></div>;
   }
 
   return (
-    <div className="w-full max-w-6xl px-4 sm:px-6 xl:px-8 py-6 pb-16" data-testid="partner-form-page">
+    <div className="app-gutter w-full max-w-6xl py-6 pb-16" data-testid="partner-form-page">
       <header className="mb-6">
         <Link to={editing ? `/admin/partners/${id}` : "/admin/partners"} className="inline-flex items-center gap-2 text-[12px] text-inkSoft hover:text-toba mb-3">
           <ArrowLeft className="w-4 h-4" /> {copy.title}

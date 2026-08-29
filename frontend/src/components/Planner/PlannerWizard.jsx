@@ -81,7 +81,7 @@ export default function PlannerWizard({
 
   if (transitioning) {
     return (
-      <div className="flex min-h-[330px] flex-col items-center justify-center px-5 text-center" role="status" aria-live="polite" data-testid="planner-wizard-transition">
+      <div className="flex min-h-[300px] flex-col items-center justify-center px-2 text-center sm:min-h-[330px] sm:px-5" role="status" aria-live="polite" data-testid="planner-wizard-transition">
         <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-toba text-cream shadow-lg shadow-toba/20"><Loader2 className="h-6 w-6 animate-spin" /></span>
         <p className="mt-5 font-semibold text-ink">{transitionMessage || copy.preparing}</p>
         <p className="mt-1 text-sm text-inkSoft">{copy.understanding}</p>
@@ -114,7 +114,7 @@ export default function PlannerWizard({
             value={form.extra_context}
             onChange={(event) => onStoryChange(event.target.value.slice(0, 200))}
             placeholder={copy.storyPlaceholder}
-            className="input-flat mt-5 min-h-[150px] resize-none bg-cream/60 px-4 py-3 text-sm leading-6"
+            className="input-flat mt-4 min-h-[140px] resize-none bg-cream/60 px-3.5 py-3 text-sm leading-6 sm:mt-5 sm:min-h-[150px] sm:px-4"
             data-testid="planner-story-input"
             aria-labelledby="planner-story-title"
             autoFocus
@@ -122,7 +122,7 @@ export default function PlannerWizard({
           <div className="mt-3 flex flex-wrap gap-2">
             {copy.examples.map((example) => <button key={example} type="button" onClick={() => onStoryChange(example)} className="rounded-full border border-line bg-surface px-3 py-1.5 text-[11px] text-inkSoft transition hover:border-toba hover:text-toba">{example}</button>)}
           </div>
-          <div className="mt-6 flex justify-end border-t border-line/70 pt-4">
+          <div className="mt-5 flex justify-end border-t border-line/70 pt-4 sm:mt-6">
             <button type="submit" className="btn-primary w-full rounded-2xl shadow-lg shadow-brick/20 sm:w-auto" data-testid="planner-story-submit"><Sparkles className="h-4 w-4" />{copy.planWithStory}</button>
           </div>
         </form>
@@ -168,7 +168,7 @@ export default function PlannerWizard({
 }
 
 function StepHeading({ id, icon: Icon, title, description, focusRef }) {
-  return <div className="rounded-2xl bg-[linear-gradient(135deg,rgba(15,61,62,0.11),rgba(139,157,131,0.20))] px-4 py-4 sm:px-5"><div className="flex items-start gap-3"><span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-toba text-cream shadow-lg shadow-toba/20" aria-hidden="true"><Icon className="h-5 w-5" /></span><div className="min-w-0"><h2 id={id} ref={focusRef} tabIndex={focusRef ? -1 : undefined} className="text-base font-bold leading-snug text-ink outline-none sm:text-lg">{title}</h2><p className="mt-1 text-xs leading-5 text-inkSoft">{description}</p></div></div></div>;
+  return <div className="rounded-2xl bg-[linear-gradient(135deg,rgba(15,61,62,0.11),rgba(139,157,131,0.20))] px-3.5 py-3.5 sm:px-5 sm:py-4"><div className="flex items-start gap-2.5 sm:gap-3"><span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-toba text-cream shadow-lg shadow-toba/20 sm:h-11 sm:w-11 sm:rounded-2xl" aria-hidden="true"><Icon className="h-5 w-5" /></span><div className="min-w-0"><h2 id={id} ref={focusRef} tabIndex={focusRef ? -1 : undefined} className="text-base font-bold leading-snug text-ink outline-none sm:text-lg">{title}</h2><p className="mt-1 text-xs leading-5 text-inkSoft">{description}</p></div></div></div>;
 }
 
 function WizardActions({ backLabel, onBack, submitLabel, disabled }) {

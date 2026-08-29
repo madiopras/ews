@@ -158,9 +158,9 @@ export default function TripDetail() {
     URL.revokeObjectURL(url);
   };
 
-  if (loading) return <div className="max-w-5xl mx-auto px-4 py-16 text-[13px] text-inkSoft">{t.common.loading}</div>;
+  if (loading) return <div className="app-gutter mx-auto max-w-5xl py-16 text-[13px] text-inkSoft">{t.common.loading}</div>;
   if (loadError || !trip) return (
-    <div className="max-w-lg mx-auto px-4 py-16 text-center" data-testid="private-trip-error">
+    <div className="app-gutter mx-auto max-w-lg py-16 text-center" data-testid="private-trip-error">
       <h1 className="font-display text-[26px]">{t.savedTrips.loadError}</h1>
       <p className="text-[14px] text-inkSoft mt-2">{t.savedTrips.loadErrorHint}</p>
       <div className="mt-5 flex flex-wrap justify-center gap-2">
@@ -171,7 +171,7 @@ export default function TripDetail() {
   );
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-7 sm:py-10 print-area" data-testid="private-trip-detail">
+    <div className="app-gutter mx-auto max-w-6xl py-6 sm:py-10 print-area" data-testid="private-trip-detail">
       <Seo title={trip.title} description={t.savedTrips.privateSeoDescription} path={`/saved/trips/${id}`} noIndex />
       <div className="print-hidden mb-5">
         <Link to="/wishlist?tab=trips" className="inline-flex items-center gap-1.5 text-[13px] text-inkSoft hover:text-toba"><ArrowLeft className="w-4 h-4" /> {t.savedTrips.backWorkspace}</Link>

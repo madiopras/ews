@@ -125,14 +125,14 @@ export default function DestinationDetail() {
 
   if (loadState === "loading")
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 text-inkSoft text-[13px]">
+      <div className="app-gutter mx-auto mt-8 max-w-7xl text-[13px] text-inkSoft">
         {t.common.loading}
       </div>
     );
   if (loadState === "not_found") return <NotFound />;
   if (loadState === "error")
     return (
-      <div className="max-w-xl mx-auto px-4 py-16 text-center" data-testid="destination-load-error">
+      <div className="app-gutter mx-auto max-w-xl py-16 text-center" data-testid="destination-load-error">
         <div className="card-flat p-7"><h1 className="font-display text-2xl">{t.detail.loadError}</h1><p className="mt-2 text-sm text-inkSoft">{t.detail.loadErrorHint}</p><div className="mt-5 flex justify-center gap-3"><button onClick={() => setRetryKey((value) => value + 1)} className="btn-primary"><RefreshCw className="w-4 h-4" /> {t.common.retry}</button><Link to="/explore" className="btn-outline">{t.nav.explore}</Link></div></div>
       </div>
     );
@@ -157,7 +157,7 @@ export default function DestinationDetail() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4 pb-16" data-testid="dest-detail-page">
+    <div className="app-gutter mx-auto mt-3 max-w-7xl sm:mt-4 md:pb-16" data-testid="dest-detail-page">
       <Seo title={name} description={description.slice(0, 160)} path={`/destination/${dest.id}`} image={dest.images?.[0]} structuredData={structuredData} />
       {adminPreview && <div className="mb-4 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-xs font-semibold text-amber-950">Admin preview · {lang.toUpperCase()}</div>}
       <button
