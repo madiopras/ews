@@ -3,13 +3,13 @@ import { Link, useNavigate } from "react-router-dom";
 import { useLang } from "../contexts/LanguageContext.jsx";
 import { MapPin, ArrowUpRight, Sparkles } from "lucide-react";
 
-export default function DestinationCard({ dest }) {
+export default function DestinationCard({ dest, showPlannerAction = true }) {
   const { lang, t } = useLang();
   const navigate = useNavigate();
   const name = lang === "en" && dest.name_en ? dest.name_en : dest.name;
   const image =
     dest.images?.[0] ||
-    "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=900&q=70";
+    "/social-share.png";
 
   return (
     <article
@@ -22,6 +22,10 @@ export default function DestinationCard({ dest }) {
           alt={name}
           loading="lazy"
           decoding="async"
+          onError={(event) => {
+            event.currentTarget.onerror = null;
+            event.currentTarget.src = "/social-share.png";
+          }}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
         />
         <span className="absolute top-3 left-3 bg-surface/95 px-2.5 py-1 rounded-full text-[11px] tracking-wider uppercase font-semibold text-toba">
@@ -41,7 +45,7 @@ export default function DestinationCard({ dest }) {
         </div>
 
         {/* CTA Button to AI Planner */}
-        <button
+        {showPlannerAction && <button
           type="button"
           onClick={(e) => {
             e.preventDefault();
@@ -51,7 +55,7 @@ export default function DestinationCard({ dest }) {
         >
           <Sparkles className="w-4 h-4 fill-current group-hover/btn:animate-pulse" />
           {t.detail.planVisit}
-        </button>
+        </button>}
 
         <Link
           to={`/destination/${dest.id}`}

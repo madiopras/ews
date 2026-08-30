@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const PARTNER_TYPES = ["guide", "rental", "homestay", "souvenir"];
+export const PARTNER_TYPES = ["guide", "rental", "homestay", "culinary", "souvenir"];
 export const PARTNER_DEFAULTS = {
   business_name: "",
   type: "guide",
@@ -12,6 +12,12 @@ export const PARTNER_DEFAULTS = {
   destination_ids: [],
   service_tags: [],
   image: "",
+  culinary_categories: [],
+  culinary_specialties: [],
+  culinary_service_modes: [],
+  culinary_dietary_tags: [],
+  culinary_opening_info: "",
+  culinary_reservation_note: "",
 };
 
 export const partnerSchema = z.object({
@@ -28,6 +34,12 @@ export const partnerSchema = z.object({
   destination_ids: z.array(z.string()).max(100),
   service_tags: z.array(z.string().trim().min(1).max(40)).max(20),
   image: z.union([z.literal(""), z.string().url("URL gambar tidak valid")]),
+  culinary_categories: z.array(z.string().trim().min(1).max(80)).max(20),
+  culinary_specialties: z.array(z.string().trim().min(1).max(120)).max(50),
+  culinary_service_modes: z.array(z.string().trim().min(1).max(50)).max(10),
+  culinary_dietary_tags: z.array(z.string().trim().min(1).max(50)).max(20),
+  culinary_opening_info: z.string().trim().max(300),
+  culinary_reservation_note: z.string().trim().max(300),
 });
 
 export function partnerToForm(partner) {
@@ -40,6 +52,12 @@ export function partnerToForm(partner) {
     image: partner.image || "",
     destination_ids: Array.isArray(partner.destination_ids) ? partner.destination_ids : [],
     service_tags: Array.isArray(partner.service_tags) ? partner.service_tags : [],
+    culinary_categories: Array.isArray(partner.culinary_categories) ? partner.culinary_categories : [],
+    culinary_specialties: Array.isArray(partner.culinary_specialties) ? partner.culinary_specialties : [],
+    culinary_service_modes: Array.isArray(partner.culinary_service_modes) ? partner.culinary_service_modes : [],
+    culinary_dietary_tags: Array.isArray(partner.culinary_dietary_tags) ? partner.culinary_dietary_tags : [],
+    culinary_opening_info: partner.culinary_opening_info || "",
+    culinary_reservation_note: partner.culinary_reservation_note || "",
   };
 }
 
@@ -55,5 +73,11 @@ export function partnerToPayload(values) {
     destination_ids: values.destination_ids,
     service_tags: [...new Set(values.service_tags.map((tag) => tag.trim().toLowerCase()).filter(Boolean))],
     image: values.image.trim(),
+    culinary_categories: values.culinary_categories.map((value) => value.trim()).filter(Boolean),
+    culinary_specialties: values.culinary_specialties.map((value) => value.trim()).filter(Boolean),
+    culinary_service_modes: values.culinary_service_modes.map((value) => value.trim()).filter(Boolean),
+    culinary_dietary_tags: values.culinary_dietary_tags.map((value) => value.trim()).filter(Boolean),
+    culinary_opening_info: values.culinary_opening_info.trim(),
+    culinary_reservation_note: values.culinary_reservation_note.trim(),
   };
 }

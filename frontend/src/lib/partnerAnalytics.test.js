@@ -1,5 +1,5 @@
 import { api } from "./api.js";
-import { ANALYTICS_CONSENT_KEY, trackPlannerEvent } from "./partnerAnalytics.js";
+import { ANALYTICS_CONSENT_KEY, trackPartnerEvent, trackPlannerEvent } from "./partnerAnalytics.js";
 
 jest.mock("./api.js", () => ({ api: { post: jest.fn() } }));
 
@@ -32,5 +32,27 @@ describe("trackPlannerEvent", () => {
     });
     expect(JSON.stringify(payload)).not.toContain("story");
     expect(options).toEqual({ headers: { "X-Analytics-Consent": "granted" } });
+  });
+
+  test("sends only auditable planner-match metadata for partner events", async () => {
+    localStorage.setItem(ANALYTICS_CONSENT_KEY, "granted");
+
+    await expect(trackPartnerEvent("ai_impression", "partner-1", "planner", "dest-1", {
+      placement: "featured",
+      relevance_score: 80,
+      match_factor_codes: ["destination_coverage", "requested_service_type"],
+      private_story: "must never be sent",
+    })).resolves.toBe(true);
+
+    const [, payload] = api.post.mock.calls[0];
+    expect(payload).toEqual(expect.objectContaining({
+      event_type: "ai_impression",
+      partner_id: "partner-1",
+      destination_id: "dest-1",
+      placement: "featured",
+      relevance_score: 80,
+      match_factor_codes: ["destination_coverage", "requested_service_type"],
+    }));
+    expect(payload).not.toHaveProperty("private_story");
   });
 });

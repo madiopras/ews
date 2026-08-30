@@ -61,6 +61,10 @@ const responseFor = (url) => {
   if (url === "/experience/features") return {
     mitra_onboarding: { enabled: true, rollout_percentage: 100, reason: "full_rollout" },
     mitra_dashboard: { enabled: true, rollout_percentage: 100, reason: "existing_partner" },
+    planner_result_cards: { enabled: false, rollout_percentage: 0, reason: "disabled" },
+    planner_structured_results: { enabled: false, rollout_percentage: 0, reason: "disabled" },
+    planner_culinary: { enabled: false, rollout_percentage: 0, reason: "disabled" },
+    planner_partner_matches: { enabled: false, rollout_percentage: 0, reason: "disabled" },
   };
   if (url === "/admin/dashboard") {
     return {
@@ -80,6 +84,11 @@ const responseFor = (url) => {
       maintenance_mode: false,
       partner_review_sla_days: 2,
       planner_enabled: true,
+      planner_result_cards_enabled: false,
+      planner_structured_results_enabled: false,
+      planner_structured_rollout_percentage: 0,
+      planner_culinary_enabled: false,
+      planner_partner_matches_enabled: false,
       backup_retention_days: 30,
     };
   }

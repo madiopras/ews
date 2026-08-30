@@ -1,19 +1,22 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { useLang } from "../contexts/LanguageContext.jsx";
-import { MessageCircle, MapPin, User, Car, Home, Crown, ShoppingBag, ArrowRight } from "lucide-react";
+import { MessageCircle, MapPin, User, Car, Home, Crown, ShoppingBag, ArrowRight, Utensils } from "lucide-react";
 import { trackPartnerEvent } from "../lib/partnerAnalytics.js";
+import usePartnerImpression from "../hooks/usePartnerImpression.js";
 
 const ICONS = {
   guide: User,
   rental: Car,
   homestay: Home,
+  culinary: Utensils,
   souvenir: ShoppingBag,
 };
 
-export default function PartnerCard({ partner, showBadge = false, onUpgrade, source = "directory", destinationId = null }) {
+export default function PartnerCard({ partner, showBadge = false, onUpgrade, source = "directory", destinationId = null, analyticsContext = {} }) {
   const { t, lang } = useLang();
   const Icon = ICONS[partner.type] || User;
+  const impressionRef = usePartnerImpression({ partnerId: partner.id, source, destinationId, analyticsContext });
 
   const waUrl = `https://wa.me/${partner.whatsapp}?text=${encodeURIComponent(
     `Halo ${partner.business_name}, saya menemukan Anda di Explore Sumut dan tertarik dengan layanan Anda.`
@@ -27,6 +30,7 @@ export default function PartnerCard({ partner, showBadge = false, onUpgrade, sou
 
   return (
     <article
+      ref={impressionRef}
       className={`card-flat p-4 sm:p-5 flex gap-4 items-start relative overflow-hidden ${
         partner.is_premium ? "border-toba" : ""
       }`}
@@ -87,12 +91,12 @@ export default function PartnerCard({ partner, showBadge = false, onUpgrade, sou
         )}
 
         <div className="mt-4 flex flex-col sm:flex-row gap-2">
-          <Link to={`/partners/${partner.id}`} className="btn-outline w-full sm:w-auto"><ArrowRight className="w-4 h-4 text-toba" />{lang === "en" ? "View details" : "Lihat detail"}</Link>
+          <Link to={`/partners/${partner.id}`} onClick={() => trackPartnerEvent("profile_click", partner.id, source, destinationId, analyticsContext)} className="btn-outline w-full sm:w-auto"><ArrowRight className="w-4 h-4 text-toba" />{lang === "en" ? "View details" : "Lihat detail"}</Link>
           {partner.accepting_contacts !== false && partner.whatsapp && <a
               href={waUrl}
               target="_blank"
               rel="noopener noreferrer"
-              onClick={() => trackPartnerEvent("whatsapp_click", partner.id, source, destinationId)}
+              onClick={() => trackPartnerEvent("whatsapp_click", partner.id, source, destinationId, analyticsContext)}
               className="btn-outline w-full sm:w-auto"
               data-testid={`partner-wa-btn-${partner.id}`}
             ><MessageCircle className="w-4 h-4 text-toba" />{t.partners.contactWA}</a>}

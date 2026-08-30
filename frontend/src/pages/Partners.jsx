@@ -5,10 +5,9 @@ import { useLang } from "../contexts/LanguageContext.jsx";
 import PartnerCard from "../components/PartnerCard.jsx";
 import { ChevronLeft, ChevronRight, Handshake, Plus } from "lucide-react";
 import UlosPattern from "../components/UlosPattern.jsx";
-import { trackPartnerEvent } from "../lib/partnerAnalytics.js";
 import Seo from "../components/Seo.jsx";
 
-const TYPES = ["guide", "rental", "homestay", "souvenir"];
+const TYPES = ["guide", "rental", "homestay", "culinary", "souvenir"];
 
 export default function Partners() {
   const { t, lang } = useLang();
@@ -57,10 +56,6 @@ export default function Partners() {
   };
 
   useEffect(load, [type, page]);
-  useEffect(() => {
-    partners.forEach(partner => trackPartnerEvent("directory_impression", partner.id, "directory"));
-  }, [partners]);
-
   const goToPage = (nextPage) => {
     const next = new URLSearchParams(params);
     if (nextPage === 1) next.delete("page");

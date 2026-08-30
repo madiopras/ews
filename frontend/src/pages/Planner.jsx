@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useLang } from "../contexts/LanguageContext.jsx";
-import { Sparkles, RefreshCw, Save, Shuffle, Loader2, X, LogIn } from "lucide-react";
+import { Sparkles, RefreshCw, Save, Shuffle, X, LogIn } from "lucide-react";
 import UlosPattern from "../components/UlosPattern.jsx";
 import { api } from "../lib/api.js";
 import { useAuth } from "../contexts/AuthContext.jsx";
@@ -10,14 +10,27 @@ import { renderMarkdown } from "../lib/markdown.jsx";
 import PartnerCard from "../components/PartnerCard.jsx";
 import GoogleButton from "../components/GoogleButton.jsx";
 import { authUrl } from "../lib/authNavigation.js";
-import { trackPartnerEvent, trackPlannerEvent } from "../lib/partnerAnalytics.js";
+import { trackPlannerEvent } from "../lib/partnerAnalytics.js";
 import { isTravelStyle, travelStyleFromLegacyBudget, travelStyleLabel } from "../lib/travelStyle.js";
 import { extractPlannerPreferences, nextPlannerStep, PLANNER_NEXT_STEP } from "../lib/plannerPreferenceExtractor.js";
 import PlannerWizard from "../components/Planner/PlannerWizard.jsx";
+import PlannerResultGate from "../components/Planner/PlannerResultGate.jsx";
+import PlannerResultCards from "../components/Planner/PlannerResultCards.jsx";
+import StructuredPlannerResult, { PlannerGenerationError, PlannerResultProgress } from "../components/Planner/StructuredPlannerResult.jsx";
 import Seo from "../components/Seo.jsx";
+import {
+  DEFAULT_PLANNER_RESULT_FEATURES,
+  PLANNER_RESULT_FORMAT,
+  isPlannerResultV2,
+  normalizePlannerResultFeatures,
+  plannerResultForStorage,
+} from "../lib/plannerResultContract.js";
+import { applyPlannerStreamEvent, consumePlannerSseStream, createPlannerStreamState } from "../lib/plannerStreamContract.js";
+import usePlannerResultFocus from "../hooks/usePlannerResultFocus.js";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const PLANNER_DRAFT_KEY = "planner_draft_v2";
+const PLANNER_DRAFT_SCHEMA_VERSION = 3;
 
 function readPlannerDraft() {
   try {
@@ -59,35 +72,46 @@ export default function Planner() {
   const [showSave, setShowSave] = useState(false);
   const [saving, setSaving] = useState(false);
   const [rerolling, setRerolling] = useState(false);
-  const [showSearchCard, setShowSearchCard] = useState(!restoredDraft?.output);
+  const [showSearchCard, setShowSearchCard] = useState(!(restoredDraft?.output || isPlannerResultV2(restoredDraft?.result)));
   const [quota, setQuota] = useState(null);
   const [authGate, setAuthGate] = useState(false);
   const [recommendations, setRecommendations] = useState(restoredDraft?.recommendations || []);
   const [destinationIds, setDestinationIds] = useState(restoredDraft?.destinationIds || []);
+  const [plannerResult, setPlannerResult] = useState(() => isPlannerResultV2(restoredDraft?.result) ? restoredDraft.result : null);
+  const [resultFormat, setResultFormat] = useState(() => isPlannerResultV2(restoredDraft?.result) ? PLANNER_RESULT_FORMAT.STRUCTURED : PLANNER_RESULT_FORMAT.LEGACY);
+  const [plannerResultFeatures, setPlannerResultFeatures] = useState(DEFAULT_PLANNER_RESULT_FEATURES);
   const [preferredDestination, setPreferredDestination] = useState(null);
   const [wizardStep, setWizardStep] = useState(() => restoredDraft?.wizard?.step || "story");
   const [stepTrail, setStepTrail] = useState(() => restoredDraft?.wizard?.trail || []);
   const [transitioning, setTransitioning] = useState(false);
   const [transitionMessage, setTransitionMessage] = useState("");
   const [analyticsConsentRevision, setAnalyticsConsentRevision] = useState(0);
+  const [progressPhase, setProgressPhase] = useState("generating");
+  const [focusResultRevision, setFocusResultRevision] = useState(0);
+  const plannerAbortRef = useRef(null);
+  const resultHeadingRef = useRef(null);
   const isAuth = Boolean(user && typeof user === "object");
   const nextPath = `/planner${window.location.search}`;
+  const resultCardsEnabled = plannerResultFeatures.planner_result_cards?.enabled === true;
+  const enhancedPartnerCardsEnabled = resultCardsEnabled
+    && plannerResultFeatures.planner_partner_matches?.enabled === true;
+  const culinaryCardsEnabled = plannerResultFeatures.planner_culinary?.enabled === true;
 
   useEffect(() => {
-    if (streaming || recommendations.length === 0) return;
-    recommendations.forEach(item => trackPartnerEvent("ai_impression", item.partner_id, "planner", item.destination_id));
-  }, [streaming, recommendations]);
+    let active = true;
+    api.get("/experience/features")
+      .then(({ data }) => {
+        if (active) setPlannerResultFeatures(normalizePlannerResultFeatures(data));
+      })
+      .catch(() => {
+        if (active) setPlannerResultFeatures(DEFAULT_PLANNER_RESULT_FEATURES);
+      });
+    return () => { active = false; };
+  }, [user?.id]);
 
-  // Loading animation states
-  const [loadingStage, setLoadingStage] = useState(0);
-  const phrases = [
-    "sedang membuat",
-    "sedang menyusun",
-    "sedang merakit",
-    "sedang menyiapkan",
-    "sedang merencanakan",
-    "sedang mengatur"
-  ];
+  useEffect(() => () => plannerAbortRef.current?.abort(), []);
+
+  usePlannerResultFocus(resultHeadingRef, focusResultRevision);
 
   const persistDraft = (
     draftOutput = output,
@@ -95,14 +119,19 @@ export default function Planner() {
     draftDestinationIds = destinationIds,
     draftForm = form,
     draftWizard = { step: wizardStep, trail: stepTrail },
+    draftResult = plannerResult,
+    draftResultFormat = resultFormat,
   ) => {
     sessionStorage.setItem(PLANNER_DRAFT_KEY, JSON.stringify({
+      schemaVersion: PLANNER_DRAFT_SCHEMA_VERSION,
       savedAt: Date.now(),
       form: draftForm,
       output: draftOutput,
       recommendations: draftRecommendations,
       destinationIds: draftDestinationIds,
       wizard: draftWizard,
+      result: draftResult,
+      resultFormat: draftResultFormat,
     }));
   };
 
@@ -149,7 +178,10 @@ export default function Planner() {
       }));
       setOutput(data.content || "");
       setDestinationIds(data.destination_ids || []);
-      setRecommendations([]);
+      const restoredResult = isPlannerResultV2(data.structured_result) ? data.structured_result : null;
+      setRecommendations(restoredResult?.partner_matches || []);
+      setPlannerResult(restoredResult);
+      setResultFormat(restoredResult ? PLANNER_RESULT_FORMAT.STRUCTURED : PLANNER_RESULT_FORMAT.LEGACY);
       setShowSearchCard(false);
       setSavedId(null);
       setError("");
@@ -302,27 +334,37 @@ export default function Planner() {
       setShowSearchCard(false);
     }
 
-    // Reset and start loading animation
-    setLoadingStage(0);
-    const previous = regenerate ? output : "";
+    // Reset and start loading state
+    const previousPlan = regenerate ? {
+      output,
+      recommendations,
+      destinationIds,
+      result: plannerResult,
+      resultFormat,
+    } : null;
+    const previous = previousPlan?.output || "";
     setOutput("");
     setRecommendations([]);
     setDestinationIds([]);
+    setPlannerResult(null);
+    setResultFormat(PLANNER_RESULT_FORMAT.LEGACY);
     setError("");
     setSavedId(null);
     setShowSave(false);
     setRerolling(regenerate);
     setStreaming(true);
-    let streamedOutput = "";
-    let streamedRecommendations = [];
-    let streamedDestinationIds = [];
-    let generationCompleted = false;
+    setProgressPhase("generating");
+    plannerAbortRef.current?.abort();
+    const controller = new AbortController();
+    plannerAbortRef.current = controller;
+    let streamState = createPlannerStreamState();
 
     try {
       const res = await fetch(`${BACKEND_URL}/api/trip-planner/stream`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
+        signal: controller.signal,
         body: JSON.stringify({ ...requestForm, lang, previous_content: previous.slice(0, 20000) }),
       });
       if (!res.ok || !res.body) {
@@ -342,62 +384,64 @@ export default function Planner() {
         return;
       }
 
-      const reader = res.body.getReader();
-      const decoder = new TextDecoder();
-      let buffer = "";
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        buffer += decoder.decode(value, { stream: true });
-        const parts = buffer.split("\n\n");
-        buffer = parts.pop() || "";
-        for (const chunk of parts) {
-          const line = chunk.trim();
-          if (!line.startsWith("data:")) continue;
-          const jsonStr = line.slice(5).trim();
-          try {
-            const evt = JSON.parse(jsonStr);
-            if (evt.text) {
-              streamedOutput += evt.text;
-              setOutput((prev) => prev + evt.text);
-            }
-            if (evt.recommendations) {
-              streamedRecommendations = evt.recommendations;
-              setRecommendations(evt.recommendations);
-            }
-            if (evt.destination_ids) {
-              streamedDestinationIds = evt.destination_ids;
-              setDestinationIds(evt.destination_ids);
-            }
-            if (evt.done === true) generationCompleted = true;
-            if (evt.error) setError(evt.error);
-          } catch {
-            /* ignore */
-          }
+      const streamOutcome = await consumePlannerSseStream(res.body, (evt) => {
+        streamState = applyPlannerStreamEvent(streamState, evt);
+        if (typeof evt.text === "string") setOutput(streamState.output);
+        if (evt.recommendations) setRecommendations(streamState.recommendations);
+        if (evt.destination_ids) setDestinationIds(streamState.destinationIds);
+        if (evt.progress) setProgressPhase(streamState.progressPhase);
+        if (streamState.result && isPlannerResultV2(evt.result)) {
+          setPlannerResult(streamState.result);
+          setResultFormat(streamState.resultFormat);
+        } else if (evt.result_format === PLANNER_RESULT_FORMAT.LEGACY) {
+          setPlannerResult(null);
+          setResultFormat(PLANNER_RESULT_FORMAT.LEGACY);
         }
+        if (evt.done === true) setFocusResultRevision((value) => value + 1);
+        if (streamState.error) setError(streamState.error);
+      });
+      if (!streamOutcome.completed && !streamState.error) {
+        throw new Error(t.planner.connectionInterrupted);
       }
     } catch (error) {
-      setError(error.message);
+      if (error?.name === "AbortError") {
+        streamState = previousPlan ? {
+          ...createPlannerStreamState(),
+          output: previousPlan.output,
+          recommendations: previousPlan.recommendations,
+          destinationIds: previousPlan.destinationIds,
+          result: previousPlan.result,
+          resultFormat: previousPlan.resultFormat,
+        } : createPlannerStreamState();
+        setOutput(streamState.output);
+        setRecommendations(streamState.recommendations);
+        setDestinationIds(streamState.destinationIds);
+        setPlannerResult(streamState.result);
+        setResultFormat(streamState.resultFormat);
+        setError(t.planner.generationCancelled);
+      } else {
+        setError(error.message);
+      }
     } finally {
+      if (plannerAbortRef.current === controller) plannerAbortRef.current = null;
       setStreaming(false);
       setRerolling(false);
-      if (streamedOutput) {
-        persistDraft(streamedOutput, streamedRecommendations, streamedDestinationIds, requestForm, { step: "result", trail: [] });
-        if (generationCompleted) trackPlannerEvent("planner_generated", "result");
+      if (streamState.output) {
+        persistDraft(
+          streamState.output,
+          streamState.recommendations,
+          streamState.destinationIds,
+          requestForm,
+          { step: "result", trail: [] },
+          streamState.result,
+          streamState.resultFormat,
+        );
+        if (streamState.completed) trackPlannerEvent("planner_generated", "result");
       }
     }
   };
 
-  // Loading animation effect
-  React.useEffect(() => {
-    let interval;
-    if (streaming && !output) {
-      interval = setInterval(() => {
-        setLoadingStage((prev) => (prev + 1) % phrases.length);
-      }, 800); // Change word every 800ms
-    }
-    return () => clearInterval(interval);
-  }, [streaming, output, phrases.length]);
+  const cancelGeneration = () => plannerAbortRef.current?.abort();
 
   const reset = () => {
     const nextForm = plannerForm({
@@ -410,6 +454,8 @@ export default function Planner() {
     setSaveTitle("");
     setRecommendations([]);
     setDestinationIds([]);
+    setPlannerResult(null);
+    setResultFormat(PLANNER_RESULT_FORMAT.LEGACY);
     setForm(nextForm);
     setWizardStep("story");
     setStepTrail([]);
@@ -429,6 +475,7 @@ export default function Planner() {
     }
     setSaving(true);
     try {
+      const storedResult = plannerResultForStorage(plannerResult);
       const title =
         saveTitle.trim() ||
         `${form.days} ${lang === "en" ? "days" : "hari"} · ${new Date().toLocaleDateString()}`;
@@ -441,6 +488,8 @@ export default function Planner() {
         lang,
         destination_ids: destinationIds,
         extra_context: form.extra_context,
+        result_version: storedResult ? 2 : null,
+        structured_result: storedResult,
       });
       setSavedId(data.id);
       setShowSave(false);
@@ -504,7 +553,7 @@ export default function Planner() {
 
         {/* Floating Action Buttons - Show only when search card is hidden */}
         {!showSearchCard && (
-          <div className="fixed inset-x-0 bottom-[calc(5rem+max(0.625rem,env(safe-area-inset-bottom)))] z-40 mx-auto flex w-fit max-w-[calc(100%-1.75rem)] gap-2 rounded-2xl border border-white/50 bg-surface/95 p-2 shadow-[0_12px_35px_rgba(5,31,31,0.22)] backdrop-blur-xl md:bottom-6" style={{ maxHeight: 'calc(100dvh - 180px)', overflow: 'auto' }}>
+          <div className="print-hidden fixed inset-x-0 bottom-[calc(5rem+max(0.625rem,env(safe-area-inset-bottom)))] z-40 mx-auto flex w-fit max-w-[calc(100%-1.75rem)] gap-2 rounded-2xl border border-white/50 bg-surface/95 p-2 shadow-[0_12px_35px_rgba(5,31,31,0.22)] backdrop-blur-xl md:bottom-6" style={{ maxHeight: 'calc(100dvh - 180px)', overflow: 'auto' }}>
             <button
               type="button"
               onClick={requestNewPlan}
@@ -526,20 +575,19 @@ export default function Planner() {
         )}
 
         {error && (
-          <div
-            className="mt-5 w-full rounded-2xl border border-red-300 bg-red-50 p-4 text-[13px] text-red-700 shadow-sm"
-            data-testid="planner-error"
-          >
-            {error}
-          </div>
+          <PlannerGenerationError
+            message={error}
+            retryLabel={t.planner.retryGeneration}
+            onRetry={!showSearchCard && !streaming ? () => generate(null, false) : null}
+          />
         )}
 
         {(output || streaming) && (
-          <article className="mt-5 w-full overflow-hidden rounded-[28px] border border-white/60 bg-surface shadow-[0_18px_48px_rgba(5,31,31,0.12)]" data-testid="planner-output">
+          <article className="print-area mt-5 w-full overflow-hidden rounded-[28px] border border-white/60 bg-surface shadow-[0_18px_48px_rgba(5,31,31,0.12)]" data-testid="planner-output">
             <div className="flex flex-wrap items-start justify-between gap-3 bg-toba px-5 py-4 text-cream sm:px-7 sm:py-5">
-              <div><div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-cream/65">{t.planner.tagline}</div><h2 className="mt-1 font-display text-2xl">{t.planner.itineraryTitle}</h2>{!streaming && <div className="mt-3 flex flex-wrap gap-1.5 text-[10px] text-cream/80"><span className="rounded-full border border-cream/20 px-2 py-1">{form.days} {lang === "en" ? "days" : "hari"}</span><span className="rounded-full border border-cream/20 px-2 py-1">{travelStyleLabel(form.budget_style, lang)}</span>{form.interests.slice(0, 3).map((interest) => <span key={interest} className="rounded-full border border-cream/20 px-2 py-1">{t.categories[interest]}</span>)}</div>}</div>
+              <div><div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-cream/65">{t.planner.tagline}</div><h2 ref={resultHeadingRef} tabIndex={-1} className="mt-1 rounded font-display text-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-cream">{t.planner.itineraryTitle}</h2>{!streaming && <div className="mt-3 flex flex-wrap gap-1.5 text-[10px] text-cream/80"><span className="rounded-full border border-cream/20 px-2 py-1">{form.days} {lang === "en" ? "days" : "hari"}</span><span className="rounded-full border border-cream/20 px-2 py-1">{travelStyleLabel(form.budget_style, lang)}</span>{form.interests.slice(0, 3).map((interest) => <span key={interest} className="rounded-full border border-cream/20 px-2 py-1">{t.categories[interest]}</span>)}</div>}</div>
               {!streaming && output && !savedId && (
-                <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto">
+                <div className="print-hidden flex w-full flex-wrap items-center gap-2 sm:w-auto">
                   {showSave ? (
                     <>
                       <input
@@ -570,46 +618,60 @@ export default function Planner() {
                 </div>
               )}
               {savedId && (
-                <span className="badge-moss" data-testid="save-success-badge">
+                <span className="print-hidden badge-moss" data-testid="save-success-badge">
                   ✓ {t.savedTrips.saved}
                 </span>
               )}
-              {!streaming && output && <button type="button" onClick={() => { setShowSearchCard(true); setWizardStep("story"); setStepTrail([]); }} className="btn-outline w-full sm:w-auto"><Sparkles className="h-4 w-4" /> {lang === "en" ? "Edit preferences" : "Ubah preferensi"}</button>}
+              {!streaming && output && <button type="button" onClick={() => { setShowSearchCard(true); setWizardStep("story"); setStepTrail([]); }} className="print-hidden btn-outline w-full sm:w-auto"><Sparkles className="h-4 w-4" />{t.planner.editPreferences}</button>}
             </div>
-            <div className="p-4 sm:p-7">
-            {streaming && !output && (
-              <div className="flex items-center gap-3 rounded-2xl bg-cream px-4 py-5 text-[13px] text-inkSoft">
-                <Loader2 className="w-4 h-4 animate-spin-slow" />
-                <span>
-                  AI
-                  <span className="font-semibold text-toba mx-1">
-                    {phrases[loadingStage]}
-                  </span>
-                  liburan anda ....
-                </span>
-              </div>
+            <div className="px-4 pb-28 pt-4 sm:px-7 sm:pt-7 md:pb-7">
+            {streaming && (
+              <PlannerResultProgress phase={progressPhase} t={t} onCancel={cancelGeneration} />
             )}
-            <div className="max-w-none">{renderMarkdown(output)}</div>
+            {!streaming && output && <PlannerResultGate
+              features={plannerResultFeatures}
+              result={plannerResult}
+              renderStructured={(result) => <StructuredPlannerResult
+                result={result}
+                lang={lang}
+                t={t}
+                destinationCardsEnabled={resultCardsEnabled}
+                partnerMatchesEnabled={enhancedPartnerCardsEnabled}
+                culinaryEnabled={culinaryCardsEnabled}
+              />}
+            >
+              <div className="max-w-none">{renderMarkdown(output)}</div>
 
-            {!streaming && recommendations.length > 0 && (
-              <section className="mt-8 border-t border-line pt-6" data-testid="planner-partner-recommendations">
-                <div className="mb-4">
-                  <h2 className="font-display text-xl text-ink">{t.planner.recommendedPartners}</h2>
-                  <p className="mt-1 text-[12px] text-inkSoft">{t.planner.organicMatch}</p>
-                </div>
-                <div className="space-y-4">
-                  {recommendations.map((recommendation) => (
-                    <div key={`${recommendation.destination_id}-${recommendation.partner_id}`}>
-                      <p className="mb-2 text-[12px] text-inkSoft">
-                        {t.planner.matches} <span className="font-semibold text-ink">{recommendation.destination_name}</span>
-                        {recommendation.partner?.is_premium ? ` · ${t.planner.featuredDisclosure}` : ""}
-                      </p>
-                      <PartnerCard partner={recommendation.partner} source="planner" destinationId={recommendation.destination_id} />
-                    </div>
-                  ))}
-                </div>
-              </section>
-            )}
+              <PlannerResultCards
+                enabled={resultCardsEnabled}
+                ready
+                partnerMatchesEnabled={enhancedPartnerCardsEnabled}
+                culinaryEnabled={culinaryCardsEnabled}
+                destinationIds={destinationIds}
+                recommendations={recommendations}
+                t={t}
+              />
+
+              {recommendations.length > 0 && !enhancedPartnerCardsEnabled && (
+                <section className="mt-8 border-t border-line pt-6" data-testid="planner-partner-recommendations">
+                  <div className="mb-4">
+                    <h2 className="font-display text-xl text-ink">{t.planner.recommendedPartners}</h2>
+                    <p className="mt-1 text-[12px] text-inkSoft">{t.planner.organicMatch}</p>
+                  </div>
+                  <div className="space-y-4">
+                    {recommendations.map((recommendation) => (
+                      <div key={`${recommendation.destination_id}-${recommendation.partner_id}`}>
+                        <p className="mb-2 text-[12px] text-inkSoft">
+                          {t.planner.matches} <span className="font-semibold text-ink">{recommendation.destination_name}</span>
+                          {recommendation.partner?.is_premium ? ` · ${t.planner.featuredDisclosure}` : ""}
+                        </p>
+                        <PartnerCard partner={recommendation.partner} source="planner" destinationId={recommendation.destination_id} analyticsContext={recommendation} />
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              )}
+            </PlannerResultGate>}
             </div>
           </article>
         )}

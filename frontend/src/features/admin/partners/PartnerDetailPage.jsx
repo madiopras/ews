@@ -10,6 +10,24 @@ import PartnerApprovalHistory from "./PartnerApprovalHistory.jsx";
 import PartnerDocuments from "./PartnerDocuments.jsx";
 import { assignPartnerOwner, deletePartner, getAdminPartner, listDestinationOptions, setPartnerApproval, togglePartner } from "./partnerApi.js";
 
+function CulinaryAdminDetails({ partner, labels }) {
+  if (partner.type !== "culinary") return null;
+  const rows = [
+    [labels.culinaryCategories, partner.culinary_categories],
+    [labels.culinarySpecialties, partner.culinary_specialties],
+    [labels.culinaryServiceModes, partner.culinary_service_modes],
+    [labels.culinaryDietaryTags, partner.culinary_dietary_tags],
+  ];
+  return <div className="mt-5 border-t border-line pt-4" data-testid="admin-culinary-details">
+    <h3 className="font-semibold">{labels.culinarySection}</h3>
+    <dl className="mt-3 grid gap-3 sm:grid-cols-2">
+      {rows.map(([label, values]) => <div key={label}><dt className="text-[11px] text-inkSoft">{label}</dt><dd className="mt-1 text-sm">{values?.join(", ") || "—"}</dd></div>)}
+      <div><dt className="text-[11px] text-inkSoft">{labels.culinaryOpeningInfo}</dt><dd className="mt-1 text-sm">{partner.culinary_opening_info || "—"}</dd></div>
+      <div><dt className="text-[11px] text-inkSoft">{labels.culinaryReservationNote}</dt><dd className="mt-1 text-sm">{partner.culinary_reservation_note || "—"}</dd></div>
+    </dl>
+  </div>;
+}
+
 export default function PartnerDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -102,7 +120,7 @@ export default function PartnerDetailPage() {
         : tab === "history" ? <PartnerApprovalHistory history={partner.approval_history} />
           : (
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
-              <section className="card-flat p-5 xl:col-span-2"><h2 className="font-display text-xl">{copy.profileSection}</h2><p className="text-[13px] text-inkSoft leading-relaxed mt-4 whitespace-pre-line">{partner.description}</p><dl className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-5"><div><dt className="text-[11px] text-inkSoft">{copy.contact}</dt><dd className="mt-1 text-sm space-y-1"><span className="flex items-center gap-2"><MessageCircle className="w-4 h-4 text-toba" />{partner.whatsapp}</span>{partner.email && <span className="flex items-center gap-2"><Mail className="w-4 h-4 text-toba" />{partner.email}</span>}</dd></div><div><dt className="text-[11px] text-inkSoft">{copy.address}</dt><dd className="mt-1 text-sm">{partner.address || partner.city}</dd></div></dl></section>
+              <section className="card-flat p-5 xl:col-span-2"><h2 className="font-display text-xl">{copy.profileSection}</h2><p className="text-[13px] text-inkSoft leading-relaxed mt-4 whitespace-pre-line">{partner.description}</p><dl className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-5"><div><dt className="text-[11px] text-inkSoft">{copy.contact}</dt><dd className="mt-1 text-sm space-y-1"><span className="flex items-center gap-2"><MessageCircle className="w-4 h-4 text-toba" />{partner.whatsapp}</span>{partner.email && <span className="flex items-center gap-2"><Mail className="w-4 h-4 text-toba" />{partner.email}</span>}</dd></div><div><dt className="text-[11px] text-inkSoft">{copy.address}</dt><dd className="mt-1 text-sm">{partner.address || partner.city}</dd></div></dl><CulinaryAdminDetails partner={partner} labels={t.admin.partnerForm} /></section>
               <div className="space-y-4"><section className="card-flat p-5"><h2 className="font-display text-xl">{copy.destinationsServed}</h2><div className="flex flex-wrap gap-2 mt-4">{partner.destination_ids.length === 0 ? <span className="text-[12px] text-inkSoft">{copy.noDestinations}</span> : partner.destination_ids.map((destinationId) => <span key={destinationId} className="chip">{destinationMap.get(destinationId) || destinationId}</span>)}</div></section><section className="card-flat p-5"><div className="flex items-center gap-2"><UserRoundCog className="w-5 h-5 text-toba" /><h2 className="font-display text-xl">{copy.ownership}</h2></div><p className="mt-2 text-[12px] text-inkSoft">{partner.ownership_status === "claimed" ? `${copy.claimed}: ${partner.owner_user_id}` : copy.unclaimed}</p><form onSubmit={(event) => { event.preventDefault(); ownerMutation.mutate(); }} className="mt-4 space-y-2"><input type="email" required value={ownerEmail} onChange={(event) => setOwnerEmail(event.target.value)} className="input-flat" placeholder={copy.ownerEmail} /><button type="submit" disabled={ownerMutation.isPending} className="btn-outline w-full">{copy.assignOwner}</button></form></section></div>
             </div>
           )}

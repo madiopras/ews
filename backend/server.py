@@ -8,7 +8,7 @@ from fastapi import FastAPI, APIRouter, HTTPException, Request, Response, Depend
 from fastapi.responses import StreamingResponse, FileResponse
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
-from pydantic import BaseModel, Field, EmailStr
+from pydantic import BaseModel, Field, EmailStr, ValidationError, model_validator
 from typing import List, Optional, Literal
 from datetime import datetime, timezone, timedelta
 from bson import ObjectId, json_util
@@ -24,6 +24,7 @@ import bcrypt
 import jwt
 import json
 import gzip
+import html
 import logging
 import requests
 import re
@@ -38,6 +39,24 @@ from google.auth.transport import requests as google_auth_requests
 from google.oauth2 import id_token as google_id_token
 from planner_contract import BudgetStyle, planner_style_instruction, resolved_budget_style, style_label
 from planner_guard import planner_context_violation, planner_scope_message
+from planner_result_contract import (
+    PlannerResultV2,
+    PlannerStoredPartnerMatch,
+    PlannerStoredResultV2,
+    planner_destination_card_from_doc,
+    planner_error_message,
+    planner_partner_match_from_doc,
+)
+from planner_structured_engine import (
+    PlannerStructuredParseError,
+    build_structured_planner_messages,
+    destination_catalog_payload,
+    hydrate_structured_planner_result,
+    normalize_legacy_fallback,
+    parse_structured_planner_output,
+    select_structured_catalog,
+    structured_result_to_markdown,
+)
 
 # ---------------- Setup ----------------
 mongo_url = os.environ['MONGO_URL']
@@ -423,6 +442,14 @@ class GeneralSettingsIn(BaseModel):
     planner_guest_ip_daily_limit: int = Field(20, ge=1, le=1000)
     planner_authenticated_daily_limit: int = Field(20, ge=0, le=1000)
     planner_generation_cooldown_seconds: int = Field(5, ge=0, le=3600)
+    planner_result_cards_enabled: bool = False
+    planner_result_cards_rollout_percentage: int = Field(0, ge=0, le=100)
+    planner_structured_results_enabled: bool = False
+    planner_structured_rollout_percentage: int = Field(0, ge=0, le=100)
+    planner_culinary_enabled: bool = False
+    planner_culinary_rollout_percentage: int = Field(0, ge=0, le=100)
+    planner_partner_matches_enabled: bool = False
+    planner_partner_matches_rollout_percentage: int = Field(0, ge=0, le=100)
     mitra_onboarding_enabled: bool = True
     mitra_onboarding_rollout_percentage: int = Field(100, ge=0, le=100)
     mitra_dashboard_enabled: bool = True
@@ -1230,7 +1257,7 @@ async def governance_partner_preview(partner_id: str, admin: dict = Depends(requ
         "gallery": [item.model_dump() for item in partner_gallery_to_out(partner.get("gallery", []))],
         "offerings": [offering_to_out(doc).model_dump() for doc in offerings],
         "destinations": [{"id": str(item["_id"]), "name": item.get("name", ""), "name_en": item.get("name_en", ""), "location": item.get("location", "")} for item in destinations],
-        "type_details": {},
+        "type_details": partner_public_type_details(partner),
         "last_profile_reviewed_at": partner.get("last_profile_reviewed_at") or partner.get("updated_at"),
     }
 
@@ -1428,32 +1455,230 @@ async def governance_notifications(admin: dict = Depends(require_admin)):
     return combined[:200]
 
 
+def planner_health_summary(logs: List[dict], *, alert_threshold: float = 10.0, minimum_samples: int = 10) -> dict:
+    structured = [row for row in logs if row.get("result_format_requested") == "structured"]
+    successful = [row for row in structured if str(row.get("parse_status", "")).startswith("success")]
+    fallbacks = [row for row in structured if row.get("parse_status") == "fallback"]
+    parse_attempts = len(successful) + len(fallbacks)
+    invalid_rate = round(100 * len(fallbacks) / parse_attempts, 2) if parse_attempts else 0.0
+    parse_success_rate = round(100 * len(successful) / parse_attempts, 2) if parse_attempts else 0.0
+    generation_errors = len([row for row in structured if row.get("status") == "error"])
+    generation_error_rate = round(100 * generation_errors / len(structured), 2) if structured else 0.0
+    unknown_destination_requests = len([row for row in structured if (row.get("unknown_destination_count") or 0) > 0])
+    unknown_destination_rate = round(100 * unknown_destination_requests / len(structured), 2) if structured else 0.0
+
+    def percentile(values: List[int], percentage: int) -> int:
+        ordered = sorted(int(value) for value in values if isinstance(value, (int, float)) and value >= 0)
+        if not ordered:
+            return 0
+        index = round((percentage / 100) * (len(ordered) - 1))
+        return ordered[index]
+
+    durations = [row.get("duration_ms") for row in structured]
+    payload_sizes = [row.get("response_payload_bytes") for row in structured]
+    p95_duration_ms = percentile(durations, 95)
+    p95_payload_bytes = percentile(payload_sizes, 95)
+    rollback_reasons = []
+    if parse_attempts >= minimum_samples and parse_success_rate < 90:
+        rollback_reasons.append("parse_success_below_90_percent")
+    if len(structured) >= minimum_samples and generation_error_rate >= 10:
+        rollback_reasons.append("generation_error_rate_at_or_above_10_percent")
+    if len(structured) >= minimum_samples and unknown_destination_rate >= 10:
+        rollback_reasons.append("unknown_destination_rate_at_or_above_10_percent")
+    if len([value for value in durations if isinstance(value, (int, float))]) >= minimum_samples and p95_duration_ms > 120000:
+        rollback_reasons.append("p95_generation_duration_above_120_seconds")
+    fallback_reasons: dict = {}
+    for row in fallbacks:
+        reason = row.get("fallback_reason") or "unknown"
+        fallback_reasons[reason] = fallback_reasons.get(reason, 0) + 1
+    return {
+        "structured_requests": len(structured),
+        "structured_parse_attempts": parse_attempts,
+        "structured_success": len(successful),
+        "parse_success_rate": parse_success_rate,
+        "fallbacks": len(fallbacks),
+        "invalid_rate": invalid_rate,
+        "generation_errors": generation_errors,
+        "generation_error_rate": generation_error_rate,
+        "unknown_destination_rate": unknown_destination_rate,
+        "performance": {
+            "p50_duration_ms": percentile(durations, 50),
+            "p95_duration_ms": p95_duration_ms,
+            "average_payload_bytes": round(sum(value for value in payload_sizes if isinstance(value, (int, float))) / max(1, len([value for value in payload_sizes if isinstance(value, (int, float))]))),
+            "p95_payload_bytes": p95_payload_bytes,
+        },
+        "fallback_reasons": fallback_reasons,
+        "alert": {
+            "active": parse_attempts >= minimum_samples and invalid_rate >= alert_threshold,
+            "threshold_percentage": alert_threshold,
+            "minimum_samples": minimum_samples,
+        },
+        "rollback": {
+            "recommended": bool(rollback_reasons),
+            "reasons": rollback_reasons,
+            "action": "disable_planner_structured_results_enabled",
+        },
+    }
+
+
+def governance_fairness_summary(
+    analytics: List[dict],
+    exposure_rows: List[dict],
+    partner_catalog: List[dict],
+    planner_logs: List[dict],
+) -> dict:
+    segment_map: dict = {}
+    for row in exposure_rows:
+        key = (row.get("type") or "unknown", row.get("tier") or "regular")
+        segment = segment_map.setdefault(key, {
+            "type": key[0], "tier": key[1], "partners_exposed": 0,
+            "impressions": 0, "ai_impressions": 0, "contacts": 0,
+        })
+        segment["partners_exposed"] += 1
+        segment["impressions"] += row.get("directory_impression", 0) + row.get("ai_impression", 0)
+        segment["ai_impressions"] += row.get("ai_impression", 0)
+        segment["contacts"] += row.get("whatsapp_click", 0)
+    segments = []
+    for segment in segment_map.values():
+        segment["contact_rate"] = round(100 * segment["contacts"] / segment["impressions"], 2) if segment["impressions"] else 0
+        segments.append(segment)
+    segments.sort(key=lambda row: (row["type"], row["tier"]))
+
+    exposure_by_id = {row["partner_id"]: row for row in exposure_rows}
+    image_catalog = {
+        "with_image": len([row for row in partner_catalog if row.get("image") or row.get("gallery")]),
+        "without_image": len([row for row in partner_catalog if not row.get("image") and not row.get("gallery")]),
+        "with_image_exposed": 0,
+        "without_image_exposed": 0,
+        "with_image_ai_impressions": 0,
+        "without_image_ai_impressions": 0,
+    }
+    for partner in partner_catalog:
+        exposure = exposure_by_id.get(str(partner.get("_id")))
+        if not exposure or exposure.get("ai_impression", 0) <= 0:
+            continue
+        prefix = "with_image" if partner.get("image") or partner.get("gallery") else "without_image"
+        image_catalog[f"{prefix}_exposed"] += 1
+        image_catalog[f"{prefix}_ai_impressions"] += exposure["ai_impression"]
+
+    equal_score_groups: dict = {}
+    for event in analytics:
+        if event.get("event_type") != "ai_impression" or not isinstance(event.get("relevance_score"), int):
+            continue
+        key = (
+            event.get("partner_type") or exposure_by_id.get(event.get("partner_id"), {}).get("type") or "unknown",
+            event.get("tier") or exposure_by_id.get(event.get("partner_id"), {}).get("tier") or "regular",
+            event["relevance_score"],
+        )
+        group = equal_score_groups.setdefault(key, {})
+        partner_id = event.get("partner_id", "")
+        group[partner_id] = group.get(partner_id, 0) + 1
+    equal_score_concentration = []
+    for (partner_type, tier, score), counts in equal_score_groups.items():
+        total = sum(counts.values())
+        top_partner_id, top_count = max(counts.items(), key=lambda item: item[1])
+        share = round(100 * top_count / total, 2) if total else 0
+        equal_score_concentration.append({
+            "type": partner_type,
+            "tier": tier,
+            "relevance_score": score,
+            "impressions": total,
+            "top_partner_id": top_partner_id,
+            "top_business_name": exposure_by_id.get(top_partner_id, {}).get("business_name", "Deleted partner"),
+            "top_share_percentage": share,
+            "flagged": total >= 5 and share >= 50,
+        })
+    equal_score_concentration.sort(key=lambda row: (not row["flagged"], -row["top_share_percentage"], -row["impressions"]))
+
+    overexposed = []
+    for segment_key in {(row.get("type"), row.get("tier")) for row in exposure_rows}:
+        group = [row for row in exposure_rows if (row.get("type"), row.get("tier")) == segment_key]
+        counts = sorted(row.get("ai_impression", 0) for row in group)
+        if not counts:
+            continue
+        middle = len(counts) // 2
+        median = counts[middle] if len(counts) % 2 else (counts[middle - 1] + counts[middle]) / 2
+        for row in group:
+            if row.get("ai_impression", 0) >= 5 and row.get("ai_impression", 0) > max(1, median * 2):
+                overexposed.append({
+                    "partner_id": row["partner_id"],
+                    "business_name": row["business_name"],
+                    "type": row.get("type", ""),
+                    "tier": row.get("tier", "regular"),
+                    "ai_impressions": row.get("ai_impression", 0),
+                    "segment_median": median,
+                })
+
+    gap_counts: dict = {}
+    for log in planner_logs:
+        if log.get("status") != "completed":
+            continue
+        for key in log.get("partner_gap_keys") or []:
+            if not isinstance(key, str) or "|" not in key:
+                continue
+            area, partner_type = key.rsplit("|", 1)
+            if partner_type not in {"guide", "rental", "homestay", "culinary", "souvenir"}:
+                continue
+            gap_counts[(area[:120], partner_type)] = gap_counts.get((area[:120], partner_type), 0) + 1
+    gaps = [
+        {"area": area, "type": partner_type, "empty_results": count}
+        for (area, partner_type), count in gap_counts.items()
+    ]
+    gaps.sort(key=lambda row: (-row["empty_results"], row["area"], row["type"]))
+
+    return {
+        "by_type_tier": segments,
+        "equal_score_concentration": equal_score_concentration[:100],
+        "overexposed_partners": sorted(overexposed, key=lambda row: -row["ai_impressions"])[:100],
+        "image_exposure": image_catalog,
+        "empty_results_by_area_type": gaps[:100],
+        "ranking_policy": {
+            "relevance_threshold": PLANNER_PARTNER_RELEVANCE_THRESHOLD,
+            "signals": list(PLANNER_PARTNER_RANKING_SIGNALS),
+            "sensitive_attributes_used": False,
+            "premium_is_ranking_signal": False,
+            "featured_cap_per_type": 1,
+        },
+    }
+
+
 @api_router.get("/admin/governance/analytics")
 async def governance_analytics(days: int = 30, admin: dict = Depends(require_admin)):
     days = max(7, min(days, 365))
     since = (datetime.now(timezone.utc) - timedelta(days=days)).isoformat()
-    analytics, planner_analytics = await asyncio.gather(
+    analytics, planner_analytics, planner_logs, partner_catalog = await asyncio.gather(
         db.partner_analytics.find({"created_at": {"$gte": since}}).to_list(100000),
         db.planner_analytics.find({"created_at": {"$gte": since}}).to_list(100000),
+        db.ai_planner_logs.find({"created_at": {"$gte": since}}).to_list(100000),
+        db.partners.find({"status": "approved", "is_active": {"$ne": False}}, {"business_name": 1, "premium_until": 1, "type": 1, "image": 1, "gallery": 1}).to_list(10000),
     )
-    event_counts = {event: 0 for event in ("directory_impression", "ai_impression", "profile_view", "whatsapp_click")}
+    event_counts = {event: 0 for event in ("directory_impression", "ai_impression", "profile_click", "profile_view", "whatsapp_click")}
     exposure = {}
+    match_audit: dict = {}
     for event in analytics:
         event_type = event.get("event_type")
         if event_type in event_counts:
             event_counts[event_type] += 1
         partner_id = event.get("partner_id")
-        row = exposure.setdefault(partner_id, {"directory_impression": 0, "ai_impression": 0, "profile_view": 0, "whatsapp_click": 0})
+        if not partner_id:
+            continue
+        row = exposure.setdefault(partner_id, {"directory_impression": 0, "ai_impression": 0, "profile_click": 0, "profile_view": 0, "whatsapp_click": 0})
         if event_type in row:
             row[event_type] += 1
+        if event_type == "ai_impression":
+            audit = match_audit.setdefault(partner_id, {"relevance_score": 0, "factor_codes": set()})
+            audit["relevance_score"] = max(audit["relevance_score"], event.get("relevance_score") or 0)
+            audit["factor_codes"].update(event.get("match_factor_codes") or [])
     partner_ids = []
     for value in exposure:
         try:
             partner_ids.append(ObjectId(value))
         except Exception:
             continue
-    partners = await db.partners.find({"_id": {"$in": partner_ids}}, {"business_name": 1, "premium_until": 1, "type": 1}).to_list(len(partner_ids)) if partner_ids else []
-    by_id = {str(partner["_id"]): partner for partner in partners}
+    catalog_by_id = {str(partner["_id"]): partner for partner in partner_catalog}
+    missing_partner_ids = [value for value in partner_ids if str(value) not in catalog_by_id]
+    partners = await db.partners.find({"_id": {"$in": missing_partner_ids}}, {"business_name": 1, "premium_until": 1, "type": 1, "image": 1, "gallery": 1}).to_list(len(missing_partner_ids)) if missing_partner_ids else []
+    by_id = {**catalog_by_id, **{str(partner["_id"]): partner for partner in partners}}
     exposure_rows = []
     for partner_id, counts in exposure.items():
         partner = by_id.get(partner_id, {})
@@ -1462,6 +1687,8 @@ async def governance_analytics(days: int = 30, admin: dict = Depends(require_adm
             "partner_id": partner_id, "business_name": partner.get("business_name", "Deleted partner"), "type": partner.get("type", ""),
             "tier": "featured" if premium_active(partner) else "regular", **counts,
             "contact_rate": round(100 * counts["whatsapp_click"] / impressions, 2) if impressions else 0,
+            "last_relevance_score": match_audit.get(partner_id, {}).get("relevance_score", 0),
+            "match_factor_codes": sorted(match_audit.get(partner_id, {}).get("factor_codes", set())),
         })
     exposure_rows.sort(key=lambda row: row["directory_impression"] + row["ai_impression"], reverse=True)
     tier_summary = {}
@@ -1483,6 +1710,8 @@ async def governance_analytics(days: int = 30, admin: dict = Depends(require_adm
         "planner_funnel": planner_funnel,
         "tiers": tier_summary,
         "exposure": exposure_rows[:200],
+        "fairness": governance_fairness_summary(analytics, exposure_rows, partner_catalog, planner_logs),
+        "planner_health": planner_health_summary(planner_logs),
     }
 
 
@@ -1740,8 +1969,23 @@ async def list_ai_logs(
                 "interests": row.get("interests", []),
                 "lang": row.get("lang", "id"),
                 "catalog_size": row.get("catalog_size", 0),
+                "prompt_catalog_size": row.get("prompt_catalog_size", row.get("catalog_size", 0)),
+                "prompt_catalog_chars": row.get("prompt_catalog_chars", 0),
                 "partner_count": row.get("partner_count", 0),
                 "output_chars": row.get("output_chars", 0),
+                "response_payload_bytes": row.get("response_payload_bytes", 0),
+                "sse_event_count": row.get("sse_event_count", 0),
+                "result_format_requested": row.get("result_format_requested", "legacy"),
+                "structured_rollout_reason": row.get("structured_rollout_reason", ""),
+                "culinary_rollout_reason": row.get("culinary_rollout_reason", ""),
+                "result_format": row.get("result_format", "legacy"),
+                "parse_status": row.get("parse_status", "not_requested"),
+                "fallback_reason": row.get("fallback_reason", ""),
+                "unknown_destination_count": row.get("unknown_destination_count", 0),
+                "partner_match_count": row.get("partner_match_count", 0),
+                "partner_match_types": row.get("partner_match_types", []),
+                "partner_selection_audit": row.get("partner_selection_audit", []),
+                "partner_gap_keys": row.get("partner_gap_keys", []),
                 "duration_ms": row.get("duration_ms"),
                 "error": row.get("error", ""),
                 "llm_source": row.get("llm_source", "environment"),
@@ -1771,6 +2015,14 @@ def default_general_settings() -> dict:
         "planner_guest_ip_daily_limit": 20,
         "planner_authenticated_daily_limit": 20,
         "planner_generation_cooldown_seconds": 5,
+        "planner_result_cards_enabled": False,
+        "planner_result_cards_rollout_percentage": 0,
+        "planner_structured_results_enabled": False,
+        "planner_structured_rollout_percentage": 0,
+        "planner_culinary_enabled": False,
+        "planner_culinary_rollout_percentage": 0,
+        "planner_partner_matches_enabled": False,
+        "planner_partner_matches_rollout_percentage": 0,
         "mitra_onboarding_enabled": True,
         "mitra_onboarding_rollout_percentage": 100,
         "mitra_dashboard_enabled": True,
@@ -1784,16 +2036,59 @@ async def get_general_settings() -> dict:
     return {**default_general_settings(), **{k: v for k, v in stored.items() if k != "_id"}}
 
 
+EXPERIENCE_FEATURE_CONFIG = {
+    "mitra_onboarding": {
+        "enabled_key": "mitra_onboarding_enabled",
+        "percentage_key": "mitra_onboarding_rollout_percentage",
+        "default_enabled": True,
+        "default_percentage": 100,
+    },
+    "mitra_dashboard": {
+        "enabled_key": "mitra_dashboard_enabled",
+        "percentage_key": "mitra_dashboard_rollout_percentage",
+        "default_enabled": True,
+        "default_percentage": 100,
+    },
+    "planner_result_cards": {
+        "enabled_key": "planner_result_cards_enabled",
+        "percentage_key": "planner_result_cards_rollout_percentage",
+        "default_enabled": False,
+        "default_percentage": 0,
+    },
+    "planner_structured_results": {
+        "enabled_key": "planner_structured_results_enabled",
+        "percentage_key": "planner_structured_rollout_percentage",
+        "default_enabled": False,
+        "default_percentage": 0,
+    },
+    "planner_culinary": {
+        "enabled_key": "planner_culinary_enabled",
+        "percentage_key": "planner_culinary_rollout_percentage",
+        "default_enabled": False,
+        "default_percentage": 0,
+    },
+    "planner_partner_matches": {
+        "enabled_key": "planner_partner_matches_enabled",
+        "percentage_key": "planner_partner_matches_rollout_percentage",
+        "default_enabled": False,
+        "default_percentage": 0,
+    },
+}
+
+
 async def experience_feature_decision(feature: str, user: Optional[dict]) -> dict:
     """Return a stable staged-rollout decision without exposing user attributes."""
-    if feature not in {"mitra_onboarding", "mitra_dashboard"}:
+    config = EXPERIENCE_FEATURE_CONFIG.get(feature)
+    if not config:
         raise HTTPException(status_code=404, detail="Unknown experience feature")
     settings = await get_general_settings()
-    globally_enabled = bool(settings.get(f"{feature}_enabled", True))
-    percentage = max(0, min(100, int(settings.get(f"{feature}_rollout_percentage", 100))))
-    if user and user.get("role") == "admin":
-        return {"enabled": True, "rollout_percentage": percentage, "reason": "admin_override"}
-
+    globally_enabled = bool(settings.get(config["enabled_key"], config["default_enabled"]))
+    percentage_key = config["percentage_key"]
+    percentage = (
+        max(0, min(100, int(settings.get(percentage_key, config["default_percentage"]))))
+        if percentage_key
+        else (100 if globally_enabled else 0)
+    )
     # Existing Mitra must not lose access while a rollout percentage is adjusted.
     if feature == "mitra_dashboard" and user:
         existing = await db.partner_memberships.find_one({
@@ -1804,6 +2099,8 @@ async def experience_feature_decision(feature: str, user: Optional[dict]) -> dic
 
     if not globally_enabled:
         return {"enabled": False, "rollout_percentage": percentage, "reason": "disabled"}
+    if user and user.get("role") == "admin":
+        return {"enabled": True, "rollout_percentage": percentage, "reason": "admin_override"}
     if percentage >= 100:
         return {"enabled": True, "rollout_percentage": 100, "reason": "full_rollout"}
     if percentage <= 0 or not user:
@@ -1974,6 +2271,10 @@ async def read_experience_features(user: Optional[dict] = Depends(get_optional_u
     return {
         "mitra_onboarding": await experience_feature_decision("mitra_onboarding", user),
         "mitra_dashboard": await experience_feature_decision("mitra_dashboard", user),
+        "planner_result_cards": await experience_feature_decision("planner_result_cards", user),
+        "planner_structured_results": await experience_feature_decision("planner_structured_results", user),
+        "planner_culinary": await experience_feature_decision("planner_culinary", user),
+        "planner_partner_matches": await experience_feature_decision("planner_partner_matches", user),
     }
 
 
@@ -2642,6 +2943,16 @@ def safe_public_http_url(value: object) -> str:
     return candidate
 
 
+def safe_public_media_url(value: object) -> str:
+    """Return a public URL/path while rejecting inline base64, blob, and script data."""
+    candidate = str(value or "").strip()
+    if not candidate or candidate.lower().startswith(("data:", "blob:", "javascript:")):
+        return ""
+    if candidate.startswith("/") and not candidate.startswith("//"):
+        return candidate[:1000]
+    return safe_public_http_url(candidate)[:1000]
+
+
 def dest_to_out(d: dict) -> DestinationOut:
     return DestinationOut(
         id=str(d["_id"]),
@@ -2656,8 +2967,8 @@ def dest_to_out(d: dict) -> DestinationOut:
         source_label=d.get("source_label", "Explore Wisata Sumut"),
         source_url=safe_public_http_url(d.get("source_url", "")),
         editorial_reviewed_at=d.get("editorial_reviewed_at", ""),
-        images=d.get("images", []),
-        video=d.get("video", ""),
+        images=[value for value in (safe_public_media_url(item) for item in d.get("images", [])) if value][:10],
+        video=safe_public_media_url(d.get("video", "")),
         latitude=d["latitude"],
         longitude=d["longitude"],
         featured=d.get("featured", False),
@@ -2788,7 +3099,7 @@ async def destination_suggestions(q: str, limit: int = 6):
         name_en=doc.get("name_en", ""),
         location=doc.get("location", ""),
         category=doc.get("category", "nature"),
-        image=(doc.get("images") or [""])[0],
+        image=next((value for value in (safe_public_media_url(item) for item in (doc.get("images") or [])) if value), ""),
     ) for doc in docs]
 
 
@@ -3062,7 +3373,7 @@ async def add_wishlist(dest_id: str, user: dict = Depends(get_current_user)):
 
 
 # ---------------- Partners ----------------
-PartnerType = Literal["guide", "rental", "homestay", "souvenir"]
+PartnerType = Literal["guide", "rental", "homestay", "culinary", "souvenir"]
 PartnerMembershipRole = Literal["owner", "staff"]
 PartnerWorkflowStatus = Literal["draft", "pending", "needs_revision", "approved", "rejected"]
 
@@ -3078,6 +3389,12 @@ class PartnerIn(BaseModel):
     destination_ids: List[str] = Field(default_factory=list, max_length=100)
     service_tags: List[str] = Field(default_factory=list, max_length=20)
     image: Optional[str] = Field(default="", max_length=1000)
+    culinary_categories: List[str] = Field(default_factory=list, max_length=20)
+    culinary_specialties: List[str] = Field(default_factory=list, max_length=50)
+    culinary_service_modes: List[str] = Field(default_factory=list, max_length=10)
+    culinary_dietary_tags: List[str] = Field(default_factory=list, max_length=20)
+    culinary_opening_info: str = Field(default="", max_length=300)
+    culinary_reservation_note: str = Field(default="", max_length=300)
 
 
 class PartnerOnboardingStartIn(BaseModel):
@@ -3107,6 +3424,12 @@ class PartnerDraftIn(BaseModel):
     souvenir_products: List[str] = Field(default_factory=list, max_length=50)
     souvenir_delivery_available: bool = False
     souvenir_shop_hours: str = Field(default="", max_length=200)
+    culinary_categories: List[str] = Field(default_factory=list, max_length=20)
+    culinary_specialties: List[str] = Field(default_factory=list, max_length=50)
+    culinary_service_modes: List[str] = Field(default_factory=list, max_length=10)
+    culinary_dietary_tags: List[str] = Field(default_factory=list, max_length=20)
+    culinary_opening_info: str = Field(default="", max_length=300)
+    culinary_reservation_note: str = Field(default="", max_length=300)
 
 
 class PartnerSelfServiceIn(PartnerDraftIn):
@@ -3167,7 +3490,7 @@ class PartnerGalleryOut(BaseModel):
 class PartnerOut(BaseModel):
     id: str
     business_name: str
-    type: str
+    type: PartnerType
     whatsapp: str
     description: str
     city: str
@@ -3189,7 +3512,7 @@ class PartnerPublicOut(BaseModel):
     """Safe public listing DTO: no owner, member, document, email, or street address."""
     id: str
     business_name: str
-    type: str
+    type: PartnerType
     whatsapp: Optional[str] = None
     description: str
     city: str
@@ -3243,6 +3566,12 @@ class PartnerAdminOut(PartnerOut):
     souvenir_products: List[str] = Field(default_factory=list)
     souvenir_delivery_available: bool = False
     souvenir_shop_hours: str = ""
+    culinary_categories: List[str] = Field(default_factory=list)
+    culinary_specialties: List[str] = Field(default_factory=list)
+    culinary_service_modes: List[str] = Field(default_factory=list)
+    culinary_dietary_tags: List[str] = Field(default_factory=list)
+    culinary_opening_info: str = ""
+    culinary_reservation_note: str = ""
     contact_status_note: str = ""
     profile_completeness: int = 0
     completeness_missing: List[str] = Field(default_factory=list)
@@ -3291,7 +3620,7 @@ def partner_to_out(d: dict) -> PartnerOut:
         address=d.get("address", ""),
         destination_ids=d.get("destination_ids", []),
         service_tags=d.get("service_tags", []),
-        image=d.get("image", ""),
+        image=safe_public_media_url(d.get("image", "")),
         status=d.get("status", "pending"),
         created_at=d.get("created_at", ""),
         updated_at=d.get("updated_at", d.get("created_at", "")),
@@ -3313,11 +3642,25 @@ def partner_to_public_out(d: dict) -> PartnerPublicOut:
         city=d.get("city", ""),
         destination_ids=d.get("destination_ids", []),
         service_tags=d.get("service_tags", []),
-        image=d.get("image", ""),
+        image=safe_public_media_url(d.get("image", "")),
         is_premium=premium_active(d),
         promotional_disclosure="unggulan_berbayar" if premium_active(d) else None,
         accepting_contacts=accepts,
     )
+
+
+def partner_public_type_details(d: dict) -> dict:
+    fields = {
+        "guide": ["guide_languages", "guide_experience_years"],
+        "rental": ["rental_vehicle_types", "rental_driver_available", "rental_fleet_size"],
+        "homestay": ["homestay_room_count", "homestay_facilities", "homestay_checkin_info"],
+        "culinary": [
+            "culinary_categories", "culinary_specialties", "culinary_service_modes",
+            "culinary_dietary_tags", "culinary_opening_info", "culinary_reservation_note",
+        ],
+        "souvenir": ["souvenir_products", "souvenir_delivery_available", "souvenir_shop_hours"],
+    }.get(d.get("type"), [])
+    return {field: d.get(field) for field in fields}
 
 
 def parse_profile_datetime(value: Optional[str]) -> Optional[datetime]:
@@ -3341,6 +3684,11 @@ def partner_completeness(d: dict, offerings_count: int = 0) -> tuple[int, List[s
         "gallery": bool(d.get("gallery")),
         "offerings": offerings_count > 0,
     }
+    if d.get("type") == "culinary":
+        checks.update({
+            "culinary_specialties": bool(d.get("culinary_specialties")),
+            "culinary_service_modes": bool(d.get("culinary_service_modes")),
+        })
     missing = [key for key, complete in checks.items() if not complete]
     return round(100 * (len(checks) - len(missing)) / len(checks)), missing
 
@@ -3375,6 +3723,12 @@ def partner_to_admin_out(d: dict, offerings_count: int = 0) -> PartnerAdminOut:
         souvenir_products=d.get("souvenir_products", []),
         souvenir_delivery_available=d.get("souvenir_delivery_available", False),
         souvenir_shop_hours=d.get("souvenir_shop_hours", ""),
+        culinary_categories=d.get("culinary_categories", []),
+        culinary_specialties=d.get("culinary_specialties", []),
+        culinary_service_modes=d.get("culinary_service_modes", []),
+        culinary_dietary_tags=d.get("culinary_dietary_tags", []),
+        culinary_opening_info=d.get("culinary_opening_info", ""),
+        culinary_reservation_note=d.get("culinary_reservation_note", ""),
         contact_status_note=d.get("contact_status_note", ""),
         profile_completeness=completeness,
         completeness_missing=missing,
@@ -3410,6 +3764,23 @@ def normalize_partner_list(values: List[str], max_length: int = 80) -> List[str]
     return list(dict.fromkeys(
         value.strip()[:max_length] for value in values if value.strip()
     ))
+
+
+def partner_input_changes(payload: PartnerIn) -> dict:
+    """Normalize admin/legacy registration input without inventing culinary data."""
+    changes = payload.model_dump(mode="json")
+    changes["business_name"] = payload.business_name.strip()
+    changes["description"] = payload.description.strip()
+    changes["city"] = payload.city.strip()
+    changes["address"] = (payload.address or "").strip()
+    changes["service_tags"] = normalize_service_tags(payload.service_tags)
+    changes["culinary_categories"] = normalize_partner_list(payload.culinary_categories, 80)
+    changes["culinary_specialties"] = normalize_partner_list(payload.culinary_specialties, 120)
+    changes["culinary_service_modes"] = normalize_partner_list(payload.culinary_service_modes, 50)
+    changes["culinary_dietary_tags"] = normalize_partner_list(payload.culinary_dietary_tags, 50)
+    changes["culinary_opening_info"] = payload.culinary_opening_info.strip()
+    changes["culinary_reservation_note"] = payload.culinary_reservation_note.strip()
+    return changes
 
 
 def partner_gallery_to_out(items: List[dict]) -> List[PartnerGalleryOut]:
@@ -3528,8 +3899,7 @@ async def register_partner(payload: PartnerIn, user: dict = Depends(get_current_
     await require_experience_feature("mitra_onboarding", user)
     wa = normalize_whatsapp(payload.whatsapp)
     await validate_partner_destinations(payload.destination_ids, active_only=True)
-    doc = payload.model_dump(mode="json")
-    doc["service_tags"] = normalize_service_tags(payload.service_tags)
+    doc = partner_input_changes(payload)
     doc["whatsapp"] = wa
     doc["status"] = "pending"
     doc["is_active"] = False
@@ -3570,6 +3940,12 @@ async def start_partner_onboarding(
         "address": "",
         "destination_ids": [],
         "service_tags": [],
+        "culinary_categories": [],
+        "culinary_specialties": [],
+        "culinary_service_modes": [],
+        "culinary_dietary_tags": [],
+        "culinary_opening_info": "",
+        "culinary_reservation_note": "",
         "image": "",
         "gallery": [],
         "status": "draft",
@@ -3642,9 +4018,15 @@ def partner_draft_changes(payload: PartnerDraftIn) -> dict:
     changes["rental_vehicle_types"] = normalize_partner_list(payload.rental_vehicle_types, 80)
     changes["homestay_facilities"] = normalize_partner_list(payload.homestay_facilities, 80)
     changes["souvenir_products"] = normalize_partner_list(payload.souvenir_products, 100)
+    changes["culinary_categories"] = normalize_partner_list(payload.culinary_categories, 80)
+    changes["culinary_specialties"] = normalize_partner_list(payload.culinary_specialties, 120)
+    changes["culinary_service_modes"] = normalize_partner_list(payload.culinary_service_modes, 50)
+    changes["culinary_dietary_tags"] = normalize_partner_list(payload.culinary_dietary_tags, 50)
     changes["guide_license_number"] = payload.guide_license_number.strip()
     changes["homestay_checkin_info"] = payload.homestay_checkin_info.strip()
     changes["souvenir_shop_hours"] = payload.souvenir_shop_hours.strip()
+    changes["culinary_opening_info"] = payload.culinary_opening_info.strip()
+    changes["culinary_reservation_note"] = payload.culinary_reservation_note.strip()
     changes["whatsapp"] = normalize_whatsapp(payload.whatsapp) if payload.whatsapp.strip() else ""
     changes["updated_at"] = datetime.now(timezone.utc).isoformat()
     return changes
@@ -3694,6 +4076,8 @@ def validate_partner_submission(partner: dict) -> None:
         missing.append("homestay_room_count")
     if partner_type == "souvenir" and not partner.get("souvenir_products"):
         missing.append("souvenir_products")
+    if partner_type == "culinary" and not partner.get("culinary_specialties"):
+        missing.append("culinary_specialties")
     if missing:
         raise HTTPException(status_code=400, detail={
             "code": "partner_profile_incomplete",
@@ -3994,18 +4378,12 @@ async def get_public_partner(partner_id: str):
         {"name": 1, "name_en": 1, "location": 1},
     ).to_list(len(destination_oids)) if destination_oids else []
     public = partner_to_public_out(partner).model_dump()
-    type_fields = {
-        "guide": ["guide_languages", "guide_experience_years"],
-        "rental": ["rental_vehicle_types", "rental_driver_available", "rental_fleet_size"],
-        "homestay": ["homestay_room_count", "homestay_facilities", "homestay_checkin_info"],
-        "souvenir": ["souvenir_products", "souvenir_delivery_available", "souvenir_shop_hours"],
-    }.get(partner.get("type"), [])
     return PartnerPublicDetailOut(
         **public,
         gallery=partner_gallery_to_out(partner.get("gallery", [])),
         offerings=[offering_to_out(doc) for doc in offerings],
         destinations=[{"id": str(item["_id"]), "name": item.get("name", ""), "name_en": item.get("name_en", ""), "location": item.get("location", "")} for item in destinations],
-        type_details={key: partner.get(key) for key in type_fields},
+        type_details=partner_public_type_details(partner),
         last_profile_reviewed_at=partner.get("last_profile_reviewed_at") or partner.get("updated_at"),
     )
 
@@ -4013,7 +4391,7 @@ async def get_public_partner(partner_id: str):
 @api_router.get("/partners", response_model=List[PartnerPublicOut])
 async def list_partners(
     destination_id: Optional[str] = None,
-    type: Optional[str] = None,
+    type: Optional[PartnerType] = None,
 ):
     q = {"is_active": {"$ne": False}, "status": "approved"}
     if destination_id:
@@ -4025,12 +4403,22 @@ async def list_partners(
 
 
 class PartnerAnalyticsEventIn(BaseModel):
+    model_config = {"extra": "forbid"}
+
     event_id: str = Field(..., min_length=16, max_length=80)
-    event_type: Literal["directory_impression", "ai_impression", "profile_view", "whatsapp_click"]
+    event_type: Literal["directory_impression", "ai_impression", "profile_click", "profile_view", "whatsapp_click"]
     partner_id: str
     source: Literal["planner", "directory", "partner_detail", "destination"]
     destination_id: Optional[str] = None
     anonymous_session_id: str = Field(..., min_length=16, max_length=80)
+    placement: Optional[Literal["organic", "featured"]] = None
+    relevance_score: Optional[int] = Field(default=None, ge=0, le=100)
+    match_factor_codes: List[Literal[
+        "destination_coverage",
+        "requested_service_type",
+        "service_tag_match",
+        "multi_destination_coverage",
+    ]] = Field(default_factory=list, max_length=4)
 
 
 class PlannerAnalyticsEventIn(BaseModel):
@@ -4069,14 +4457,22 @@ async def track_partner_event(
         "_id": partner_oid,
         "status": "approved",
         "is_active": {"$ne": False},
-    }, {"_id": 1})
+    }, {"_id": 1, "type": 1, "premium_until": 1, "image": 1, "gallery": 1})
     if not partner:
         raise HTTPException(status_code=404, detail="Partner not found")
+    destination_area = ""
     if payload.destination_id:
         try:
-            ObjectId(payload.destination_id)
+            destination_oid = ObjectId(payload.destination_id)
         except Exception:
             raise HTTPException(status_code=400, detail="Invalid destination id")
+        destination = await db.destinations.find_one(
+            {"_id": destination_oid, "is_active": {"$ne": False}},
+            {"location": 1},
+        )
+        if not destination:
+            raise HTTPException(status_code=404, detail="Destination not found")
+        destination_area = str(destination.get("location") or "")[:120]
     anonymous_hash = hmac.new(
         get_jwt_secret().encode("utf-8"),
         payload.anonymous_session_id.encode("utf-8"),
@@ -4088,6 +4484,17 @@ async def track_partner_event(
         "partner_id": payload.partner_id,
         "source": payload.source,
         "destination_id": payload.destination_id,
+        "destination_area": destination_area,
+        "partner_type": partner.get("type", ""),
+        "tier": "featured" if premium_active(partner) else "regular",
+        "has_image": bool(partner.get("image") or partner.get("gallery")),
+        "placement": (
+            "featured"
+            if payload.source == "planner" and payload.placement == "featured" and premium_active(partner)
+            else "organic" if payload.source == "planner" else None
+        ),
+        "relevance_score": payload.relevance_score if payload.source == "planner" else None,
+        "match_factor_codes": payload.match_factor_codes if payload.source == "planner" else [],
         "anonymous_id_hash": anonymous_hash,
         "user_id": user.get("id") if user else None,
         "created_at": datetime.now(timezone.utc).isoformat(),
@@ -4134,8 +4541,7 @@ async def create_partner_admin(payload: PartnerIn, admin: dict = Depends(require
     wa = normalize_whatsapp(payload.whatsapp)
     await validate_partner_destinations(payload.destination_ids)
     now = datetime.now(timezone.utc).isoformat()
-    doc = payload.model_dump(mode="json")
-    doc["service_tags"] = normalize_service_tags(payload.service_tags)
+    doc = partner_input_changes(payload)
     doc.update({
         "whatsapp": wa,
         "status": "pending",
@@ -4271,8 +4677,7 @@ async def update_partner_admin(
     if not await db.partners.find_one({"_id": oid}):
         raise HTTPException(status_code=404, detail="Not found")
     await validate_partner_destinations(payload.destination_ids)
-    changes = payload.model_dump(mode="json")
-    changes["service_tags"] = normalize_service_tags(payload.service_tags)
+    changes = partner_input_changes(payload)
     changes["whatsapp"] = normalize_whatsapp(payload.whatsapp)
     changes["updated_at"] = datetime.now(timezone.utc).isoformat()
     await db.partners.update_one({"_id": oid}, {"$set": changes})
@@ -4755,6 +5160,16 @@ class ItineraryIn(BaseModel):
     lang: Literal["id", "en"] = "id"
     destination_ids: List[str] = Field(default_factory=list, max_length=50)
     extra_context: str = Field(default="", max_length=500)
+    result_version: Optional[Literal[2]] = None
+    structured_result: Optional[PlannerStoredResultV2] = None
+
+    @model_validator(mode="after")
+    def consistent_structured_result(self):
+        if (self.result_version == 2) != (self.structured_result is not None):
+            raise ValueError("result_version=2 and structured_result must be provided together")
+        if self.structured_result and self.destination_ids != self.structured_result.destination_ids:
+            raise ValueError("destination_ids must match structured_result")
+        return self
 
 
 class ItineraryUpdateIn(BaseModel):
@@ -4766,6 +5181,18 @@ class ItineraryUpdateIn(BaseModel):
     lang: Literal["id", "en"] = "id"
     destination_ids: List[str] = Field(default_factory=list, max_length=50)
     extra_context: str = Field(default="", max_length=500)
+    result_version: Optional[Literal[2]] = None
+    structured_result: Optional[PlannerStoredResultV2] = None
+
+    @model_validator(mode="after")
+    def consistent_structured_result(self):
+        if self.structured_result is not None and self.result_version != 2:
+            raise ValueError("result_version=2 is required with structured_result")
+        if self.result_version == 2 and self.structured_result is None:
+            raise ValueError("structured_result is required with result_version=2")
+        if self.structured_result and self.destination_ids != self.structured_result.destination_ids:
+            raise ValueError("destination_ids must match structured_result")
+        return self
 
 
 class ItineraryDuplicateIn(BaseModel):
@@ -4790,6 +5217,8 @@ class ItineraryOut(BaseModel):
     extra_context: str = ""
     updated_at: str = ""
     duplicated_from_id: Optional[str] = None
+    result_version: Optional[Literal[2]] = None
+    structured_result: Optional[PlannerResultV2] = None
 
 
 class PublicItineraryOut(BaseModel):
@@ -4804,9 +5233,11 @@ class PublicItineraryOut(BaseModel):
     author_name: str
     destination_ids: List[str] = Field(default_factory=list)
     updated_at: str = ""
+    result_version: Optional[Literal[2]] = None
+    structured_result: Optional[PlannerResultV2] = None
 
 
-def itin_to_out(d: dict) -> ItineraryOut:
+def itin_to_out(d: dict, structured_result: Optional[PlannerResultV2] = None) -> ItineraryOut:
     return ItineraryOut(
         id=str(d["_id"]),
         user_id=d["user_id"],
@@ -4825,7 +5256,151 @@ def itin_to_out(d: dict) -> ItineraryOut:
         extra_context=d.get("extra_context") or "",
         updated_at=d.get("updated_at", d.get("created_at", "")),
         duplicated_from_id=d.get("duplicated_from_id"),
+        result_version=2 if d.get("result_version") == 2 else None,
+        structured_result=structured_result,
     )
+
+
+async def sanitize_stored_planner_result(result: PlannerStoredResultV2) -> PlannerStoredResultV2:
+    """Keep only currently eligible partner references before persistence."""
+    partner_ids = [match.partner_id for match in result.partner_matches]
+    object_ids = []
+    for partner_id in partner_ids:
+        try:
+            object_ids.append(ObjectId(partner_id))
+        except Exception:
+            continue
+    partners = await db.partners.find({
+        "_id": {"$in": object_ids},
+        "status": "approved",
+        "is_active": {"$ne": False},
+        "accepting_contacts": {"$ne": False},
+    }).to_list(len(object_ids)) if object_ids else []
+    partners_by_id = {str(row["_id"]): row for row in partners}
+    offerings = await db.partner_offerings.find({
+        "partner_id": {"$in": list(partners_by_id)},
+        "is_active": True,
+    }).to_list(5000) if partners_by_id else []
+    offerings_by_partner: dict = {}
+    for offering in offerings:
+        offerings_by_partner.setdefault(offering["partner_id"], []).append(offering)
+
+    valid_matches = []
+    for match in result.partner_matches:
+        partner = partners_by_id.get(match.partner_id)
+        if not partner or partner.get("type") != match.type:
+            continue
+        partner_offerings = offerings_by_partner.get(match.partner_id, [])
+        service_destinations = set(partner.get("destination_ids") or [])
+        for offering in partner_offerings:
+            service_destinations.update(offering.get("destination_ids") or [])
+        if not set(match.destination_ids).issubset(service_destinations):
+            continue
+        valid_offerings = {
+            str(offering["_id"])
+            for offering in partner_offerings
+            if set(offering.get("destination_ids") or []).intersection(match.destination_ids)
+        }
+        valid_matches.append(PlannerStoredPartnerMatch(
+            partner_id=match.partner_id,
+            type=match.type,
+            destination_ids=match.destination_ids,
+            offering_ids=[value for value in match.offering_ids if value in valid_offerings],
+            match_reasons=match.match_reasons,
+            relevance_score=match.relevance_score,
+            match_factor_codes=match.match_factor_codes,
+            placement="featured" if premium_active(partner) else "organic",
+        ))
+    return PlannerStoredResultV2(
+        **{
+            **result.model_dump(mode="python"),
+            "partner_matches": valid_matches,
+        }
+    )
+
+
+async def hydrate_stored_planner_result(raw: Optional[dict]) -> Optional[PlannerResultV2]:
+    """Hydrate current public cards while filtering inactive database records."""
+    if not raw:
+        return None
+    try:
+        stored = PlannerStoredResultV2.model_validate(raw)
+    except ValidationError:
+        logger.warning("Ignoring an invalid stored Planner V2 result")
+        return None
+
+    destination_object_ids = []
+    for destination_id in stored.destination_ids:
+        try:
+            destination_object_ids.append(ObjectId(destination_id))
+        except Exception:
+            continue
+    destination_docs = await db.destinations.find({
+        "_id": {"$in": destination_object_ids},
+        "is_active": {"$ne": False},
+    }).to_list(len(destination_object_ids)) if destination_object_ids else []
+    destination_by_id = {str(row["_id"]): row for row in destination_docs}
+    destination_cards = []
+    for destination_id in stored.destination_ids:
+        document = destination_by_id.get(destination_id)
+        if not document:
+            continue
+        try:
+            destination_cards.append(planner_destination_card_from_doc(document))
+        except (TypeError, ValueError, ValidationError):
+            continue
+
+    sanitized = await sanitize_stored_planner_result(stored)
+    partner_ids = [match.partner_id for match in sanitized.partner_matches]
+    partner_object_ids = [ObjectId(value) for value in partner_ids] if partner_ids else []
+    partners = await db.partners.find({
+        "_id": {"$in": partner_object_ids},
+        "status": "approved",
+        "is_active": {"$ne": False},
+        "accepting_contacts": {"$ne": False},
+    }).to_list(len(partner_object_ids)) if partner_object_ids else []
+    partner_by_id = {str(row["_id"]): row for row in partners}
+    partner_matches = []
+    for match in sanitized.partner_matches:
+        partner = partner_by_id.get(match.partner_id)
+        if not partner:
+            continue
+        try:
+            partner_matches.append(planner_partner_match_from_doc(
+                partner,
+                destination_ids=match.destination_ids,
+                offering_ids=match.offering_ids,
+                match_reasons=match.match_reasons,
+                relevance_score=match.relevance_score,
+                match_factor_codes=match.match_factor_codes,
+                placement="featured" if premium_active(partner) else "organic",
+                is_premium=premium_active(partner),
+            ))
+        except (TypeError, ValueError, ValidationError):
+            continue
+    try:
+        return PlannerResultV2(
+            request_snapshot=stored.request_snapshot,
+            summary=stored.summary,
+            days=stored.days,
+            destination_ids=stored.destination_ids,
+            destinations=destination_cards,
+            partner_matches=partner_matches,
+            travel_notes=stored.travel_notes,
+            travel_tips=stored.travel_tips,
+            generated_at=stored.generated_at,
+        )
+    except ValidationError:
+        logger.warning("Stored Planner V2 result could not be hydrated")
+        return None
+
+
+async def hydrated_itinerary_out(d: dict) -> ItineraryOut:
+    structured = (
+        await hydrate_stored_planner_result(d.get("structured_result"))
+        if d.get("result_version") == 2 else None
+    )
+    return itin_to_out(d, structured)
 
 
 async def validated_itinerary_destination_ids(values: List[str]) -> List[str]:
@@ -4865,6 +5440,10 @@ async def save_itinerary(payload: ItineraryIn, user: dict = Depends(get_current_
         raise HTTPException(status_code=422, detail="Choose a travel style")
     doc = payload.model_dump(exclude_none=True)
     doc["destination_ids"] = await validated_itinerary_destination_ids(payload.destination_ids)
+    if payload.structured_result:
+        stored_result = await sanitize_stored_planner_result(payload.structured_result)
+        doc["result_version"] = 2
+        doc["structured_result"] = stored_result.model_dump(mode="json")
     doc["user_id"] = user["id"]
     doc["author_name"] = user.get("name", "")
     doc["is_public"] = False
@@ -4874,7 +5453,7 @@ async def save_itinerary(payload: ItineraryIn, user: dict = Depends(get_current_
     doc["updated_at"] = now
     res = await db.itineraries.insert_one(doc)
     doc["_id"] = res.inserted_id
-    return itin_to_out(doc)
+    return await hydrated_itinerary_out(doc)
 
 
 @api_router.get("/itineraries", response_model=List[ItineraryOut])
@@ -4885,7 +5464,7 @@ async def list_itineraries(user: dict = Depends(get_current_user)):
 
 @api_router.get("/itineraries/{itin_id}", response_model=ItineraryOut)
 async def get_itinerary(itin_id: str, user: dict = Depends(get_current_user)):
-    return itin_to_out(await owned_itinerary(itin_id, user))
+    return await hydrated_itinerary_out(await owned_itinerary(itin_id, user))
 
 
 @api_router.put("/itineraries/{itin_id}", response_model=ItineraryOut)
@@ -4901,10 +5480,21 @@ async def update_itinerary(
     changes["title"] = payload.title.strip()
     changes["interests"] = list(dict.fromkeys(payload.interests))
     changes["destination_ids"] = await validated_itinerary_destination_ids(payload.destination_ids)
+    if current.get("result_version") == 2 and not payload.structured_result:
+        try:
+            current_stored = PlannerStoredResultV2.model_validate(current.get("structured_result"))
+        except ValidationError:
+            current_stored = None
+        if current_stored and current_stored.destination_ids != changes["destination_ids"]:
+            raise HTTPException(status_code=400, detail="Structured itinerary destinations cannot be changed without a new result")
+    if payload.structured_result:
+        stored_result = await sanitize_stored_planner_result(payload.structured_result)
+        changes["result_version"] = 2
+        changes["structured_result"] = stored_result.model_dump(mode="json")
     changes["updated_at"] = datetime.now(timezone.utc).isoformat()
     await db.itineraries.update_one({"_id": current["_id"]}, {"$set": changes})
     current.update(changes)
-    return itin_to_out(current)
+    return await hydrated_itinerary_out(current)
 
 
 @api_router.post("/itineraries/{itin_id}/duplicate", response_model=ItineraryOut)
@@ -4930,6 +5520,9 @@ async def duplicate_itinerary(
         doc["budget_style"] = current["budget_style"]
     if "budget" in current:
         doc["budget"] = current.get("budget")
+    if current.get("result_version") == 2 and current.get("structured_result"):
+        doc["result_version"] = 2
+        doc["structured_result"] = current["structured_result"]
     doc.update({
         "title": copy_title[:200],
         "user_id": user["id"],
@@ -4942,7 +5535,7 @@ async def duplicate_itinerary(
     })
     result = await db.itineraries.insert_one(doc)
     doc["_id"] = result.inserted_id
-    return itin_to_out(doc)
+    return await hydrated_itinerary_out(doc)
 
 
 class ShareIn(BaseModel):
@@ -4962,7 +5555,7 @@ async def toggle_itinerary_share(
         update["author_name"] = user.get("name", "")
     await db.itineraries.update_one({"_id": d["_id"]}, {"$set": update})
     d.update(update)
-    return itin_to_out(d)
+    return await hydrated_itinerary_out(d)
 
 
 @api_router.get("/public/itineraries/{slug}", response_model=PublicItineraryOut)
@@ -4970,6 +5563,10 @@ async def get_public_itinerary(slug: str):
     d = await db.itineraries.find_one({"share_slug": slug, "is_public": True})
     if not d:
         raise HTTPException(status_code=404, detail="Itinerary not found or not shared")
+    structured = (
+        await hydrate_stored_planner_result(d.get("structured_result"))
+        if d.get("result_version") == 2 else None
+    )
     return PublicItineraryOut(
         title=d["title"],
         days=d["days"],
@@ -4982,6 +5579,8 @@ async def get_public_itinerary(slug: str):
         author_name=d.get("author_name", ""),
         destination_ids=d.get("destination_ids") or [],
         updated_at=d.get("updated_at", d.get("created_at", "")),
+        result_version=2 if d.get("result_version") == 2 else None,
+        structured_result=structured,
     )
 
 
@@ -5772,6 +6371,16 @@ class TripPlanIn(BaseModel):
     preferred_destination_ids: List[str] = Field(default_factory=list, max_length=10)
 
 
+PLANNER_PARTNER_RELEVANCE_THRESHOLD = 45
+PLANNER_PARTNER_RANKING_SIGNALS = (
+    "destination_coverage",
+    "requested_service_type",
+    "service_tag_match",
+    "multi_destination_coverage",
+    "daily_rotation_tiebreaker",
+)
+
+
 def build_planner_partner_recommendations(
     output: str,
     destinations: List[dict],
@@ -5781,7 +6390,7 @@ def build_planner_partner_recommendations(
     lang: str,
 ) -> tuple[List[str], List[dict]]:
     output_lower = output.lower()
-    used_ids = list(preferred_ids)
+    used_ids = list(dict.fromkeys(preferred_ids))
     for destination in destinations:
         destination_id = str(destination["_id"])
         names = [destination.get("name", ""), destination.get("name_en", "")]
@@ -5794,6 +6403,7 @@ def build_planner_partner_recommendations(
         "guide": ("guide", "pemandu"),
         "rental": ("rental", "mobil", "driver", "transport"),
         "homestay": ("homestay", "penginapan", "akomodasi", "menginap"),
+        "culinary": ("kuliner", "makanan", "makan", "restoran", "restaurant", "food", "kopi", "coffee", "sarapan"),
         "souvenir": ("oleh-oleh", "oleh oleh", "souvenir", "buah tangan"),
     }
     requested_types = {
@@ -5802,79 +6412,174 @@ def build_planner_partner_recommendations(
         if any(keyword in context for keyword in keywords)
     }
     destination_map = {str(destination["_id"]): destination for destination in destinations}
-    recommendations: List[dict] = []
+    merged_candidates: dict = {}
     day_salt = datetime.now(timezone.utc).date().isoformat()
     for destination_id in used_ids:
         destination = destination_map.get(destination_id)
         if not destination:
             continue
-        candidates = list(partners_by_destination.get(destination_id, []))
-
-        def matching_tags(partner: dict) -> List[str]:
-            return [
+        destination_name = (
+            destination.get("name_en")
+            if lang == "en" and destination.get("name_en")
+            else destination.get("name", "")
+        )
+        for partner in partners_by_destination.get(destination_id, []):
+            partner_id = str(partner.get("id") or partner.get("_id") or "")
+            partner_type = partner.get("type")
+            if not partner_id or partner_type not in {"guide", "rental", "homestay", "culinary", "souvenir"}:
+                continue
+            tag_matches = [
                 tag for tag in partner.get("service_tags", [])
                 if tag.replace("-", " ").lower() in context
             ]
-
-        def relevance(partner: dict) -> tuple[int, int]:
-            type_match = 1 if requested_types and partner["type"] in requested_types else 0
-            return type_match, len(matching_tags(partner))
-
-        # Relevance is always the primary key. A daily rotation avoids permanently
-        # favouring one listing, and the final selection reserves exposure for a
-        # regular partner when an equally relevant regular listing exists.
-        candidates.sort(key=lambda partner: (
-            -relevance(partner)[0],
-            -relevance(partner)[1],
-            hashlib.sha256(f"{day_salt}:{destination_id}:{partner['id']}".encode("utf-8")).hexdigest(),
-        ))
-        selected = candidates[:3]
-        if selected and all(partner.get("is_premium") for partner in selected):
-            best_score = relevance(selected[-1])
-            regular = next((partner for partner in candidates[3:] if not partner.get("is_premium") and relevance(partner) == best_score), None)
-            if regular:
-                selected[-1] = regular
-        for partner in selected:
-            reasons = [
-                "Melayani destinasi ini" if lang == "id" else "Serves this destination"
-            ]
-            if partner["type"] in requested_types:
-                reasons.append(
-                    "Sesuai kebutuhan perjalanan" if lang == "id" else "Matches trip needs"
-                )
-            tag_matches = matching_tags(partner)
-            if tag_matches:
-                reasons.append(
-                    ("Sesuai kebutuhan: " if lang == "id" else "Matches needs: ")
-                    + ", ".join(tag_matches[:3])
-                )
-            recommendations.append({
-                "partner_id": partner["id"],
-                "destination_id": destination_id,
-                "destination_name": (
-                    destination.get("name_en")
-                    if lang == "en" and destination.get("name_en")
-                    else destination.get("name", "")
-                ),
-                "match_reasons": reasons,
-                "placement": "featured" if partner.get("is_premium") else "organic",
-                "partner": {
-                    "id": partner["id"],
-                    "business_name": partner["business_name"],
-                    "type": partner["type"],
-                    "whatsapp": partner["whatsapp"],
-                    "city": partner["city"],
-                    "description": partner["description"],
-                    "image": partner.get("image", ""),
-                    "service_tags": partner.get("service_tags", []),
-                    "is_premium": partner.get("is_premium", False),
-                    "promotional_disclosure": "unggulan_berbayar" if partner.get("is_premium") else None,
-                    "accepting_contacts": True,
-                    "status": "approved",
-                    "is_active": True,
-                },
+            entry = merged_candidates.setdefault(partner_id, {
+                "partner": partner,
+                "partner_id": partner_id,
+                "type": partner_type,
+                "destination_ids": [],
+                "destination_names": [],
+                "tag_matches": [],
+                "type_match": False,
+                "is_premium": bool(partner.get("is_premium", False)),
             })
+            if destination_id not in entry["destination_ids"]:
+                entry["destination_ids"].append(destination_id)
+                entry["destination_names"].append(destination_name)
+            entry["type_match"] = entry["type_match"] or partner_type in requested_types
+            for tag in tag_matches:
+                if tag not in entry["tag_matches"]:
+                    entry["tag_matches"].append(tag)
+
+    ranked = []
+    for entry in merged_candidates.values():
+        factor_codes = ["destination_coverage"]
+        relevance_score = 45
+        if entry["type_match"]:
+            relevance_score += 25
+            factor_codes.append("requested_service_type")
+        if entry["tag_matches"]:
+            relevance_score += min(20, len(entry["tag_matches"]) * 10)
+            factor_codes.append("service_tag_match")
+        if len(entry["destination_ids"]) > 1:
+            relevance_score += 10
+            factor_codes.append("multi_destination_coverage")
+        entry["relevance_score"] = min(100, relevance_score)
+        entry["match_factor_codes"] = factor_codes
+        if entry["relevance_score"] < PLANNER_PARTNER_RELEVANCE_THRESHOLD:
+            continue
+        entry["rotation"] = hashlib.sha256(
+            f"{day_salt}:{entry['partner_id']}".encode("utf-8")
+        ).hexdigest()
+        ranked.append(entry)
+    ranked.sort(key=lambda entry: (
+        -entry["relevance_score"],
+        entry["rotation"],
+    ))
+
+    max_total = 8
+    max_per_type = 2
+    type_counts: dict = {}
+    featured_counts: dict = {}
+    selected: List[dict] = []
+    for entry in ranked:
+        if len(selected) >= max_total:
+            break
+        if type_counts.get(entry["type"], 0) >= max_per_type:
+            continue
+        if entry["is_premium"] and featured_counts.get(entry["type"], 0) >= 1:
+            continue
+        selected.append(entry)
+        type_counts[entry["type"]] = type_counts.get(entry["type"], 0) + 1
+        if entry["is_premium"]:
+            featured_counts[entry["type"]] = featured_counts.get(entry["type"], 0) + 1
+
+    # Preserve an organic slot when every selected listing of a type is
+    # featured and an equally relevant regular candidate exists.
+    selected_ids = {entry["partner_id"] for entry in selected}
+    for partner_type in type_counts:
+        positions = [index for index, entry in enumerate(selected) if entry["type"] == partner_type]
+        if not positions or not all(selected[index]["is_premium"] for index in positions):
+            continue
+        replace_at = positions[-1]
+        threshold = selected[replace_at]["relevance_score"]
+        regular = next((
+            entry for entry in ranked
+            if entry["type"] == partner_type
+            and not entry["is_premium"]
+            and entry["partner_id"] not in selected_ids
+            and entry["relevance_score"] == threshold
+        ), None)
+        if regular:
+            selected_ids.remove(selected[replace_at]["partner_id"])
+            selected[replace_at] = regular
+            selected_ids.add(regular["partner_id"])
+
+    recommendations: List[dict] = []
+    for entry in selected:
+        destination_count = len(entry["destination_ids"])
+        reasons = [
+            (
+                f"Melayani {destination_count} destinasi dalam itinerary"
+                if destination_count > 1 else "Melayani destinasi ini"
+            ) if lang == "id" else (
+                f"Serves {destination_count} itinerary destinations"
+                if destination_count > 1 else "Serves this destination"
+            )
+        ]
+        if entry["type_match"]:
+            reasons.append("Sesuai kebutuhan perjalanan" if lang == "id" else "Matches trip needs")
+        if entry["tag_matches"]:
+            reasons.append(
+                ("Sesuai kebutuhan: " if lang == "id" else "Matches needs: ")
+                + ", ".join(entry["tag_matches"][:3])
+            )
+        partner_doc = {
+            **entry["partner"],
+            "_id": entry["partner_id"],
+        }
+        try:
+            match = planner_partner_match_from_doc(
+                partner_doc,
+                destination_ids=entry["destination_ids"],
+                match_reasons=reasons[:3],
+                relevance_score=entry["relevance_score"],
+                match_factor_codes=entry["match_factor_codes"],
+                placement="featured" if entry["is_premium"] else "organic",
+                is_premium=entry["is_premium"],
+            ).model_dump(mode="json")
+        except (ValueError, TypeError):
+            continue
+        # Singular fields preserve compatibility with the legacy renderer and
+        # analytics while Milestone 1 adopts the aggregated arrays.
+        match.update({
+            "destination_id": entry["destination_ids"][0],
+            "destination_name": entry["destination_names"][0],
+            "destination_names": entry["destination_names"],
+        })
+        recommendations.append(match)
     return used_ids, recommendations
+
+
+def planner_partner_gap_keys(
+    destination_ids: List[str],
+    recommendations: List[dict],
+    destinations_by_id: dict,
+) -> List[str]:
+    """Return aggregate-safe area/type gaps without storing a user's story."""
+    partner_types = ("guide", "rental", "homestay", "culinary", "souvenir")
+    matched = {
+        (destination_id, recommendation.get("type"))
+        for recommendation in recommendations
+        for destination_id in recommendation.get("destination_ids", [])
+    }
+    gaps = []
+    for destination_id in dict.fromkeys(destination_ids):
+        destination = destinations_by_id.get(destination_id) or {}
+        area = re.sub(r"[|\r\n]", " ", str(destination.get("location") or "Unknown")).strip()[:120] or "Unknown"
+        for partner_type in partner_types:
+            if (destination_id, partner_type) not in matched:
+                gaps.append(f"{area}|{partner_type}")
+    return gaps[:250]
 
 
 @api_router.post("/trip-planner/stream")
@@ -5893,17 +6598,24 @@ async def trip_planner_stream(payload: TripPlanIn, request: Request):
             "message": planner_scope_message(payload.lang),
         })
     travel_style = resolved_budget_style(payload.budget_style, payload.budget, payload.days)
+    user = await get_optional_user(request)
+    structured_decision = await experience_feature_decision("planner_structured_results", user)
+    culinary_decision = await experience_feature_decision("planner_culinary", user)
+    structured_enabled = structured_decision["enabled"] is True
     # Fetch all destinations from DB
     docs = await db.destinations.find({"is_active": {"$ne": False}}).to_list(500)
     if not docs:
         raise HTTPException(status_code=400, detail="No destinations available")
 
     # Fetch approved partners and group by destination
-    approved_partners = await db.partners.find({
+    partner_query = {
         "status": "approved",
         "is_active": {"$ne": False},
         "accepting_contacts": {"$ne": False},
-    }).to_list(1000)
+    }
+    if culinary_decision["enabled"] is not True:
+        partner_query["type"] = {"$ne": "culinary"}
+    approved_partners = await db.partners.find(partner_query).to_list(1000)
     approved_ids = [str(partner["_id"]) for partner in approved_partners]
     offering_docs = await db.partner_offerings.find({
         "partner_id": {"$in": approved_ids},
@@ -5925,7 +6637,13 @@ async def trip_planner_stream(payload: TripPlanIn, request: Request):
             + [destination_id for offering in offerings for destination_id in offering.get("destination_ids", [])]
         ))
         offering_tags = [tag for offering in offerings for tag in offering.get("ai_tags", [])]
-        combined_tags = list(dict.fromkeys(p.get("service_tags", []) + offering_tags))
+        culinary_tags = (
+            p.get("culinary_categories", [])
+            + p.get("culinary_specialties", [])
+            + p.get("culinary_service_modes", [])
+            + p.get("culinary_dietary_tags", [])
+        ) if p.get("type") == "culinary" else []
+        combined_tags = list(dict.fromkeys(p.get("service_tags", []) + offering_tags + culinary_tags))
         for dest_id in destination_ids:
             partners_by_dest.setdefault(dest_id, []).append({
                 "id": partner_id,
@@ -5937,28 +6655,28 @@ async def trip_planner_stream(payload: TripPlanIn, request: Request):
                 "image": p.get("image", ""),
                 "service_tags": combined_tags,
                 "is_premium": premium_active(p),
+                "status": p.get("status", ""),
+                "is_active": p.get("is_active", True),
+                "accepting_contacts": p.get("accepting_contacts", True),
             })
 
-    catalog_items = []
-    for d in docs:
-        dest_id = str(d["_id"])
-        item = {
-            "id": dest_id,
-            "name": d["name"],
-            "name_en": d.get("name_en", ""),
-            "location": d["location"],
-            "category": d["category"],
-            "tags": d.get("tags", []),
-            "description": d["description"][:300],
-        }
-        catalog_items.append(item)
-    catalog_json = json.dumps(catalog_items, ensure_ascii=False, indent=2)
     destinations_by_id = {str(doc["_id"]): doc for doc in docs}
     preferred_ids = list(dict.fromkeys(payload.preferred_destination_ids))
     invalid_preferred = [dest_id for dest_id in preferred_ids if dest_id not in destinations_by_id]
     if invalid_preferred:
         raise HTTPException(status_code=400, detail="One or more preferred destinations are unavailable")
     preferred_names = [destinations_by_id[dest_id]["name"] for dest_id in preferred_ids]
+    prompt_destinations = (
+        select_structured_catalog(
+            docs,
+            interests=payload.interests,
+            extra_context=safe_ctx,
+            preferred_ids=preferred_ids,
+        )
+        if structured_enabled else docs
+    )
+    catalog_items = destination_catalog_payload(prompt_destinations)
+    catalog_json = json.dumps(catalog_items, ensure_ascii=False, indent=None if structured_enabled else 2)
 
     # Regenerate: detect which catalog destinations were used in the previous plan
     prev = (payload.previous_content or "").lower()
@@ -6062,13 +6780,30 @@ async def trip_planner_stream(payload: TripPlanIn, request: Request):
         user_parts.append("Use ONLY destinations from the catalog.")
         user_text = " ".join(user_parts)
 
+    if structured_enabled:
+        planner_messages = build_structured_planner_messages(
+            lang=payload.lang,
+            days=payload.days,
+            budget_style=travel_style,
+            style_instruction=planner_style_instruction(travel_style, payload.lang),
+            interests=payload.interests,
+            extra_context=safe_ctx,
+            preferred_ids=preferred_ids,
+            previous_destination_names=used_names,
+            catalog=catalog_items,
+        )
+    else:
+        planner_messages = [
+            {"role": "system", "content": system_msg},
+            {"role": "user", "content": user_text},
+        ]
+
     try:
         active_llm_client, llm_runtime = await get_runtime_llm()
     except Exception:
         raise HTTPException(status_code=503, detail="Active LLM profile could not be loaded")
     if not llm_runtime.get("enabled"):
         raise HTTPException(status_code=503, detail="AI Planner LLM is disabled")
-    user = await get_optional_user(request)
     quota = await reserve_planner_quota(request, user, settings)
 
     async def event_gen():
@@ -6080,7 +6815,12 @@ async def trip_planner_stream(payload: TripPlanIn, request: Request):
             "interests": payload.interests,
             "lang": payload.lang,
             "catalog_size": len(docs),
+            "prompt_catalog_size": len(prompt_destinations),
+            "prompt_catalog_chars": len(catalog_json),
             "partner_count": len(approved_partners),
+            "result_format_requested": "structured" if structured_enabled else "legacy",
+            "structured_rollout_reason": structured_decision.get("reason"),
+            "culinary_rollout_reason": culinary_decision.get("reason"),
             "llm_source": llm_runtime["source"],
             "llm_profile_id": llm_runtime.get("profile_id"),
             "llm_profile_name": llm_runtime.get("profile_name", ""),
@@ -6090,35 +6830,122 @@ async def trip_planner_stream(payload: TripPlanIn, request: Request):
             "created_at": started_at.isoformat(),
         })
         output_chars = 0
+        response_payload_bytes = 0
+        sse_event_count = 0
         output_parts: List[str] = []
         quota_consumed = False
         final_status = "error"
         error_message = ""
+        parse_status = "not_requested"
+        fallback_reason = ""
+        final_result_format = "legacy"
+        unknown_destination_count = 0
+        used_destination_ids: List[str] = []
+        recommendations: List[dict] = []
+
+        def planner_event(data: dict) -> str:
+            nonlocal response_payload_bytes, sse_event_count
+            chunk = f"data: {json.dumps(data)}\n\n"
+            response_payload_bytes += len(chunk.encode("utf-8"))
+            sse_event_count += 1
+            return chunk
+
         try:
-            messages = [
-                {"role": "system", "content": system_msg},
-                {"role": "user", "content": user_text},
-            ]
-            async for content in active_llm_client.stream(messages):
+            progress_at = asyncio.get_running_loop().time()
+            if structured_enabled:
+                yield planner_event({"progress": {"phase": "generating", "format": "structured"}})
+            async for content in active_llm_client.stream(planner_messages):
                 if not quota_consumed:
                     await consume_planner_quota(quota)
                     quota_consumed = True
                 output_chars += len(content)
                 output_parts.append(content)
-                yield f"data: {json.dumps({'text': content})}\n\n"
+                if not structured_enabled:
+                    yield planner_event({"text": content})
+                elif asyncio.get_running_loop().time() - progress_at >= 2:
+                    progress_at = asyncio.get_running_loop().time()
+                    yield planner_event({"progress": {"phase": "generating", "format": "structured"}})
             if not output_parts:
                 raise RuntimeError("LLM provider returned an empty response")
-            used_destination_ids, recommendations = build_planner_partner_recommendations(
-                "".join(output_parts),
-                docs,
-                partners_by_dest,
-                preferred_ids,
-                " ".join([safe_ctx, *payload.interests]).strip(),
-                payload.lang,
-            )
+            raw_output = "".join(output_parts)
+
+            if structured_enabled:
+                try:
+                    yield planner_event({"progress": {"phase": "validating", "format": "structured"}})
+                    provider_result, unknown_ids = parse_structured_planner_output(
+                        raw_output,
+                        allowlist=destinations_by_id,
+                        requested_days=payload.days,
+                    )
+                    yield planner_event({"progress": {"phase": "hydrating", "format": "structured"}})
+                    unknown_destination_count = len(unknown_ids)
+                    validated_ids = list(dict.fromkeys(
+                        stop.destination_id
+                        for day in provider_result.days
+                        for stop in day.stops
+                    ))
+                    match_context = " ".join([
+                        safe_ctx,
+                        *payload.interests,
+                        provider_result.summary,
+                        *(stop.activity for day in provider_result.days for stop in day.stops),
+                    ]).strip()
+                    used_destination_ids, recommendations = build_planner_partner_recommendations(
+                        provider_result.summary,
+                        docs,
+                        partners_by_dest,
+                        validated_ids,
+                        match_context,
+                        payload.lang,
+                    )
+                    # Matching starts with every validated ID, so it cannot add a
+                    # destination that was not selected by the structured result.
+                    used_destination_ids = [
+                        destination_id for destination_id in used_destination_ids
+                        if destination_id in set(validated_ids)
+                    ]
+                    planner_result = hydrate_structured_planner_result(
+                        provider_result,
+                        request_days=payload.days,
+                        budget_style=travel_style,
+                        interests=payload.interests,
+                        lang=payload.lang,
+                        destinations=docs,
+                        partner_matches=recommendations,
+                    )
+                    compatibility_markdown = structured_result_to_markdown(planner_result, payload.lang)
+                    parse_status = "success_with_unknown_ids_removed" if unknown_ids else "success"
+                    final_result_format = "structured"
+                    yield planner_event({"text": compatibility_markdown})
+                    yield planner_event({"recommendations": recommendations, "destination_ids": used_destination_ids, "result": planner_result.model_dump(mode="json"), "result_format": "structured"})
+                except PlannerStructuredParseError as parse_error:
+                    parse_status = "fallback"
+                    fallback_reason = parse_error.reason
+                    legacy_output = normalize_legacy_fallback(raw_output)
+                    if not legacy_output:
+                        raise RuntimeError("LLM provider returned an unusable response")
+                    used_destination_ids, recommendations = build_planner_partner_recommendations(
+                        legacy_output,
+                        docs,
+                        partners_by_dest,
+                        preferred_ids,
+                        " ".join([safe_ctx, *payload.interests]).strip(),
+                        payload.lang,
+                    )
+                    yield planner_event({"text": legacy_output})
+                    yield planner_event({"recommendations": recommendations, "destination_ids": used_destination_ids, "result_format": "legacy", "fallback": True})
+            else:
+                used_destination_ids, recommendations = build_planner_partner_recommendations(
+                    raw_output,
+                    docs,
+                    partners_by_dest,
+                    preferred_ids,
+                    " ".join([safe_ctx, *payload.interests]).strip(),
+                    payload.lang,
+                )
+                yield planner_event({"recommendations": recommendations, "destination_ids": used_destination_ids, "result_format": "legacy"})
             final_status = "completed"
-            yield f"data: {json.dumps({'recommendations': recommendations, 'destination_ids': used_destination_ids})}\n\n"
-            yield f"data: {json.dumps({'done': True})}\n\n"
+            yield planner_event({"done": True, "result_format": final_result_format})
         except Exception as e:
             error_message = str(e)[:1000]
             logger.error(f"Trip planner error: {e}")
@@ -6127,7 +6954,8 @@ async def trip_planner_stream(payload: TripPlanIn, request: Request):
                 "days": payload.days,
                 "lang": payload.lang,
             })
-            yield f"data: {json.dumps({'error': error_message})}\n\n"
+            error_code = "planner_timeout" if isinstance(e, (asyncio.TimeoutError, TimeoutError)) else "planner_provider_unavailable"
+            yield planner_event({"error": planner_error_message(error_code, payload.lang), "code": error_code})
         finally:
             if not quota_consumed:
                 await refund_planner_quota(quota)
@@ -6137,6 +6965,27 @@ async def trip_planner_stream(payload: TripPlanIn, request: Request):
                 {"$set": {
                     "status": final_status,
                     "output_chars": output_chars,
+                    "response_payload_bytes": response_payload_bytes,
+                    "sse_event_count": sse_event_count,
+                    "parse_status": parse_status,
+                    "fallback_reason": fallback_reason,
+                    "result_format": final_result_format,
+                    "unknown_destination_count": unknown_destination_count,
+                    "partner_match_count": len(recommendations),
+                    "partner_match_types": sorted({row.get("type", "") for row in recommendations if row.get("type")}),
+                    "partner_selection_audit": [{
+                        "partner_id": row.get("partner_id", ""),
+                        "type": row.get("type", ""),
+                        "destination_ids": row.get("destination_ids", []),
+                        "placement": row.get("placement", "organic"),
+                        "relevance_score": row.get("relevance_score", 0),
+                        "match_factor_codes": row.get("match_factor_codes", []),
+                    } for row in recommendations[:20]],
+                    "partner_gap_keys": planner_partner_gap_keys(
+                        used_destination_ids,
+                        recommendations,
+                        destinations_by_id,
+                    ),
                     "error": error_message,
                     "duration_ms": int((completed_at - started_at).total_seconds() * 1000),
                     "completed_at": completed_at.isoformat(),
@@ -6675,18 +7524,29 @@ async def share_card_image(slug: str):
 @api_router.get("/share/{slug}")
 async def share_preview_page(slug: str, request: Request):
     d = await db.itineraries.find_one({"share_slug": slug, "is_public": True})
-    base = _base_url(request)
+    backend_base = _base_url(request)
+    public_app_base = os.environ.get("PUBLIC_APP_URL", backend_base).rstrip("/")
+    target = f"{public_app_base}/trip/{slug}"
     if not d:
         return Response(
-            content=f'<!doctype html><meta charset="utf-8"><meta http-equiv="refresh" content="0;url={base}/trip/{slug}">',
+            content=f'<!doctype html><meta charset="utf-8"><meta http-equiv="refresh" content="0;url={html.escape(target, quote=True)}">',
             media_type="text/html",
             status_code=404,
         )
     is_en = d.get("lang") == "en"
-    target = f"{base}/trip/{slug}"
-    image = f"{base}/api/share/{slug}/image.png"
+    image = f"{backend_base}/api/share/{slug}/image.png"
     title = d["title"]
-    desc = (
+    structured_summary = ""
+    if d.get("result_version") == 2:
+        try:
+            structured_summary = PlannerStoredResultV2.model_validate(
+                d.get("structured_result")
+            ).summary
+        except (ValidationError, TypeError):
+            structured_summary = ""
+    structured_summary = re.sub(r"\s+", " ", structured_summary).strip()
+    structured_summary = re.sub(r"[<>`*_#]", "", structured_summary)[:180]
+    desc = structured_summary or (
         f"{d['days']} {'days' if is_en else 'hari'} · {style_label(d.get('budget_style'), 'en' if is_en else 'id')}"
         + f" · {'Plan by' if is_en else 'Rencana oleh'} {d.get('author_name') or 'Anonim'}"
         + (" — Explore Wisata Sumut")
@@ -6707,16 +7567,16 @@ async def share_preview_page(slug: str, request: Request):
 <meta property="og:site_name" content="Explore Wisata Sumut">
 <meta property="og:title" content="{esc(title)}">
 <meta property="og:description" content="{esc(desc)}">
-<meta property="og:image" content="{image}">
+<meta property="og:image" content="{esc(image)}">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:url" content="{target}">
+<meta property="og:url" content="{esc(target)}">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="{esc(title)}">
 <meta name="twitter:description" content="{esc(desc)}">
-<meta name="twitter:image" content="{image}">
-<meta http-equiv="refresh" content="0;url={target}">
-<link rel="canonical" href="{target}">
+<meta name="twitter:image" content="{esc(image)}">
+<meta http-equiv="refresh" content="0;url={esc(target)}">
+<link rel="canonical" href="{esc(target)}">
 <style>body{{background:#0F3D3E;color:#F5F1E8;font-family:system-ui,sans-serif;display:flex;
 align-items:center;justify-content:center;height:100vh;margin:0}}a{{color:#F5F1E8}}</style>
 </head>

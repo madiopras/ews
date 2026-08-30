@@ -9,6 +9,9 @@ DB_CONTAINER := explore-wisata-sumut-mongodb
 DB_PORT := 27017
 BACKEND_DIR := ./backend
 FRONTEND_DIR := ./frontend
+VENV_DIR := $(CURDIR)/.venv
+BACKEND_PYTHON := $(VENV_DIR)/bin/python
+BACKEND_DEPS_STAMP := $(VENV_DIR)/.backend-requirements-installed
 
 all: help
 
@@ -35,14 +38,22 @@ docker-down:
 shell:
 	mongosh mongodb://admin:admin123@localhost:$(DB_PORT)/wisasumut?authSource=admin
 
-install-backend:
-	@echo "📦 Installing Python deps..."
-	cd $(BACKEND_DIR) && pip3 install -r requirements.txt
+$(BACKEND_PYTHON):
+	@echo "🐍 Creating Python virtual environment in $(VENV_DIR)..."
+	python3 -m venv "$(VENV_DIR)"
 
-dev-backend:
+$(BACKEND_DEPS_STAMP): $(BACKEND_DIR)/requirements.txt | $(BACKEND_PYTHON)
+	@echo "📦 Synchronizing backend dependencies..."
+	"$(BACKEND_PYTHON)" -m pip install -r "$(BACKEND_DIR)/requirements.txt"
+	@touch "$(BACKEND_DEPS_STAMP)"
+
+install-backend: $(BACKEND_DEPS_STAMP)
+	@echo "✅ Backend dependencies are ready in $(VENV_DIR)"
+
+dev-backend: $(BACKEND_DEPS_STAMP)
 	@echo "🚀 Starting Backend on http://localhost:8000"
 	@echo "📝 Open http://localhost:8000/docs for API documentation"
-	cd $(BACKEND_DIR) && python3 -m uvicorn server:app --reload --host 0.0.0.0 --port 8000
+	cd $(BACKEND_DIR) && "$(BACKEND_PYTHON)" -m uvicorn server:app --reload --host 0.0.0.0 --port 8000
 
 install-frontend:
 	@echo "📦 Installing npm dependencies..."
@@ -52,11 +63,11 @@ dev-frontend:
 	@echo "🚀 Starting Frontend on http://localhost:3000"
 	cd $(FRONTEND_DIR) && if [ -f package.json ]; then npm start; else echo "⚠️ No package.json found, skipping frontend"; fi
 
-test-backend:
-	cd $(BACKEND_DIR) && pytest tests/ -v
+test-backend: $(BACKEND_DEPS_STAMP)
+	cd $(BACKEND_DIR) && "$(BACKEND_PYTHON)" -m pytest tests/ -v
 
-qa-milestone7:
-	.venv/bin/pytest -q -n 0 backend/tests/test_web_experience_milestone0.py backend/tests/test_web_experience_milestone1.py backend/tests/test_web_experience_milestone2.py backend/tests/test_web_experience_milestone3.py backend/tests/test_web_experience_milestone4.py backend/tests/test_web_experience_milestone5.py backend/tests/test_web_experience_milestone6.py backend/tests/test_web_experience_milestone7.py backend/tests/test_web_experience_security_unit.py backend/tests/test_llm_security_unit.py
+qa-milestone7: $(BACKEND_DEPS_STAMP)
+	"$(BACKEND_PYTHON)" -m pytest -q -n 0 backend/tests/test_web_experience_milestone0.py backend/tests/test_web_experience_milestone1.py backend/tests/test_web_experience_milestone2.py backend/tests/test_web_experience_milestone3.py backend/tests/test_web_experience_milestone4.py backend/tests/test_web_experience_milestone5.py backend/tests/test_web_experience_milestone6.py backend/tests/test_web_experience_milestone7.py backend/tests/test_web_experience_security_unit.py backend/tests/test_llm_security_unit.py
 	cd $(FRONTEND_DIR) && CI=true npm test -- --watchAll=false --runInBand
 	cd $(FRONTEND_DIR) && npm run quality:lint
 	cd $(FRONTEND_DIR) && npm run build && npm run quality:budget

@@ -14,6 +14,26 @@ function assetUrl(value) {
   return value;
 }
 
+function CulinaryDetails({ partner, labels, title }) {
+  if (partner.type !== "culinary" || !partner.type_details) return null;
+  const details = partner.type_details;
+  const groups = [
+    [labels.culinaryCategories, details.culinary_categories],
+    [labels.culinarySpecialties, details.culinary_specialties],
+    [labels.culinaryServiceModes, details.culinary_service_modes],
+    [labels.culinaryDietaryTags, details.culinary_dietary_tags],
+  ].filter(([, values]) => Array.isArray(values) && values.length > 0);
+  if (!groups.length && !details.culinary_opening_info && !details.culinary_reservation_note) return null;
+  return <section className="mt-5 border-t border-line pt-5" data-testid="culinary-public-details">
+    <h2 className="font-display text-xl">{title}</h2>
+    <div className="mt-3 space-y-3">
+      {groups.map(([label, values]) => <div key={label}><h3 className="text-xs font-semibold text-inkSoft">{label}</h3><div className="mt-1.5 flex flex-wrap gap-1.5">{values.map((value) => <span key={value} className="chip min-h-0 px-2 py-1 text-[10px]">{value}</span>)}</div></div>)}
+      {details.culinary_opening_info && <p className="text-sm text-inkSoft"><strong className="text-ink">{labels.culinaryOpeningInfo}:</strong> {details.culinary_opening_info}</p>}
+      {details.culinary_reservation_note && <p className="text-sm text-inkSoft"><strong className="text-ink">{labels.culinaryReservationNote}:</strong> {details.culinary_reservation_note}</p>}
+    </div>
+  </section>;
+}
+
 export default function PartnerDetail() {
   const { id } = useParams();
   const { t, lang } = useLang();
@@ -29,12 +49,12 @@ export default function PartnerDetail() {
     back: "Back to partners", notFound: "This partner profile is unavailable.", services: "Services & products",
     coverage: "Service destinations", verified: "Approved local partner", updated: "Information reviewed",
     contact: "Contact on WhatsApp", unavailable: "This partner is temporarily not accepting contacts.",
-    featured: "Paid featured partner", availability: "Availability", tags: "Suitable for",
+    featured: "Paid featured partner", availability: "Availability", tags: "Suitable for", culinaryDetails: "Culinary details",
   } : {
     back: "Kembali ke daftar Mitra", notFound: "Profil Mitra ini tidak tersedia.", services: "Jasa & produk",
     coverage: "Destinasi layanan", verified: "Mitra lokal terverifikasi", updated: "Informasi ditinjau",
     contact: "Hubungi lewat WhatsApp", unavailable: "Mitra ini sementara tidak menerima kontak.",
-    featured: "Mitra Unggulan berbayar", availability: "Ketersediaan", tags: "Cocok untuk",
+    featured: "Mitra Unggulan berbayar", availability: "Ketersediaan", tags: "Cocok untuk", culinaryDetails: "Detail kuliner",
   }, [lang]);
   if (state === "loading") return <div className="app-gutter mx-auto max-w-6xl py-16 text-sm text-inkSoft">{t.common.loading}</div>;
   if (state === "error" || !partner) return <div className="app-gutter mx-auto max-w-3xl py-16 text-center"><p>{copy.notFound}</p><Link to="/partners" className="btn-outline mt-5">{copy.back}</Link></div>;
@@ -42,7 +62,7 @@ export default function PartnerDetail() {
   const profileImage = assetUrl(partner.gallery?.[0]?.url || "");
   const structuredData = {
     "@context": "https://schema.org",
-    "@type": "LocalBusiness",
+    "@type": partner.type === "culinary" ? "FoodEstablishment" : "LocalBusiness",
     name: partner.business_name,
     description: partner.description,
     image: profileImage || undefined,
@@ -68,7 +88,7 @@ export default function PartnerDetail() {
         <div className="mt-5 flex flex-wrap items-center gap-4 border-t border-line pt-4 text-xs text-inkSoft"><span className="flex items-center gap-1.5"><CheckCircle2 className="h-4 w-4 text-emerald-700" />{copy.verified}</span>{partner.last_profile_reviewed_at && <span className="flex items-center gap-1.5"><Clock3 className="h-4 w-4" />{copy.updated}: {new Date(partner.last_profile_reviewed_at).toLocaleDateString(lang === "en" ? "en-US" : "id-ID")}</span>}{!adminPreview && <ReportContentButton targetType="partner" targetId={partner.id} compact />}</div>
       </div>
     </header>
-    <div className="mt-6 grid gap-6 lg:grid-cols-[1.5fr_1fr]"><section className="card-flat p-5 sm:p-6"><p className="whitespace-pre-line text-sm leading-7 text-inkSoft">{partner.description}</p>{partner.service_tags?.length > 0 && <div className="mt-5"><h2 className="text-xs font-semibold uppercase tracking-wider text-inkSoft">{copy.tags}</h2><div className="mt-2 flex flex-wrap gap-2">{partner.service_tags.map(tag => <span key={tag} className="chip">{tag}</span>)}</div></div>}</section><aside className="card-flat p-5 sm:p-6"><h2 className="font-display text-xl">{copy.coverage}</h2><div className="mt-3 space-y-2">{partner.destinations.map(destination => <Link key={destination.id} to={`/destination/${destination.id}`} className="block rounded-lg border border-line p-3 text-sm hover:border-toba"><strong>{lang === "en" && destination.name_en ? destination.name_en : destination.name}</strong><span className="mt-0.5 block text-xs text-inkSoft">{destination.location}</span></Link>)}</div></aside></div>
+    <div className="mt-6 grid gap-6 lg:grid-cols-[1.5fr_1fr]"><section className="card-flat p-5 sm:p-6"><p className="whitespace-pre-line text-sm leading-7 text-inkSoft">{partner.description}</p>{partner.service_tags?.length > 0 && <div className="mt-5"><h2 className="text-xs font-semibold uppercase tracking-wider text-inkSoft">{copy.tags}</h2><div className="mt-2 flex flex-wrap gap-2">{partner.service_tags.map(tag => <span key={tag} className="chip">{tag}</span>)}</div></div>}<CulinaryDetails partner={partner} labels={t.mitra.fields} title={copy.culinaryDetails} /></section><aside className="card-flat p-5 sm:p-6"><h2 className="font-display text-xl">{copy.coverage}</h2><div className="mt-3 space-y-2">{partner.destinations.map(destination => <Link key={destination.id} to={`/destination/${destination.id}`} className="block rounded-lg border border-line p-3 text-sm hover:border-toba"><strong>{lang === "en" && destination.name_en ? destination.name_en : destination.name}</strong><span className="mt-0.5 block text-xs text-inkSoft">{destination.location}</span></Link>)}</div></aside></div>
     <section className="mt-6"><div className="mb-3 flex items-center gap-2"><PackageOpen className="h-5 w-5 text-toba" /><h2 className="font-display text-2xl">{copy.services}</h2></div>{partner.offerings.length === 0 ? <div className="card-flat p-5 text-sm text-inkSoft">—</div> : <div className="grid gap-4 md:grid-cols-2">{partner.offerings.map(offering => <article key={offering.id} className="card-flat p-5"><span className="text-[10px] font-semibold uppercase tracking-widest text-toba">{offering.kind === "product" ? "Produk" : "Jasa"}</span><h3 className="mt-1 font-display text-xl">{offering.name}</h3>{offering.description && <p className="mt-2 text-sm leading-relaxed text-inkSoft">{offering.description}</p>}{offering.ai_tags?.length > 0 && <div className="mt-3 flex flex-wrap gap-1.5">{offering.ai_tags.map(tag => <span key={tag} className="chip min-h-0 px-2 py-1 text-[10px]">{tag}</span>)}</div>}{offering.availability_note && <p className="mt-3 text-xs text-inkSoft"><strong>{copy.availability}:</strong> {offering.availability_note}</p>}</article>)}</div>}</section>
   </div>;
 }

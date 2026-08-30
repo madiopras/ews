@@ -12,13 +12,14 @@ import jwt
 import pytest
 import pymongo
 import requests
-from dotenv import dotenv_values
 from bson import ObjectId
 
-BASE_URL = os.environ.get("REACT_APP_BACKEND_URL", "https://wisata-sumut-guide.preview.emergentagent.com").rstrip("/")
+from runtime_config import backend_environment, backend_url
+
+BASE_URL = backend_url()
 API = f"{BASE_URL}/api"
 
-ENV = dotenv_values("/app/backend/.env")
+ENV = backend_environment()
 JWT_SECRET = ENV["JWT_SECRET"]
 MONGO_URL = ENV["MONGO_URL"]
 DB_NAME = ENV["DB_NAME"]

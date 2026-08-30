@@ -26,9 +26,12 @@ function sessionId() {
   return value;
 }
 
-export async function trackPartnerEvent(eventType, partnerId, source, destinationId = null) {
+export async function trackPartnerEvent(eventType, partnerId, source, destinationId = null, metadata = {}) {
   if (analyticsConsent() !== "granted" || !partnerId) return false;
   try {
+    const matchFactorCodes = Array.isArray(metadata.match_factor_codes)
+      ? metadata.match_factor_codes.slice(0, 4)
+      : [];
     await api.post("/analytics/partner-events", {
       event_id: randomId(),
       event_type: eventType,
@@ -36,6 +39,9 @@ export async function trackPartnerEvent(eventType, partnerId, source, destinatio
       source,
       destination_id: destinationId,
       anonymous_session_id: sessionId(),
+      ...(metadata.placement ? { placement: metadata.placement } : {}),
+      ...(Number.isInteger(metadata.relevance_score) ? { relevance_score: metadata.relevance_score } : {}),
+      ...(matchFactorCodes.length ? { match_factor_codes: matchFactorCodes } : {}),
     }, { headers: { "X-Analytics-Consent": "granted" } });
     return true;
   } catch {

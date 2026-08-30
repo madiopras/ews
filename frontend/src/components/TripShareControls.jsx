@@ -21,10 +21,15 @@ export function canonicalTripUrl(slug, origin = window.location.origin) {
   return slug ? new URL(`/trip/${slug}`, origin).toString() : "";
 }
 
+export function socialTripUrl(slug, backendOrigin = process.env.REACT_APP_BACKEND_URL || window.location.origin) {
+  return slug ? new URL(`/api/share/${slug}`, backendOrigin).toString() : "";
+}
+
 export default function TripShareControls({ trip, onChange }) {
   const { t } = useLang();
   const [busy, setBusy] = useState(false);
   const canonicalUrl = canonicalTripUrl(trip.share_slug);
+  const socialUrl = socialTripUrl(trip.share_slug);
   const setPublic = async (isPublic) => {
     setBusy(true);
     try {
@@ -42,7 +47,7 @@ export default function TripShareControls({ trip, onChange }) {
     <div className="rounded-xl border border-line bg-cream/60 p-4" data-testid="trip-share-controls">
       <div className="break-all text-[12px] text-toba">{canonicalUrl}</div>
       <div className="mt-3 flex flex-wrap gap-2">
-        <a href={`https://wa.me/?text=${encodeURIComponent(`${t.savedTrips.waText} ${trip.title} — ${canonicalUrl}`)}`} target="_blank" rel="noopener noreferrer" className="btn-primary"><MessageCircle className="h-4 w-4" /> {t.savedTrips.shareWA}</a>
+        <a href={`https://wa.me/?text=${encodeURIComponent(`${t.savedTrips.waText} ${trip.title} — ${socialUrl}`)}`} target="_blank" rel="noopener noreferrer" className="btn-primary"><MessageCircle className="h-4 w-4" /> {t.savedTrips.shareWA}</a>
         <button type="button" onClick={async () => { try { await copyText(canonicalUrl); toast.success(t.savedTrips.copied); } catch { toast.error(t.common.error); } }} className="btn-outline"><Copy className="h-4 w-4" /> {t.savedTrips.copyLink}</button>
         <button type="button" onClick={() => setPublic(false)} disabled={busy} className="btn-outline"><Link2Off className="h-4 w-4" /> {t.savedTrips.stopSharing}</button>
       </div>
