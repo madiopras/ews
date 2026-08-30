@@ -14,7 +14,8 @@ export default function Partners() {
   const [params, setParams] = useSearchParams();
   const [partners, setPartners] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [type, setType] = useState("");
+  const urlType = TYPES.includes(params.get("type")) ? params.get("type") : "";
+  const [type, setType] = useState(urlType);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
@@ -25,6 +26,10 @@ export default function Partners() {
       if (!isNaN(p) && p >= 1) setPage(p);
     }
   }, [urlPage]);
+
+  useEffect(() => {
+    setType(urlType);
+  }, [urlType]);
 
   const load = () => {
     setLoading(true);
@@ -63,6 +68,15 @@ export default function Partners() {
     setParams(next);
     setPage(nextPage);
   };
+  const selectType = (nextType) => {
+    const next = new URLSearchParams(params);
+    if (nextType) next.set("type", nextType);
+    else next.delete("type");
+    next.delete("page");
+    setParams(next);
+    setType(nextType);
+    setPage(1);
+  };
 
   return (
     <div data-testid="partners-page">
@@ -95,7 +109,7 @@ export default function Partners() {
         <div className="scroll-x mb-6">
           <button
             type="button"
-            onClick={() => { setType(""); goToPage(1); }}
+            onClick={() => selectType("")}
             className={`chip ${type === "" ? "chip-active" : ""}`}
             data-testid="partner-filter-all"
           >
@@ -105,7 +119,7 @@ export default function Partners() {
             <button
               type="button"
               key={tp}
-              onClick={() => { setType(tp); goToPage(1); }}
+              onClick={() => selectType(tp)}
               className={`chip ${type === tp ? "chip-active" : ""}`}
               data-testid={`partner-filter-${tp}`}
             >

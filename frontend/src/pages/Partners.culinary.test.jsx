@@ -42,4 +42,15 @@ describe("Culinary Partner directory filter", () => {
     });
     expect(api.get).toHaveBeenCalledWith("/partners", { params: expect.objectContaining({ type: "culinary" }) });
   });
+
+  test("honors a partner type linked from the homepage", async () => {
+    await act(async () => {
+      root.render(<MemoryRouter initialEntries={["/partners?type=guide"]}><LanguageProvider><Partners /></LanguageProvider></MemoryRouter>);
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    expect(document.querySelector('[data-testid="partner-filter-guide"]').className).toContain("chip-active");
+    expect(api.get).toHaveBeenCalledWith("/partners", { params: expect.objectContaining({ type: "guide" }) });
+  });
 });
