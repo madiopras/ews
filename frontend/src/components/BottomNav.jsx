@@ -16,7 +16,7 @@ export default function BottomNav() {
 
   return (
     <nav className="fixed z-50 md:hidden" style={{ bottom: "max(0.625rem, env(safe-area-inset-bottom))", left: "max(0.625rem, env(safe-area-inset-left))", right: "max(0.625rem, env(safe-area-inset-right))" }} data-testid="bottom-nav" aria-label={t.nav.mobileNavigation || t.nav.home}>
-      <div className="rounded-2xl bg-white/50 backdrop-blur-xl border border-white/30 shadow-2xl overflow-hidden">
+      <div className="overflow-hidden rounded-2xl border border-line/70 bg-white/90 shadow-[0_12px_34px_rgba(15,61,62,0.20)] backdrop-blur-xl">
         <div className="grid grid-cols-5 px-1 py-1.5 min-[360px]:px-2 min-[360px]:py-2">
           {ITEMS.map(({ to, icon: Icon, key, testId, label }) => (
             <NavLink
