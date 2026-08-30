@@ -18,7 +18,8 @@ describe("translation completeness", () => {
     const requiredSettings = [
       "generalTitle", "integrationsTitle", "llmTitle", "templateTitle", "backupTitle",
       "apiKeyHint", "keepKey", "replaceKey", "removeKey", "useEnvironment",
-      "discardTemplate", "backupDeleted",
+      "discardTemplate", "backupDeleted", "plannerResultRollout",
+      "plannerResultCards", "plannerStructuredResults", "plannerStructuredRollout",
     ];
     const requiredLogs = [
       "auditTitle", "aiTitle", "systemTitle", "search", "dateFrom", "dateTo",
@@ -27,6 +28,34 @@ describe("translation completeness", () => {
     for (const language of ["id", "en"]) {
       for (const key of requiredSettings) expect(TRANSLATIONS[language].admin.settings[key]).toBeTruthy();
       for (const key of requiredLogs) expect(TRANSLATIONS[language].admin.logs[key]).toBeTruthy();
+    }
+  });
+
+  test("Planner result cards have complete labels", () => {
+    const requiredPlannerKeys = [
+      "destinationsInTrip", "destinationsInTripSub", "destinationCardsLoadError",
+      "partnerTypes", "matchReasons", "recommendedPartners", "organicMatch",
+      "featuredDisclosure", "matches",
+    ];
+    for (const language of ["id", "en"]) {
+      for (const key of requiredPlannerKeys) expect(TRANSLATIONS[language].planner[key]).toBeTruthy();
+      expect(TRANSLATIONS[language].partners.types.culinary).toBeTruthy();
+    }
+  });
+
+  test("Culinary partner onboarding and admin labels are bilingual", () => {
+    const culinaryFieldKeys = [
+      "culinaryCategories", "culinarySpecialties", "culinaryServiceModes",
+      "culinaryDietaryTags", "culinaryOpeningInfo", "culinaryReservationNote",
+    ];
+    for (const language of ["id", "en"]) {
+      expect(TRANSLATIONS[language].partners.types.culinary).toBeTruthy();
+      expect(TRANSLATIONS[language].mitra.typeDescriptions.culinary).toBeTruthy();
+      expect(TRANSLATIONS[language].mitra.fieldNames.culinary_specialties).toBeTruthy();
+      for (const key of culinaryFieldKeys) {
+        expect(TRANSLATIONS[language].mitra.fields[key]).toBeTruthy();
+        expect(TRANSLATIONS[language].admin.partnerForm[key]).toBeTruthy();
+      }
     }
   });
 });

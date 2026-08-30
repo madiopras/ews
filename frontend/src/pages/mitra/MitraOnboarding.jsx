@@ -7,7 +7,7 @@ import { useLang } from "../../contexts/LanguageContext.jsx";
 import { MitraStatusBadge } from "./MitraDashboard.jsx";
 import Seo from "../../components/Seo.jsx";
 
-const TYPES = ["guide", "rental", "homestay", "souvenir"];
+const TYPES = ["guide", "rental", "homestay", "culinary", "souvenir"];
 const DOCUMENT_TYPES = ["ktp", "siup", "npwp", "other"];
 const EMPTY_FORM = {
   business_name: "", type: "guide", whatsapp: "", description: "", city: "", email: "", address: "",
@@ -16,6 +16,8 @@ const EMPTY_FORM = {
   rental_vehicle_types: [], rental_driver_available: false, rental_fleet_size: 0,
   homestay_room_count: 0, homestay_facilities: [], homestay_checkin_info: "",
   souvenir_products: [], souvenir_delivery_available: false, souvenir_shop_hours: "",
+  culinary_categories: [], culinary_specialties: [], culinary_service_modes: [], culinary_dietary_tags: [],
+  culinary_opening_info: "", culinary_reservation_note: "",
 };
 
 function toForm(data) {
@@ -235,6 +237,7 @@ function TypeFields({ form, update, t, editable }) {
   if (form.type === "guide") return <><Field label={t.mitra.fields.languages}><CsvInput disabled={!editable} value={form.guide_languages} onChange={(value) => update("guide_languages", value)} /></Field><Field label={t.mitra.fields.experienceYears}><input disabled={!editable} type="number" min="0" className="input-flat" value={form.guide_experience_years} onChange={(event) => update("guide_experience_years", Number(event.target.value))} /></Field><Field label={t.mitra.fields.license} wide><input disabled={!editable} className="input-flat" value={form.guide_license_number} onChange={(event) => update("guide_license_number", event.target.value)} /></Field></>;
   if (form.type === "rental") return <><Field label={t.mitra.fields.vehicleTypes}><CsvInput disabled={!editable} value={form.rental_vehicle_types} onChange={(value) => update("rental_vehicle_types", value)} /></Field><Field label={t.mitra.fields.fleetSize}><input disabled={!editable} type="number" min="0" className="input-flat" value={form.rental_fleet_size} onChange={(event) => update("rental_fleet_size", Number(event.target.value))} /></Field><label className="sm:col-span-2 flex items-center gap-3 min-h-[44px]"><input disabled={!editable} type="checkbox" checked={form.rental_driver_available} onChange={(event) => update("rental_driver_available", event.target.checked)} /> <span className="text-[13px]">{t.mitra.fields.driverAvailable}</span></label></>;
   if (form.type === "homestay") return <><Field label={t.mitra.fields.roomCount}><input disabled={!editable} type="number" min="0" className="input-flat" value={form.homestay_room_count} onChange={(event) => update("homestay_room_count", Number(event.target.value))} /></Field><Field label={t.mitra.fields.facilities}><CsvInput disabled={!editable} value={form.homestay_facilities} onChange={(value) => update("homestay_facilities", value)} /></Field><Field label={t.mitra.fields.checkinInfo} wide><input disabled={!editable} className="input-flat" value={form.homestay_checkin_info} onChange={(event) => update("homestay_checkin_info", event.target.value)} /></Field></>;
+  if (form.type === "culinary") return <><Field label={t.mitra.fields.culinaryCategories}><CsvInput disabled={!editable} value={form.culinary_categories} onChange={(value) => update("culinary_categories", value)} /></Field><Field label={t.mitra.fields.culinarySpecialties}><CsvInput disabled={!editable} value={form.culinary_specialties} onChange={(value) => update("culinary_specialties", value)} /></Field><Field label={t.mitra.fields.culinaryServiceModes}><CsvInput disabled={!editable} value={form.culinary_service_modes} onChange={(value) => update("culinary_service_modes", value)} /></Field><Field label={t.mitra.fields.culinaryDietaryTags}><CsvInput disabled={!editable} value={form.culinary_dietary_tags} onChange={(value) => update("culinary_dietary_tags", value)} /></Field><Field label={t.mitra.fields.culinaryOpeningInfo} wide><input disabled={!editable} className="input-flat" value={form.culinary_opening_info} onChange={(event) => update("culinary_opening_info", event.target.value)} /></Field><Field label={t.mitra.fields.culinaryReservationNote} wide><input disabled={!editable} className="input-flat" value={form.culinary_reservation_note} onChange={(event) => update("culinary_reservation_note", event.target.value)} /></Field></>;
   return <><Field label={t.mitra.fields.products}><CsvInput disabled={!editable} value={form.souvenir_products} onChange={(value) => update("souvenir_products", value)} /></Field><Field label={t.mitra.fields.shopHours}><input disabled={!editable} className="input-flat" value={form.souvenir_shop_hours} onChange={(event) => update("souvenir_shop_hours", event.target.value)} /></Field><label className="sm:col-span-2 flex items-center gap-3 min-h-[44px]"><input disabled={!editable} type="checkbox" checked={form.souvenir_delivery_available} onChange={(event) => update("souvenir_delivery_available", event.target.checked)} /> <span className="text-[13px]">{t.mitra.fields.deliveryAvailable}</span></label></>;
 }
 

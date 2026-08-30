@@ -30,7 +30,7 @@ export default function DestinationPartners({ destinationId }) {
       .finally(() => setLoading(false));
   }, [destinationId, retryKey]);
 
-  const groups = ["guide", "rental", "homestay", "souvenir"]
+  const groups = ["guide", "rental", "homestay", "culinary", "souvenir"]
     .map((type) => ({ type, items: partners.filter((partner) => partner.type === type) }))
     .filter((group) => group.items.length > 0);
 
@@ -56,7 +56,7 @@ export default function DestinationPartners({ destinationId }) {
         </div>
       ) : (
         <div className="space-y-8">
-          {groups.map((group) => <section key={group.type} aria-labelledby={`partner-group-${group.type}`}><h3 id={`partner-group-${group.type}`} className="mb-3 font-display text-xl text-ink">{t.partners.types[group.type]}</h3><div className="grid grid-cols-1 md:grid-cols-2 gap-4">{group.items.map((partner) => <PartnerCard key={partner.id} partner={partner} />)}</div></section>)}
+          {groups.map((group) => <section key={group.type} aria-labelledby={`partner-group-${group.type}`}><h3 id={`partner-group-${group.type}`} className="mb-3 font-display text-xl text-ink">{t.partners.types[group.type]}</h3><div className="grid grid-cols-1 md:grid-cols-2 gap-4">{group.items.map((partner) => <PartnerCard key={partner.id} partner={partner} source="destination" destinationId={destinationId} />)}</div></section>)}
         </div>
       )}
     </section>

@@ -8,7 +8,9 @@ import pytest
 import requests
 from PIL import Image
 
-BASE_URL = os.environ.get("REACT_APP_BACKEND_URL").rstrip("/")
+from runtime_config import backend_url
+
+BASE_URL = backend_url()
 API = f"{BASE_URL}/api"
 ADMIN_EMAIL = os.environ.get("ADMIN_EMAIL", "admin@wisatasumut.id")
 ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "admin123")

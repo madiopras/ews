@@ -10,12 +10,9 @@ import time
 import pytest
 import requests
 
-BASE_URL = os.environ.get("REACT_APP_BACKEND_URL", "").rstrip("/")
-if not BASE_URL:
-    with open("/app/frontend/.env") as f:
-        for line in f:
-            if line.startswith("REACT_APP_BACKEND_URL="):
-                BASE_URL = line.split("=", 1)[1].strip().rstrip("/")
+from runtime_config import backend_url
+
+BASE_URL = backend_url()
 
 ADMIN_EMAIL = "admin@wisatasumut.id"
 ADMIN_PASSWORD = "admin123"

@@ -38,9 +38,11 @@ export default function PartnerForm({ partner, destinations = [], destinationsLo
   const {
     control,
     register,
+    watch,
     handleSubmit,
     formState: { errors, isDirty },
   } = useForm({ resolver: zodResolver(partnerSchema), defaultValues: partnerToForm(partner) });
+  const partnerType = watch("type");
   const visibleDestinations = useMemo(() => {
     const query = destinationSearch.trim().toLowerCase();
     if (!query) return destinations;
@@ -95,6 +97,29 @@ export default function PartnerForm({ partner, destinations = [], destinationsLo
           </Field>
         </div>
       </Section>
+
+      {partnerType === "culinary" && <Section title={fields.culinarySection} hint={fields.culinaryHint}>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {[
+            ["culinary_categories", fields.culinaryCategories],
+            ["culinary_specialties", fields.culinarySpecialties],
+            ["culinary_service_modes", fields.culinaryServiceModes],
+            ["culinary_dietary_tags", fields.culinaryDietaryTags],
+          ].map(([name, label]) => <Field key={name} label={label} error={errors[name]}>
+            <Controller
+              name={name}
+              control={control}
+              render={({ field }) => <input value={field.value.join(", ")} onChange={(event) => field.onChange(event.target.value.split(",").map((value) => value.trim()).filter(Boolean))} className="input-flat" />}
+            />
+          </Field>)}
+          <Field label={fields.culinaryOpeningInfo} error={errors.culinary_opening_info}>
+            <input {...register("culinary_opening_info")} className="input-flat" />
+          </Field>
+          <Field label={fields.culinaryReservationNote} error={errors.culinary_reservation_note}>
+            <input {...register("culinary_reservation_note")} className="input-flat" />
+          </Field>
+        </div>
+      </Section>}
 
       <Section title={copy.coverageSection} hint={copy.coverageHint}>
         <div className="relative max-w-md mb-3">

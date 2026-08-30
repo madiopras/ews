@@ -2,12 +2,13 @@ import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { api } from "../lib/api.js";
 import { useLang } from "../contexts/LanguageContext.jsx";
-import { renderMarkdown } from "../lib/markdown.jsx";
-import { Sparkles, Calendar, User } from "lucide-react";
+import { Sparkles, Calendar, Printer, User } from "lucide-react";
 import UlosPattern from "../components/UlosPattern.jsx";
 import DestinationCard from "../components/DestinationCard.jsx";
+import ItineraryResult from "../components/Planner/ItineraryResult.jsx";
 import Seo from "../components/Seo.jsx";
 import { travelStyleLabel } from "../lib/travelStyle.js";
+import { hydratedDestinationsFromTrip, isPlannerResultV2 } from "../lib/plannerResultContract.js";
 
 export default function PublicTrip() {
   const { slug } = useParams();
@@ -27,6 +28,11 @@ export default function PublicTrip() {
   }, [slug]);
 
   useEffect(() => {
+    const hydratedDestinations = hydratedDestinationsFromTrip(trip);
+    if (hydratedDestinations) {
+      setDestinations(hydratedDestinations);
+      return;
+    }
     if (!trip?.destination_ids?.length) {
       setDestinations([]);
       return;
@@ -34,7 +40,7 @@ export default function PublicTrip() {
     api.post("/destinations/batch", { ids: trip.destination_ids })
       .then(({ data }) => setDestinations(data))
       .catch(() => setDestinations([]));
-  }, [trip?.destination_ids]);
+  }, [trip]);
 
   if (loading)
     return <div className="app-gutter mx-auto mt-10 max-w-3xl text-[13px] text-inkSoft">{t.common.loading}</div>;
@@ -49,19 +55,26 @@ export default function PublicTrip() {
       </div>
     );
 
+  const hasStructuredResult = isPlannerResultV2(trip.structured_result);
+  const structuredDestinations = hasStructuredResult ? trip.structured_result.destinations : [];
+  const seoDestinations = destinations.length ? destinations : structuredDestinations;
+  const seoDescription = hasStructuredResult
+    ? trip.structured_result.summary.slice(0, 180)
+    : `${trip.days} ${t.savedTrips.daysLabel} · ${t.savedTrips.publicSeoDescription}`;
+
   return (
-    <div data-testid="public-trip-page">
+    <div className="print-area" data-testid="public-trip-page">
       <Seo
         title={trip.title}
-        description={`${trip.days} ${t.savedTrips.daysLabel} · ${t.savedTrips.publicSeoDescription}`}
+        description={seoDescription}
         path={`/trip/${slug}`}
-        image={destinations[0]?.images?.[0] || ""}
+        image={seoDestinations[0]?.images?.[0] || ""}
         structuredData={{
           "@context": "https://schema.org",
           "@type": "Trip",
           name: trip.title,
-          description: `${trip.days} ${t.savedTrips.daysLabel} · ${t.savedTrips.publicSeoDescription}`,
-          itinerary: destinations.map((destination) => ({ "@type": "TouristDestination", name: destination.name })),
+          description: seoDescription,
+          itinerary: seoDestinations.map((destination) => ({ "@type": "TouristDestination", name: destination.name })),
         }}
       />
       <header className="relative bg-toba overflow-hidden">
@@ -96,18 +109,21 @@ export default function PublicTrip() {
       </header>
 
       <div className="app-gutter mx-auto mt-5 max-w-3xl sm:mt-6 md:pb-16">
-        <article className="card-flat p-4 sm:p-7" data-testid="public-trip-content">
-          {renderMarkdown(trip.content)}
-        </article>
-        {!!destinations.length && (
+        <ItineraryResult trip={trip} t={t} lang={lang} testId="public-trip-content" />
+        {!hasStructuredResult && !!destinations.length && (
           <section className="mt-8">
             <h2 className="font-display text-[24px] mb-4">{t.savedTrips.destinationsInTrip}</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">{destinations.map((destination) => <DestinationCard key={destination.id} dest={destination} />)}</div>
           </section>
         )}
-        <Link to="/planner" className="btn-primary w-full mt-5" data-testid="public-trip-cta">
-          <Sparkles className="w-4 h-4" /> {t.savedTrips.makeYourOwn}
-        </Link>
+        <div className="print-hidden mt-5 flex flex-col gap-2 sm:flex-row">
+          <button type="button" onClick={() => window.print()} className="btn-outline w-full sm:w-auto">
+            <Printer className="h-4 w-4" /> {t.savedTrips.printPdf}
+          </button>
+          <Link to="/planner" className="btn-primary w-full sm:flex-1" data-testid="public-trip-cta">
+            <Sparkles className="w-4 h-4" /> {t.savedTrips.makeYourOwn}
+          </Link>
+        </div>
       </div>
     </div>
   );

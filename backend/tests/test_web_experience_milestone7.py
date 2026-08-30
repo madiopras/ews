@@ -19,6 +19,11 @@ SETTING_KEYS = {
     "planner_guest_generation_limit", "planner_guest_identity_ttl_days",
     "planner_guest_ip_daily_limit", "planner_authenticated_daily_limit",
     "planner_generation_cooldown_seconds", "mitra_onboarding_enabled",
+    "planner_result_cards_enabled", "planner_structured_results_enabled",
+    "planner_result_cards_rollout_percentage",
+    "planner_structured_rollout_percentage", "planner_culinary_enabled",
+    "planner_culinary_rollout_percentage", "planner_partner_matches_enabled",
+    "planner_partner_matches_rollout_percentage",
     "mitra_onboarding_rollout_percentage", "mitra_dashboard_enabled",
     "mitra_dashboard_rollout_percentage", "backup_retention_days",
 }
@@ -57,12 +62,17 @@ def test_staged_rollout_is_stable_server_enforced_and_preserves_existing_mitra()
         assert admin.put(f"{API}/admin/settings", json=disabled).status_code == 200
         guest_flags = requests.get(f"{API}/experience/features")
         assert guest_flags.status_code == 200
-        assert set(guest_flags.json()) == {"mitra_onboarding", "mitra_dashboard"}
+        assert set(guest_flags.json()) == {
+            "mitra_onboarding", "mitra_dashboard", "planner_result_cards",
+            "planner_structured_results", "planner_culinary", "planner_partner_matches",
+        }
         assert guest_flags.json()["mitra_onboarding"] == {
             "enabled": False, "rollout_percentage": 0, "reason": "disabled",
         }
-        # Admin preview/access remains available without granting it to the user session.
-        assert admin.get(f"{API}/experience/features").json()["mitra_onboarding"]["reason"] == "admin_override"
+        # Global off is an emergency rollback for every role, including Admin.
+        assert admin.get(f"{API}/experience/features").json()["mitra_onboarding"] == {
+            "enabled": False, "rollout_percentage": 0, "reason": "disabled",
+        }
         blocked = user.post(f"{API}/mitra/onboarding", json={"type": "guide"})
         assert blocked.status_code == 403
         assert blocked.json()["detail"]["code"] == "feature_not_available"

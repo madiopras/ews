@@ -38,6 +38,10 @@ export default function GeneralSettingsPage() {
       planner_guest_ip_daily_limit: Number(form.planner_guest_ip_daily_limit),
       planner_authenticated_daily_limit: Number(form.planner_authenticated_daily_limit),
       planner_generation_cooldown_seconds: Number(form.planner_generation_cooldown_seconds),
+      planner_result_cards_rollout_percentage: Number(form.planner_result_cards_rollout_percentage),
+      planner_structured_rollout_percentage: Number(form.planner_structured_rollout_percentage),
+      planner_culinary_rollout_percentage: Number(form.planner_culinary_rollout_percentage),
+      planner_partner_matches_rollout_percentage: Number(form.planner_partner_matches_rollout_percentage),
       mitra_onboarding_rollout_percentage: Number(form.mitra_onboarding_rollout_percentage),
       mitra_dashboard_rollout_percentage: Number(form.mitra_dashboard_rollout_percentage),
     }); }}>
@@ -65,6 +69,28 @@ export default function GeneralSettingsPage() {
           <label className="text-xs font-semibold text-inkSoft">{copy.guestIpDailyLimit}<input className="input-flat mt-1.5" type="number" min="1" max="1000" value={form.planner_guest_ip_daily_limit} onChange={(e) => set("planner_guest_ip_daily_limit", e.target.value)} /></label>
           <label className="text-xs font-semibold text-inkSoft">{copy.userDailyLimit}<input className="input-flat mt-1.5" type="number" min="0" max="1000" value={form.planner_authenticated_daily_limit} onChange={(e) => set("planner_authenticated_daily_limit", e.target.value)} /></label>
           <label className="text-xs font-semibold text-inkSoft">{copy.generationCooldown}<input className="input-flat mt-1.5" type="number" min="0" max="3600" value={form.planner_generation_cooldown_seconds} onChange={(e) => set("planner_generation_cooldown_seconds", e.target.value)} /></label>
+        </div>
+      </section>
+      <section className="border-t border-line pt-5" aria-labelledby="planner-result-rollout-controls">
+        <h2 id="planner-result-rollout-controls" className="font-display text-xl text-ink">{copy.plannerResultRollout}</h2>
+        <p className="mt-1 text-xs text-inkSoft">{copy.plannerResultRolloutSub}</p>
+        <div className="mt-4 grid gap-4 sm:grid-cols-2">
+          {[
+            ["planner_result_cards_enabled", "planner_result_cards_rollout_percentage", copy.plannerResultCards],
+            ["planner_partner_matches_enabled", "planner_partner_matches_rollout_percentage", copy.plannerPartnerMatches],
+            ["planner_culinary_enabled", "planner_culinary_rollout_percentage", copy.plannerCulinary],
+            ["planner_structured_results_enabled", "planner_structured_rollout_percentage", copy.plannerStructuredResults],
+          ].map(([enabledKey, percentageKey, label]) => <fieldset key={enabledKey} className="rounded-xl border border-line p-4">
+            <legend className="px-1 text-sm font-semibold">{label}</legend>
+            <label className="flex items-center gap-3 text-sm">
+              <input type="checkbox" className="h-4 w-4 accent-toba" checked={Boolean(form[enabledKey])} onChange={(event) => set(enabledKey, event.target.checked)} />
+              {copy.rolloutEnabled}
+            </label>
+            <label className="mt-4 block text-xs font-semibold text-inkSoft">
+              {copy.rolloutPercentage}: {form[percentageKey] ?? 0}%
+              <input className="mt-2 w-full accent-toba" type="range" min="0" max="100" step="5" value={form[percentageKey] ?? 0} disabled={!form[enabledKey]} onChange={(event) => set(percentageKey, event.target.value)} />
+            </label>
+          </fieldset>)}
         </div>
       </section>
       <section className="border-t border-line pt-5" aria-labelledby="mitra-rollout-controls">

@@ -4,14 +4,15 @@ import { ArrowLeft, CalendarDays, Copy, Download, Edit3, Map, Printer, RefreshCw
 import { toast } from "sonner";
 import { api, formatError } from "../lib/api.js";
 import { privateCacheGet, privateCacheSet } from "../lib/offline.js";
-import { renderMarkdown } from "../lib/markdown.jsx";
 import { useAuth } from "../contexts/AuthContext.jsx";
 import { useLang } from "../contexts/LanguageContext.jsx";
 import DestinationCard from "../components/DestinationCard.jsx";
 import OfflineBanner from "../components/OfflineBanner.jsx";
 import Seo from "../components/Seo.jsx";
 import TripShareControls from "../components/TripShareControls.jsx";
+import ItineraryResult from "../components/Planner/ItineraryResult.jsx";
 import { travelStyleLabel, travelStyleOptions } from "../lib/travelStyle.js";
+import { hydratedDestinationsFromTrip, isPlannerResultV2, plannerResultForStorage } from "../lib/plannerResultContract.js";
 
 const TripMap = React.lazy(() => import("../components/TripMap.jsx"));
 
@@ -73,6 +74,11 @@ export default function TripDetail() {
   useEffect(() => { load(); }, [load]);
 
   useEffect(() => {
+    const hydratedDestinations = hydratedDestinationsFromTrip(trip);
+    if (hydratedDestinations) {
+      setDestinations(hydratedDestinations);
+      return;
+    }
     if (!trip?.destination_ids?.length) {
       setDestinations([]);
       return;
@@ -80,7 +86,7 @@ export default function TripDetail() {
     api.post("/destinations/batch", { ids: trip.destination_ids })
       .then(({ data }) => setDestinations(data))
       .catch(() => setDestinations([]));
-  }, [trip?.destination_ids]);
+  }, [trip]);
 
   const mapDestinations = useMemo(() => destinations.filter((destination) => Number.isFinite(Number(destination.latitude)) && Number.isFinite(Number(destination.longitude))), [destinations]);
   const mapCenter = mapDestinations.length
@@ -140,13 +146,20 @@ export default function TripDetail() {
   };
 
   const exportTrip = () => {
+    const storedResult = plannerResultForStorage(trip.structured_result);
+    const exportDestinations = destinations.length
+      ? destinations
+      : (trip.structured_result?.destinations || []);
     const payload = {
+      schema_version: storedResult ? 2 : 1,
       title: trip.title,
       days: trip.days,
       budget_style: trip.budget_style || null,
       interests: trip.interests,
-      destinations: destinations.map(({ id: destinationId, name, location }) => ({ id: destinationId, name, location })),
+      destinations: exportDestinations.map(({ id: destinationId, name, location }) => ({ id: destinationId, name, location })),
       itinerary: trip.content,
+      result_version: storedResult ? 2 : null,
+      structured_result: storedResult,
       updated_at: trip.updated_at,
     };
     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json;charset=utf-8" });
@@ -169,6 +182,7 @@ export default function TripDetail() {
       </div>
     </div>
   );
+  const hasStructuredResult = isPlannerResultV2(trip.structured_result);
 
   return (
     <div className="app-gutter mx-auto max-w-6xl py-6 sm:py-10 print-area" data-testid="private-trip-detail">
@@ -218,16 +232,16 @@ export default function TripDetail() {
 
       <div className="print-hidden mb-5"><TripShareControls trip={trip} onChange={(data) => { setTrip(data); privateCacheSet(user.id, cacheKey, data); }} /></div>
 
-      <article className="card-flat p-4 sm:p-7" data-testid="trip-content">{renderMarkdown(trip.content)}</article>
+      <ItineraryResult trip={trip} t={t} lang={lang} testId="trip-content" />
 
-      <section className="mt-8 avoid-print-break">
+      {!hasStructuredResult && <section className="mt-8 avoid-print-break">
         <div className="flex items-center gap-2 mb-4"><Map className="w-5 h-5 text-toba" /><h2 className="font-display text-[24px]">{t.savedTrips.destinationsInTrip}</h2></div>
         {destinations.length ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 print-destination-grid">{destinations.map((destination) => <DestinationCard key={destination.id} dest={destination} />)}</div>
         ) : (
           <p className="card-flat p-4 text-[13px] text-inkSoft">{t.savedTrips.legacyNoDestinations}</p>
         )}
-      </section>
+      </section>}
 
       {!!mapDestinations.length && (
         <section className="mt-8 print-hidden">

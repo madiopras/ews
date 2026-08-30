@@ -75,12 +75,12 @@ def register_user(label):
     return session, email, response.json()["id"]
 
 
-def planner_payload(destination_id, extra_context="ingin membeli oleh-oleh lokal"):
+def planner_payload(destination_id, extra_context="ingin membeli oleh-oleh lokal", lang="id"):
     return {
         "days": 1,
         "budget": 500000,
         "interests": ["nature"],
-        "lang": "id",
+        "lang": lang,
         "extra_context": extra_context,
         "preferred_destination_ids": [destination_id],
     }
@@ -99,6 +99,7 @@ def test_milestone0_guest_quota_partner_ownership_and_recommendations(database, 
     destination_id = str(destination["_id"])
     suffix = uuid.uuid4().hex[:8]
     partner_id = profile_id = None
+    hidden_partner_ids = []
     fake_order_id = f"QA-M0-{suffix}"
     usage_before = set(database.planner_usage.distinct("_id"))
     logs_before = set(database.ai_planner_logs.distinct("_id"))
@@ -148,6 +149,20 @@ def test_milestone0_guest_quota_partner_ownership_and_recommendations(database, 
         public = requests.get(f"{API}/partners", params={"type": "souvenir"}).json()
         assert any(row["id"] == partner_id for row in public)
 
+        # Records that are inactive or no longer accept contacts may remain in
+        # the database, but must never be returned by planner matching.
+        for label, overrides in (
+            ("inactive", {"is_active": False}),
+            ("contacts-off", {"accepting_contacts": False}),
+        ):
+            hidden = {key: value for key, value in stored.items() if key != "_id"}
+            hidden.update({
+                "business_name": f"QA Hidden {label} {suffix}",
+                "status": "approved",
+                **overrides,
+            })
+            hidden_partner_ids.append(database.partners.insert_one(hidden).inserted_id)
+
         # Payment creation/status can only be accessed by the owner or an admin.
         assert requests.post(f"{API}/payments/snap-token", json={
             "partner_id": partner_id, "plan_code": "1m",
@@ -174,6 +189,7 @@ def test_milestone0_guest_quota_partner_ownership_and_recommendations(database, 
         first = guest.post(f"{API}/trip-planner/stream", json=planner_payload(destination_id))
         assert first.status_code == 200, first.text
         assert partner_id in first.text
+        assert all(str(hidden_id) not in first.text for hidden_id in hidden_partner_ids)
         assert '"placement": "organic"' in first.text
         assert "produk lokal" in first.text
         after = guest.get(f"{API}/planner/quota").json()
@@ -187,6 +203,11 @@ def test_milestone0_guest_quota_partner_ownership_and_recommendations(database, 
         # An authenticated account has a separate server-side daily quota.
         authenticated = owner.post(f"{API}/trip-planner/stream", json=planner_payload(destination_id))
         assert authenticated.status_code == 200 and "Danau Toba" in authenticated.text
+        authenticated_en = owner.post(
+            f"{API}/trip-planner/stream",
+            json=planner_payload(destination_id, "family trip with local products", "en"),
+        )
+        assert authenticated_en.status_code == 200 and "Danau Toba" in authenticated_en.text
 
         # Empty provider output is refunded, so the same Guest may retry once.
         retry_guest = requests.Session()
@@ -195,7 +216,9 @@ def test_milestone0_guest_quota_partner_ownership_and_recommendations(database, 
             f"{API}/trip-planner/stream",
             json=planner_payload(destination_id, "force-empty"),
         )
-        assert failed.status_code == 200 and "empty response" in failed.text
+        assert failed.status_code == 200
+        assert '"code": "planner_provider_unavailable"' in failed.text
+        assert "empty response" not in failed.text
         assert retry_guest.get(f"{API}/planner/quota").json()["remaining"] == 1
         retried = retry_guest.post(f"{API}/trip-planner/stream", json=planner_payload(destination_id))
         assert retried.status_code == 200 and partner_id in retried.text
@@ -226,6 +249,8 @@ def test_milestone0_guest_quota_partner_ownership_and_recommendations(database, 
             admin.delete(f"{API}/admin/llm-profiles/{profile_id}")
         if partner_id:
             admin.delete(f"{API}/partners/{partner_id}")
+        if hidden_partner_ids:
+            database.partners.delete_many({"_id": {"$in": hidden_partner_ids}})
         database.payment_orders.delete_many({"order_id": fake_order_id})
         database.users.delete_many({"email": {"$in": [owner_email, other_email]}})
         database.email_outbox.delete_many({"recipient": {"$in": [owner_email, other_email]}})

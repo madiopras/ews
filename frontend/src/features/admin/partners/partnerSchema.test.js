@@ -23,4 +23,28 @@ describe("partner schema", () => {
   test("maps nullable API fields to controlled form values", () => {
     expect(partnerToForm({ business_name: "Test", email: null, destination_ids: null })).toMatchObject({ email: "", destination_ids: [], type: "guide" });
   });
+
+  test("accepts and normalizes the independent culinary partner type", () => {
+    const parsed = partnerSchema.parse({
+      ...valid,
+      type: "culinary",
+      culinary_categories: [" Rumah makan "],
+      culinary_specialties: [" Arsik ", "Kopi Lintong"],
+      culinary_service_modes: ["Dine-in", "Takeaway"],
+      culinary_dietary_tags: ["Tanya bahan langsung"],
+      culinary_opening_info: " Buka setiap hari ",
+      culinary_reservation_note: " Hubungi untuk rombongan ",
+    });
+    expect(partnerToPayload(parsed)).toMatchObject({
+      type: "culinary",
+      culinary_categories: ["Rumah makan"],
+      culinary_specialties: ["Arsik", "Kopi Lintong"],
+      culinary_opening_info: "Buka setiap hari",
+    });
+  });
+
+  test("keeps culinary and souvenir as separate partner types", () => {
+    expect(partnerSchema.parse({ ...valid, type: "culinary" }).type).toBe("culinary");
+    expect(partnerSchema.parse({ ...valid, type: "souvenir" }).type).toBe("souvenir");
+  });
 });

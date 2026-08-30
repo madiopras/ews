@@ -5,7 +5,8 @@ import { useLang } from "../contexts/LanguageContext.jsx";
 import { toast } from "sonner";
 import { Handshake, CheckCircle2 } from "lucide-react";
 
-const TYPES = ["guide", "rental", "homestay", "souvenir"];
+const TYPES = ["guide", "rental", "homestay", "culinary", "souvenir"];
+const csv = (value) => String(value || "").split(",").map((item) => item.trim()).filter(Boolean);
 
 export default function PartnerRegister() {
   const { t } = useLang();
@@ -22,6 +23,12 @@ export default function PartnerRegister() {
     destination_ids: [],
     service_tags: "",
     image: "",
+    culinary_categories: "",
+    culinary_specialties: "",
+    culinary_service_modes: "",
+    culinary_dietary_tags: "",
+    culinary_opening_info: "",
+    culinary_reservation_note: "",
   });
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
@@ -53,6 +60,10 @@ export default function PartnerRegister() {
       await api.post("/partners", {
         ...form,
         service_tags: form.service_tags.split(",").map((tag) => tag.trim().toLowerCase()).filter(Boolean).slice(0, 20),
+        culinary_categories: form.type === "culinary" ? csv(form.culinary_categories) : [],
+        culinary_specialties: form.type === "culinary" ? csv(form.culinary_specialties) : [],
+        culinary_service_modes: form.type === "culinary" ? csv(form.culinary_service_modes) : [],
+        culinary_dietary_tags: form.type === "culinary" ? csv(form.culinary_dietary_tags) : [],
         email: form.email.trim() || null,
         address: form.address.trim(),
       });
@@ -130,6 +141,17 @@ export default function PartnerRegister() {
             ))}
           </div>
         </div>
+
+        {form.type === "culinary" && <section className="rounded-xl border border-line bg-cream/40 p-4 space-y-4" data-testid="partner-culinary-fields">
+          {[
+            ["culinary_categories", t.mitra.fields.culinaryCategories],
+            ["culinary_specialties", t.mitra.fields.culinarySpecialties],
+            ["culinary_service_modes", t.mitra.fields.culinaryServiceModes],
+            ["culinary_dietary_tags", t.mitra.fields.culinaryDietaryTags],
+          ].map(([key, label]) => <label key={key} className="block"><span className="text-[13px] text-inkSoft">{label}</span><input required={key === "culinary_specialties"} value={form[key]} onChange={upd(key)} className="input-flat mt-2" /></label>)}
+          <label className="block"><span className="text-[13px] text-inkSoft">{t.mitra.fields.culinaryOpeningInfo}</span><input value={form.culinary_opening_info} onChange={upd("culinary_opening_info")} className="input-flat mt-2" /></label>
+          <label className="block"><span className="text-[13px] text-inkSoft">{t.mitra.fields.culinaryReservationNote}</span><input value={form.culinary_reservation_note} onChange={upd("culinary_reservation_note")} className="input-flat mt-2" /></label>
+        </section>}
 
         <label className="block">
           <span className="text-[13px] text-inkSoft">{t.partners.fields.whatsapp}</span>

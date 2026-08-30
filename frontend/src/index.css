@@ -132,6 +132,10 @@ svg {
     .avoid-print-break, .print-area article { break-inside: avoid; }
     .print-destination-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
     .print-destination-grid button, .print-destination-grid a { display: none !important; }
+    .structured-planner-day-panel[hidden], .structured-partner-panel[hidden] { display: block !important; }
+    .structured-partner-tabs { display: none !important; }
+    .structured-planner-result [class*="overflow-x-auto"] { overflow: visible !important; }
+    .structured-planner-result .snap-start { width: auto !important; max-width: none !important; }
 }
 
 /* ---------- Flat component primitives ---------- */
