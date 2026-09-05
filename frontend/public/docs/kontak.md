@@ -26,7 +26,7 @@ Untuk pengajuan endorsement atau kolaborasi konten, silakan gunakan WhatsApp aga
 
 Untuk bantuan akun, permintaan terkait data pribadi, laporan masalah teknis, atau keluhan platform:
 
-[support@explorewisatasumut.id](mailto:support@explorewisatasumut.id)
+[support@explorewisatasumut.com](mailto:support@explorewisatasumut.com)
 
 Mohon gunakan subjek yang jelas, misalnya `Bantuan akun`, `Koreksi informasi destinasi`, atau `Laporan masalah`, dan sertakan tangkapan layar jika diperlukan.
 
@@ -40,7 +40,7 @@ Menemukan informasi yang sudah berubah—seperti akses, fasilitas, jadwal, atau 
 
 ### Bergabung sebagai mitra lokal
 
-Pemandu wisata, rental kendaraan, homestay, serta usaha oleh-oleh dapat mendaftar langsung melalui [Daftar Mitra](/partners/register). Untuk pertanyaan mengenai program, verifikasi, atau promosi, baca terlebih dahulu [Program Kerja Sama](/docs?section=kerjasama) atau hubungi tim kami.
+Pemandu wisata, rental kendaraan, homestay, usaha kuliner, serta usaha oleh-oleh dapat mendaftar langsung melalui [Daftar Mitra](/partners/register). Untuk pertanyaan mengenai program dan verifikasi, baca [Program Mitra](/docs?section=kerjasama) dan [Cara Mendaftar](/docs?section=mitra-pendaftaran) terlebih dahulu, atau hubungi tim kami.
 
 ### Kerja sama dan endorsement
 

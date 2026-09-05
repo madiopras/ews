@@ -127,8 +127,11 @@ downloads/
 skills-lock.json
 memory/test_credentials.md
 docsplan/
+docs/
 secrets/
 agenthub/agents/youtube/db
+marketing/
+scripts/
 
 # SECURITY NOTES:
 # NEVER COMMIT: API keys, passwords, OAuth tokens, SSH keys,

@@ -1,89 +1,64 @@
-# Program Kerjasama
+Explore Wisata Sumut membuka Program Mitra untuk membantu usaha pariwisata lokal ditemukan oleh wisatawan yang kebutuhannya sesuai. Program ini bukan marketplace booking: platform mempertemukan wisatawan dan Mitra, sedangkan komunikasi serta kesepakatan dilakukan langsung oleh kedua pihak.
 
-Kami membuka peluang kerjasama untuk mengembangkan ekosistem pariwisata Sumatera Utara. Terdapat dua jalur kerjasama yang dapat Anda pilih:
-
----
-
-## 1. Endorsement di Instagram Resmi @explorewisatasumut
-
-Promosikan destinasi wisata Sumatera Utara melalui akun Instagram resmi Explore Wisata Sumut yang telah berjalan lebih dari satu dekade dan menjangkau ratusan ribu pengikut.
-
-### ✅ Siapa yang Cocok?
-- Destinasi wisata (danau, gunung, air terjun, budaya, kuliner)
-- Mitra lokal (homestay, rental mobil, pemandu wisata)
-- Event & festival pariwisata di Sumatera Utara
-- UMKM khas Sumatera Utara (kerajinan, makanan, oleh-oleh)
-
-### 📋 Tata Cara Pengajuan
-1. **Hubungi Tim Kami**
-   - Klik link WhatsApp di bawah ini:
-   - [💬 Hubungi via WhatsApp](https://api.whatsapp.com/send?phone=6282335049249)
-
-2. **Kirim Informasi Berikut**
-   - Nama destinasi / usaha / event
-   - Foto & video berkualitas tinggi (min. 3 foto, 1 video pendek)
-   - Deskripsi singkat (maks. 100 kata)
-   - Target promosi (event khusus, high season, dll)
-
-3. **Review & Konfirmasi**
-   - Tim kami akan membalas dalam 1x24 jam
-   - Diskusikan konsep konten & jadwal posting
-   - Tanda tangan agreement digital
-
-4. **Eksekusi & Publikasi**
-   - Tim kami membuat konten profesional (foto/video + caption)
-   - Posting di Instagram @explorewisatasumut
-   - Kirim laporan performa (reach, engagement, klik link)
-
-> 💡 *Catatan: Prioritas diberikan untuk destinasi & mitra yang sudah terdaftar di platform Explore Wisata Sumut.*
+> **Pendaftaran Mitra gratis.** Paket Unggulan tersedia sebagai pilihan, bukan kewajiban. Mitra reguler tetap dapat ditemukan dan dipertimbangkan AI Planner berdasarkan relevansi.
 
 ---
 
-## 2. Kerja Sama Mitra Lokal
+## Siapa yang dapat bergabung?
 
-Bergabunglah sebagai mitra resmi Explore Wisata Sumut untuk mendapatkan lebih banyak pelanggan dan meningkatkan visibilitas bisnis Anda.
+| Jenis Mitra | Contoh usaha atau layanan |
+|---|---|
+| **Pemandu wisata** | Pemandu alam, budaya, sejarah, trekking, atau perjalanan keluarga |
+| **Rental kendaraan** | Rental mobil, kendaraan dengan pengemudi, dan transportasi rombongan |
+| **Homestay** | Homestay, penginapan lokal, dan akomodasi berbasis masyarakat |
+| **Kuliner** | Rumah makan, kedai, katering, dan produsen makanan khas |
+| **Oleh-oleh** | Kerajinan, ulos, kopi, makanan kemasan, dan produk khas daerah |
 
-### ✅ Jenis Mitra yang Kami Terima
-| Jenis Mitra | Deskripsi | Keuntungan |
-|-------------|-----------|------------|
-| **Pemandu Wisata** | Pemandu lokal yang menguasai sejarah, alam, atau budaya Sumatera Utara | Profil pada destinasi yang dilayani dan peluang direkomendasikan AI Planner |
-| **Homestay & Penginapan** | Akomodasi lokal yang nyaman dan autentik | Listing pada destinasi terkait dan kontak langsung melalui WhatsApp |
-| **Rental Mobil & Transportasi** | Armada, pengemudi, atau transportasi lokal | Tampil pada destinasi dan kebutuhan perjalanan yang relevan |
-| **Usaha Oleh-oleh** | Makanan, kerajinan, dan produk khas daerah | Ditemukan wisatawan berdasarkan rute dan destinasi itinerary |
+Usaha harus benar-benar beroperasi, memberikan informasi yang dapat diperiksa, dan mempunyai hubungan yang relevan dengan perjalanan di Sumatera Utara.
 
-### 📋 Tata Cara Pendaftaran
-1. **Daftar Secara Online**
-   - Kunjungi halaman [Daftar Mitra](/partners/register)
-   - Isi formulir pendaftaran lengkap
+## Cara kerja Program Mitra
 
-2. **Verifikasi Admin**
-   - Tim kami akan memeriksa informasi usaha dan cakupan layanan
-   - Status pendaftaran dapat dilihat dari akun Anda
+1. Buat atau masuk ke akun Explore Wisata Sumut.
+2. Pilih jenis usaha dan lengkapi empat tahap pendaftaran.
+3. Unggah minimal satu dokumen pendukung untuk verifikasi.
+4. Kirim pendaftaran dan pantau status pemeriksaan di Dashboard Mitra.
+5. Setelah disetujui, lengkapi profil publik serta daftar jasa atau produk.
+6. Wisatawan dapat menemukan Mitra melalui direktori, halaman destinasi, atau rekomendasi AI Planner yang relevan.
+7. Wisatawan menghubungi Mitra langsung melalui WhatsApp yang tercantum.
 
-3. **Profil Ditayangkan**
-   - Profil mitra aktif setelah disetujui
-   - Layanan ditautkan ke destinasi yang memang dilayani
-   - Wisatawan dapat menghubungi mitra langsung melalui WhatsApp
+[Mulai pendaftaran Mitra](/partners/register)
 
-4. **Direkomendasikan Secara Relevan**
-   - AI Planner dapat menampilkan jasa atau produk mitra yang cocok dengan itinerary
-   - Penempatan utama ditentukan oleh relevansi destinasi dan kebutuhan wisatawan
-   - Mitra tetap mengatur harga, ketersediaan, kesepakatan, dan transaksi langsung dengan wisatawan
+## Yang diberikan platform
 
-> 🌟 *Mitra Unggulan bersifat opsional.* Mitra gratis tetap dapat ditemukan dan direkomendasikan ketika relevan. Status unggulan diberi label secara jelas dan tidak menjamin selalu tampil.
+- Profil publik untuk memperkenalkan usaha.
+- Kaitan usaha dengan destinasi dan wilayah yang memang dilayani.
+- Kesempatan tampil dalam rekomendasi AI Planner yang relevan.
+- Tombol kontak langsung ke WhatsApp Mitra.
+- Insight berupa tampilan di AI, kunjungan profil, dan klik WhatsApp.
+- Workspace mandiri untuk memperbarui profil, galeri, serta jasa dan produk.
 
----
+## Yang tidak dilakukan platform
 
-## FAQ Kerjasama
+- Tidak menerima booking perjalanan atas nama Mitra.
+- Tidak menetapkan atau menjamin harga layanan Mitra.
+- Tidak memproses pembayaran antara wisatawan dan Mitra.
+- Tidak menjadi pihak dalam pembatalan, pengembalian dana, atau perselisihan transaksi.
+- Tidak menjamin jumlah pelanggan atau posisi tertentu dalam rekomendasi AI.
 
-### Q: Apakah ada biaya pendaftaran?
-A: Tidak, pendaftaran mitra sepenuhnya gratis. Paket premium bersifat opsional.
+Harga tidak wajib dicantumkan karena dapat dipengaruhi tanggal, rute, jumlah peserta, durasi, fasilitas, dan kondisi lapangan. Mitra dapat menjelaskan faktor tersebut pada deskripsi atau catatan ketersediaan, lalu memberikan harga terbaru ketika dihubungi.
 
-### Q: Berapa lama proses verifikasi?
-A: 1-2 hari kerja untuk mitra, dan maksimal 24 jam untuk endorsement.
+## Bagaimana AI Planner memilih Mitra?
 
-### Q: Apakah platform memproses booking atau pembayaran wisatawan?
-A: Tidak. Explore Wisata Sumut adalah platform informasi dan penghubung. Harga, ketersediaan, pemesanan, pembayaran, pembatalan, dan kesepakatan layanan dilakukan langsung antara wisatawan dan mitra.
+AI Planner mempertimbangkan kecocokan jenis layanan, destinasi yang dilayani, area layanan, tag, jasa atau produk yang aktif, dan kesiapan Mitra menerima kontak. Informasi yang lengkap dan spesifik membantu proses pencocokan menjadi lebih akurat.
 
-### Q: Apakah saya bisa mengelola profil sendiri?
-A: Informasi usaha diajukan melalui akun terautentikasi. Perubahan data akan mengikuti alur pemeriksaan agar informasi publik tetap akurat.
+Paket Unggulan dapat memberikan penempatan promosi yang diberi label secara jelas. Status tersebut tidak menggantikan relevansi dan tidak menjamin Mitra selalu tampil.
+
+## Kerja sama promosi Instagram
+
+Pengajuan endorsement atau kolaborasi konten melalui Instagram **@explorewisatasumut** merupakan jalur terpisah dari Program Mitra. Pendaftaran Mitra tidak otomatis mencakup publikasi Instagram, dan kerja sama Instagram tidak otomatis membuat profil Mitra disetujui.
+
+Untuk mendiskusikan promosi, hubungi tim melalui [halaman Kontak](/docs?section=kontak) dengan menyertakan nama usaha, lokasi, materi foto/video, tujuan promosi, dan kontak penanggung jawab.
+
+## Langkah berikutnya
+
+Baca [Cara Mendaftar Mitra](/docs?section=mitra-pendaftaran) untuk menyiapkan informasi dan dokumen sebelum memulai.

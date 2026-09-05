@@ -6,9 +6,9 @@ Dengan mengakses atau menggunakan platform ini, Anda menyatakan bahwa Anda telah
 
 ## 1. Definisi Istilah
 
-- **Platform**: Situs web dan aplikasi Explore Wisata Sumut (explorewisatasumut.id)
+- **Platform**: Situs web dan layanan Explore Wisata Sumut (explorewisatasumut.com)
 - **Pengguna**: Setiap orang yang mengakses platform, baik sebagai wisatawan maupun mitra
-- **Mitra**: Pihak yang mendaftar sebagai pemandu wisata, homestay, rental mobil, atau penyedia layanan terkait pariwisata
+- **Mitra**: Pihak yang mendaftar sebagai pemandu wisata, homestay, rental kendaraan, usaha kuliner, usaha oleh-oleh, atau penyedia layanan terkait pariwisata
 - **Konten**: Semua data, foto, video, deskripsi, ulasan, dan rencana perjalanan yang diunggah ke platform
 
 ---
@@ -48,12 +48,24 @@ Dengan mengakses atau menggunakan platform ini, Anda menyatakan bahwa Anda telah
 
 ### 🤖 AI Planner
 - Rencana perjalanan yang dihasilkan bersifat rekomendasi — bukan jaminan layanan
-- Pengguna bertanggung jawab penuh atas keputusan final (booking, transportasi, dll)
+- Pengguna bertanggung jawab atas pemeriksaan kondisi lapangan dan keputusan perjalanan akhir
 - Platform tidak bertanggung jawab atas kesalahan logika AI akibat input tidak valid
 
 ---
 
-## 4. Tanggung Jawab Platform
+## 4. Mitra, Kontak, dan Transaksi
+
+- Profil Mitra hanya dapat diterbitkan setelah melalui proses pemeriksaan.
+- Mitra wajib menjaga informasi usaha, cakupan layanan, kontak, jasa/produk, dan ketersediaan tetap akurat.
+- Harga tidak wajib ditampilkan apabila bergantung pada tanggal, rute, durasi, jumlah peserta, fasilitas, atau kondisi lain.
+- Platform tidak menerima booking atau pembayaran perjalanan atas nama Mitra.
+- Harga, ketersediaan, pemesanan, pembayaran, pembatalan, pengembalian dana, dan kesepakatan layanan dilakukan langsung antara wisatawan dan Mitra.
+- Paket Unggulan bersifat opsional, diberi label, dan tidak menjamin jumlah tampilan, kontak, atau transaksi.
+- Platform dapat meminta revisi, membatasi visibilitas, atau menonaktifkan profil yang menyesatkan, tidak aktual, atau melanggar kebijakan.
+
+---
+
+## 5. Tanggung Jawab Platform
 
 Explore Wisata Sumut **tidak bertanggung jawab** atas:
 
@@ -69,11 +81,11 @@ Namun, kami berkomitmen untuk:
 
 ---
 
-## 5. Penyelesaian Sengketa
+## 6. Penyelesaian Sengketa
 
 ### 📞 Mediasi Awal
-- Semua keluhan harus disampaikan via email support@explorewisatasumut.id
-- Tim kami akan merespons dalam 3 hari kerja
+- Keluhan dapat disampaikan melalui [halaman Kontak](/docs?section=kontak)
+- Sertakan informasi yang cukup agar laporan dapat ditinjau tanpa mengirim kata sandi atau dokumen identitas melalui kanal publik
 - Solusi mediasi bersifat sukarela & tidak mengikat secara hukum
 
 ### ⚖️ Arbitrase Resmi
@@ -83,12 +95,11 @@ Namun, kami berkomitmen untuk:
 
 ---
 
-## 6. Perubahan Syarat & Ketentuan
+## 7. Perubahan Syarat & Ketentuan
 
 - Kami berhak memperbarui syarat & ketentuan kapan saja
 - Perubahan akan dipublikasikan di halaman ini & dikirimkan via email (jika terdaftar)
 - Penggunaan platform setelah tanggal efektif berarti penerimaan terhadap perubahan
-- Versi arsip tersedia di [explorewisatasumut.id/docs/syarat-ketentuan/arsip](/docs/syarat-ketentuan/arsip)
 
 ---
 

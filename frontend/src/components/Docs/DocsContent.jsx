@@ -1,6 +1,17 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { ArrowLeft, ArrowRight, Handshake, LayoutDashboard, LifeBuoy } from 'lucide-react';
 import { renderMarkdown } from '../../lib/markdown.jsx';
 import { useLang } from '../../contexts/LanguageContext.jsx';
+
+const PARTNER_GUIDE_SEQUENCE = [
+  'kerjasama',
+  'mitra-pendaftaran',
+  'mitra-verifikasi',
+  'mitra-workspace',
+  'mitra-produk-jasa',
+  'mitra-faq',
+];
 
 const DocsContent = ({ title, activeMenu }) => {
   const { t } = useLang();
@@ -19,6 +30,11 @@ const DocsContent = ({ title, activeMenu }) => {
           home: 'home.md',
           eksplorasi: 'eksplorasi.md',
           kerjasama: 'kerjasama.md',
+          'mitra-pendaftaran': 'mitra-pendaftaran.md',
+          'mitra-verifikasi': 'mitra-verifikasi.md',
+          'mitra-workspace': 'mitra-workspace.md',
+          'mitra-produk-jasa': 'mitra-produk-jasa.md',
+          'mitra-faq': 'mitra-faq.md',
           faq: 'faq.md',
           kebijakan: 'kebijakan.md',
           'syarat-ketentuan': 'syarat-ketentuan.md',
@@ -93,6 +109,12 @@ const DocsContent = ({ title, activeMenu }) => {
     );
   }
 
+  const partnerGuideIndex = PARTNER_GUIDE_SEQUENCE.indexOf(activeMenu);
+  const previousGuide = partnerGuideIndex > 0 ? PARTNER_GUIDE_SEQUENCE[partnerGuideIndex - 1] : null;
+  const nextGuide = partnerGuideIndex >= 0 && partnerGuideIndex < PARTNER_GUIDE_SEQUENCE.length - 1
+    ? PARTNER_GUIDE_SEQUENCE[partnerGuideIndex + 1]
+    : null;
+
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 md:p-8 space-y-6">
       {/* Page Title */}
@@ -105,6 +127,37 @@ const DocsContent = ({ title, activeMenu }) => {
       <div className="prose prose-blue max-w-none text-gray-700 leading-relaxed">
         {renderMarkdown(content)}
       </div>
+
+      {partnerGuideIndex >= 0 && (
+        <footer className="mt-10 border-t border-line pt-6">
+          <nav className="grid gap-3 sm:grid-cols-2" aria-label={t.docs.partnerGuideNavigation}>
+            {previousGuide ? (
+              <Link
+                to={`/docs?section=${previousGuide}`}
+                className="group flex min-h-16 items-center gap-3 rounded-xl border border-line bg-gray-50 px-4 py-3 text-sm font-semibold text-gray-700 transition hover:border-toba/30 hover:bg-toba/5 hover:text-toba"
+              >
+                <ArrowLeft className="h-4 w-4 shrink-0 transition-transform group-hover:-translate-x-0.5" />
+                <span><small className="block text-[10px] font-bold uppercase tracking-wider text-gray-400">{t.docs.previous}</small>{t.docs.menu[previousGuide]}</span>
+              </Link>
+            ) : <span />}
+            {nextGuide && (
+              <Link
+                to={`/docs?section=${nextGuide}`}
+                className="group flex min-h-16 items-center justify-end gap-3 rounded-xl border border-line bg-gray-50 px-4 py-3 text-right text-sm font-semibold text-gray-700 transition hover:border-toba/30 hover:bg-toba/5 hover:text-toba"
+              >
+                <span><small className="block text-[10px] font-bold uppercase tracking-wider text-gray-400">{t.docs.next}</small>{t.docs.menu[nextGuide]}</span>
+                <ArrowRight className="h-4 w-4 shrink-0 transition-transform group-hover:translate-x-0.5" />
+              </Link>
+            )}
+          </nav>
+
+          <div className="mt-5 flex flex-wrap gap-2 rounded-xl bg-toba/[0.06] p-4">
+            <Link to="/partners/register" className="btn-primary"><Handshake className="h-4 w-4" />{t.docs.registerPartner}</Link>
+            <Link to="/mitra" className="btn-outline"><LayoutDashboard className="h-4 w-4" />{t.docs.openWorkspace}</Link>
+            <Link to="/docs?section=kontak" className="btn-outline"><LifeBuoy className="h-4 w-4" />{t.docs.needHelp}</Link>
+          </div>
+        </footer>
+      )}
     </div>
   );
 };
