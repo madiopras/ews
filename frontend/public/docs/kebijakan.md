@@ -12,7 +12,7 @@ Kami menghormati privasi Anda dan hanya mengumpulkan data yang diperlukan untuk 
 - **Data Registrasi**: Nama lengkap, email, nomor WhatsApp (untuk mitra), dan peran (wisatawan/mitra/admin)
 - **Data Aktivitas**: Destinasi yang dikunjungi, wishlist, pencarian, dan interaksi dengan AI Planner
 - **Data Lokasi**: Hanya jika Anda mengizinkan — digunakan untuk menampilkan destinasi terdekat
-- **Data Mitra**: Dokumen verifikasi (KTP, SIUP, NPWP), foto usaha, dan informasi kontak
+- **Data Mitra**: Profil usaha, kontak publik, galeri, cakupan layanan, jasa/produk, dan dokumen verifikasi yang dipilih Mitra
 
 ### 🔹 Cara Kami Menggunakan Data
 - Untuk menyediakan layanan (login, wishlist, rencana perjalanan)
@@ -21,10 +21,11 @@ Kami menghormati privasi Anda dan hanya mengumpulkan data yang diperlukan untuk 
 - Untuk analisis anonymized guna pengembangan platform
 
 ### 🔹 Perlindungan Data
-- Data disimpan di server aman berbasis enkripsi end-to-end
+- Kami menerapkan pembatasan akses dan langkah keamanan yang wajar sesuai fungsi setiap data
 - Tidak pernah dijual atau dibagikan ke pihak ketiga untuk tujuan pemasaran
-- Mitra hanya melihat data yang relevan (misal: nama & kontak wisatawan yang memesan)
-- Anda dapat meminta ekspor atau penghapusan data kapan saja via email support@explorewisatasumut.id
+- Dokumen verifikasi Mitra tidak ditampilkan pada profil publik
+- Platform tidak memberikan data kontak wisatawan kepada Mitra; wisatawan memilih sendiri untuk menghubungi Mitra melalui WhatsApp
+- Anda dapat menggunakan fitur ekspor atau penghapusan akun pada halaman Profil, atau meminta bantuan melalui [halaman Kontak](/docs?section=kontak)
 
 > 📌 *Catatan: Kami tidak mengumpulkan data sensitif seperti agama, ras, atau riwayat kesehatan.*
 
@@ -37,7 +38,7 @@ Dengan menggunakan Explore Wisata Sumut, Anda setuju untuk:
 ### ✅ Hal yang Diizinkan
 - Menyimpan destinasi favorit ke wishlist
 - Membuat rencana perjalanan dengan AI Planner
-- Mendaftar sebagai mitra lokal (guide, homestay, rental)
+- Mendaftar sebagai mitra lokal (pemandu, homestay, rental, kuliner, atau oleh-oleh)
 - Memberikan ulasan autentik berdasarkan pengalaman langsung
 - Berbagi konten wisata (foto/video) dengan atribusi yang jelas
 
@@ -68,28 +69,30 @@ Untuk menjaga kualitas dan keaslian platform, kami menerapkan standar konten ket
 ### 📝 Deskripsi Destinasi & Mitra
 - Harus akurat & terverifikasi (tidak boleh "terbaik se-Indonesia" tanpa bukti)
 - Hindari klaim menyesatkan (misal: "gratis masuk" padahal ada tiket)
-- Untuk mitra: Informasi harga & ketersediaan harus diperbarui minimal tiap bulan
+- Untuk Mitra: Kontak, area, jasa/produk, dan ketersediaan harus diperbarui ketika berubah serta dikonfirmasi minimal setiap 90 hari
+- Harga tidak wajib ditampilkan apabila bersifat dinamis; informasi terbaru dikonfirmasi langsung antara wisatawan dan Mitra
 
 ### 🤝 Verifikasi Mitra
 - Semua mitra wajib diverifikasi admin sebelum tampil di platform
-- Dokumen wajib: KTP, surat izin usaha, dan bukti lokasi usaha
-- Mitra premium wajib menjalani audit tahunan oleh tim kami
+- Minimal satu dokumen pendukung diperlukan; pilihannya meliputi KTP, SIUP, NPWP, atau dokumen relevan lainnya
+- Dokumen digunakan untuk pemeriksaan dan tidak menjadi bagian dari profil publik
+- Paket Unggulan bersifat opsional dan tidak menggantikan proses verifikasi
 
 ---
 
 ## 4. FAQ Kebijakan
 
 ### Q: Apakah data saya aman dari kebocoran?
-A: Ya. Kami menggunakan enkripsi AES-256 dan rutin audit keamanan oleh pihak ketiga.
+A: Kami menerapkan langkah perlindungan dan pembatasan akses sesuai jenis data. Namun, tidak ada sistem digital yang dapat menjamin risiko keamanan sebesar nol. Segera laporkan aktivitas akun yang mencurigakan melalui halaman Kontak.
 
 ### Q: Bisakah saya menghapus akun saya?
-A: Bisa. Kirim permintaan ke support@explorewisatasumut.id — semua data akan dihapus dalam 72 jam.
+A: Bisa. Gunakan fitur **Hapus akun** pada halaman Profil atau hubungi dukungan jika Anda tidak dapat mengakses akun. Sebagian catatan dapat dipertahankan apabila diperlukan untuk keamanan, pencegahan penyalahgunaan, atau kewajiban yang berlaku.
 
 ### Q: Apa yang terjadi jika mitra saya melanggar kebijakan?
-A: Kami akan memberi kesempatan perbaikan dalam 7 hari. Jika tidak diperbaiki, akun akan ditangguhkan.
+A: Kami dapat meminta perbaikan, membatasi visibilitas, menangguhkan, atau menonaktifkan profil sesuai jenis dan tingkat pelanggaran.
 
 ### Q: Apakah kebijakan ini bisa berubah?
-A: Ya, tetapi kami akan memberi pemberitahuan 14 hari sebelum efektif — dan versi lama tetap tersedia di arsip.
+A: Ya. Perubahan material akan diinformasikan melalui platform atau kanal kontak yang tersedia sebelum atau ketika mulai berlaku, sesuai kebutuhan perubahan tersebut.
 
 ---
 

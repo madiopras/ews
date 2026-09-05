@@ -11,8 +11,33 @@ export const docsContent = {
   },
 
   kerjasama: {
-    title: 'Program Kerjasama',
-    content: 'Kami membuka peluang kerjasama untuk mengembangkan ekosistem pariwisata Sumut.'
+    title: 'Program Mitra',
+    content: 'Program untuk membantu usaha pariwisata lokal ditemukan oleh wisatawan yang relevan.'
+  },
+
+  'mitra-pendaftaran': {
+    title: 'Cara Mendaftar Mitra',
+    content: 'Persiapan dan panduan empat tahap untuk mendaftarkan usaha lokal.'
+  },
+
+  'mitra-verifikasi': {
+    title: 'Verifikasi & Persetujuan',
+    content: 'Arti status pendaftaran, proses pemeriksaan, dan cara mengirim revisi.'
+  },
+
+  'mitra-workspace': {
+    title: 'Workspace Mitra',
+    content: 'Panduan mengelola profil publik, kontak, galeri, kesegaran data, tim, dan insight.'
+  },
+
+  'mitra-produk-jasa': {
+    title: 'Kelola Jasa & Produk',
+    content: 'Cara menulis penawaran yang informatif dan mudah dicocokkan oleh AI Planner.'
+  },
+
+  'mitra-faq': {
+    title: 'FAQ Mitra',
+    content: 'Jawaban untuk pertanyaan umum tentang pendaftaran dan pengelolaan Mitra.'
   },
 
   tentang: {
