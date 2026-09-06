@@ -3,6 +3,7 @@ import "./App.css";
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { Toaster } from "sonner";
 import { SpeedInsights } from "@vercel/speed-insights/react";
+import { Analytics } from "@vercel/analytics/react";
 import { AuthProvider, useAuth } from "./contexts/AuthContext.jsx";
 import { LanguageProvider } from "./contexts/LanguageContext.jsx";
 import Navbar from "./components/Navbar.jsx";
@@ -182,6 +183,7 @@ export default function App() {
       <LanguageProvider>
         <AuthProvider>
           <AppShell />
+          <Analytics />
           <SpeedInsights />
         </AuthProvider>
       </LanguageProvider>
