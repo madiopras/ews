@@ -6,7 +6,7 @@ from pydantic import ValidationError
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from server import PlannerAnalyticsEventIn
+from app.modules.planner.schemas import PlannerAnalyticsEventIn
 
 
 def valid_event(**overrides):

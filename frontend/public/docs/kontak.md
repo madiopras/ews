@@ -26,7 +26,7 @@ Untuk pengajuan endorsement atau kolaborasi konten, silakan gunakan WhatsApp aga
 
 Untuk bantuan akun, permintaan terkait data pribadi, laporan masalah teknis, atau keluhan platform:
 
-[support@explorewisatasumut.com](mailto:support@explorewisatasumut.com)
+[ews@explorewisatasumut.com](mailto:ews@explorewisatasumut.com)
 
 Mohon gunakan subjek yang jelas, misalnya `Bantuan akun`, `Koreksi informasi destinasi`, atau `Laporan masalah`, dan sertakan tangkapan layar jika diperlukan.
 

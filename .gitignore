@@ -133,6 +133,14 @@ agenthub/agents/youtube/db
 marketing/
 scripts/
 
+# Versioned Clean Architecture migration artifacts and generators.
+!backend/scripts/
+!backend/scripts/*.py
+!docsplan/
+docsplan/*
+!docsplan/backend/
+!docsplan/backend/**
+
 # SECURITY NOTES:
 # NEVER COMMIT: API keys, passwords, OAuth tokens, SSH keys,
 # service account JSON files, or any configuration with credentials

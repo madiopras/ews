@@ -1,13 +1,17 @@
+import hashlib
+import sys
 from datetime import datetime, timezone
 from io import BytesIO
 from pathlib import Path
-import sys
 
 from bson import ObjectId
 from PIL import Image
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-import server
+from app.modules.destinations.mapper import destination_document_to_response
+from app.modules.planner.domain import build_planner_partner_recommendations
+from app.modules.sharing.renderer import build_share_card
+from app.shared.urls import safe_public_http_url, safe_public_media_url
 
 
 def destination(name="Danau Toba"):
@@ -24,38 +28,42 @@ def test_partner_recommendations_only_use_valid_destination_coverage():
     included_id = str(included["_id"])
     excluded_id = str(excluded["_id"])
     partners = {
-        included_id: [{
-            "id": "partner-valid",
-            "business_name": "Oleh-oleh Toba",
-            "type": "souvenir",
-            "whatsapp": "628123456789",
-            "city": "Samosir",
-            "description": "Produk lokal Samosir",
-            "image": "",
-            "service_tags": ["produk lokal"],
-            "is_premium": False,
-            "status": "approved",
-            "is_active": True,
-            "accepting_contacts": True,
-            "owner_user_id": "must-not-leak",
-        }],
-        excluded_id: [{
-            "id": "partner-wrong-route",
-            "business_name": "Guide Bukit Lawang",
-            "type": "guide",
-            "whatsapp": "628111111111",
-            "city": "Langkat",
-            "description": "Guide lokal",
-            "image": "",
-            "service_tags": [],
-            "is_premium": True,
-            "status": "approved",
-            "is_active": True,
-            "accepting_contacts": True,
-        }],
+        included_id: [
+            {
+                "id": "partner-valid",
+                "business_name": "Oleh-oleh Toba",
+                "type": "souvenir",
+                "whatsapp": "628123456789",
+                "city": "Samosir",
+                "description": "Produk lokal Samosir",
+                "image": "",
+                "service_tags": ["produk lokal"],
+                "is_premium": False,
+                "status": "approved",
+                "is_active": True,
+                "accepting_contacts": True,
+                "owner_user_id": "must-not-leak",
+            }
+        ],
+        excluded_id: [
+            {
+                "id": "partner-wrong-route",
+                "business_name": "Guide Bukit Lawang",
+                "type": "guide",
+                "whatsapp": "628111111111",
+                "city": "Langkat",
+                "description": "Guide lokal",
+                "image": "",
+                "service_tags": [],
+                "is_premium": True,
+                "status": "approved",
+                "is_active": True,
+                "accepting_contacts": True,
+            }
+        ],
     }
 
-    used_ids, result = server.build_planner_partner_recommendations(
+    used_ids, result = build_planner_partner_recommendations(
         "## Hari 1\nMengunjungi **Danau Toba**.",
         [included, excluded],
         partners,
@@ -93,13 +101,13 @@ def test_featured_status_does_not_override_daily_organic_rotation():
         for index in range(5)
     ]
 
-    _, result = server.build_planner_partner_recommendations(
+    _, result = build_planner_partner_recommendations(
         "Danau Toba", [target], {target_id: candidates}, [], "", "id"
     )
 
     expected = sorted(
         candidates,
-        key=lambda partner: server.hashlib.sha256(
+        key=lambda partner: hashlib.sha256(
             f"{datetime.now(timezone.utc).date().isoformat()}:{partner['id']}".encode()
         ).hexdigest(),
     )[:2]
@@ -126,7 +134,7 @@ def test_partner_recommendations_deduplicate_and_merge_destination_context():
         "accepting_contacts": True,
     }
 
-    used_ids, result = server.build_planner_partner_recommendations(
+    used_ids, result = build_planner_partner_recommendations(
         "Danau Toba dan Bukit Holbung",
         [first, second],
         {first_id: [shared], second_id: [shared]},
@@ -150,22 +158,24 @@ def test_partner_recommendations_apply_global_and_per_type_limits():
     candidates = []
     for partner_type in partner_types:
         for index in range(3):
-            candidates.append({
-                "id": f"{partner_type}-{index}",
-                "business_name": f"{partner_type} {index}",
-                "type": partner_type,
-                "whatsapp": f"62812000{partner_types.index(partner_type)}{index}00",
-                "city": "Toba",
-                "description": "Usaha lokal yang aktif.",
-                "image": "",
-                "service_tags": [],
-                "is_premium": False,
-                "status": "approved",
-                "is_active": True,
-                "accepting_contacts": True,
-            })
+            candidates.append(
+                {
+                    "id": f"{partner_type}-{index}",
+                    "business_name": f"{partner_type} {index}",
+                    "type": partner_type,
+                    "whatsapp": f"62812000{partner_types.index(partner_type)}{index}00",
+                    "city": "Toba",
+                    "description": "Usaha lokal yang aktif.",
+                    "image": "",
+                    "service_tags": [],
+                    "is_premium": False,
+                    "status": "approved",
+                    "is_active": True,
+                    "accepting_contacts": True,
+                }
+            )
 
-    _, result = server.build_planner_partner_recommendations(
+    _, result = build_planner_partner_recommendations(
         "Danau Toba", [target], {target_id: candidates}, [], "", "id"
     )
 
@@ -195,7 +205,7 @@ def test_partner_recommendations_limit_featured_to_one_per_type():
         for index in range(3)
     ]
 
-    _, result = server.build_planner_partner_recommendations(
+    _, result = build_planner_partner_recommendations(
         "Danau Toba", [target], {target_id: candidates}, [], "", "id"
     )
 
@@ -205,31 +215,43 @@ def test_partner_recommendations_limit_featured_to_one_per_type():
 
 
 def test_share_card_uses_available_font_fallbacks():
-    content = server.build_share_card("Perjalanan Danau Toba", "3 hari", "QA User")
+    content = build_share_card("Perjalanan Danau Toba", "3 hari", "QA User")
     image = Image.open(BytesIO(content))
     assert image.format == "PNG"
     assert image.size == (1200, 630)
 
 
 def test_editorial_links_are_only_exposed_for_http_protocols():
-    assert server.safe_public_http_url("https://instagram.com/explorewisatasumut")
-    assert server.safe_public_http_url("http://example.com/source")
-    assert server.safe_public_http_url("javascript:alert(1)") == ""
-    assert server.safe_public_http_url("//example.com/source") == ""
+    assert safe_public_http_url("https://instagram.com/explorewisatasumut")
+    assert safe_public_http_url("http://example.com/source")
+    assert safe_public_http_url("javascript:alert(1)") == ""
+    assert safe_public_http_url("//example.com/source") == ""
 
 
 def test_public_media_serializers_never_emit_inline_base64_images():
-    assert server.safe_public_media_url("data:image/png;base64,private") == ""
-    assert server.safe_public_media_url("blob:https://example.com/private") == ""
-    assert server.safe_public_media_url("/api/files/public.webp") == "/api/files/public.webp"
-    assert server.safe_public_media_url("https://cdn.example.com/public.webp") == "https://cdn.example.com/public.webp"
+    assert safe_public_media_url("data:image/png;base64,private") == ""
+    assert safe_public_media_url("blob:https://example.com/private") == ""
+    assert safe_public_media_url("/api/files/public.webp") == "/api/files/public.webp"
+    assert (
+        safe_public_media_url("https://cdn.example.com/public.webp")
+        == "https://cdn.example.com/public.webp"
+    )
 
     destination = {
-        "_id": ObjectId(), "name": "Danau Toba", "name_en": "Lake Toba", "location": "Toba",
-        "category": "nature", "description": "Deskripsi destinasi yang aman.", "description_en": "Safe description.",
-        "images": ["data:image/png;base64,private", "/public.webp"], "video": "data:video/mp4;base64,private",
-        "latitude": 2.61, "longitude": 98.88, "created_at": "", "is_active": True,
+        "_id": ObjectId(),
+        "name": "Danau Toba",
+        "name_en": "Lake Toba",
+        "location": "Toba",
+        "category": "nature",
+        "description": "Deskripsi destinasi yang aman.",
+        "description_en": "Safe description.",
+        "images": ["data:image/png;base64,private", "/public.webp"],
+        "video": "data:video/mp4;base64,private",
+        "latitude": 2.61,
+        "longitude": 98.88,
+        "created_at": "",
+        "is_active": True,
     }
-    public = server.dest_to_out(destination)
+    public = destination_document_to_response(destination)
     assert public.images == ["/public.webp"]
     assert public.video == ""
