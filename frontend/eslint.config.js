@@ -37,7 +37,7 @@ module.exports = [
       "react/no-unescaped-entities": "off",
       "jsx-a11y/no-autofocus": "off",
       "no-unused-vars": ["error", { argsIgnorePattern: "^(node|_)", varsIgnorePattern: "^_" }],
-      "import/no-unresolved": "error",
+      "import/no-unresolved": ["error", { ignore: ["^@vercel/speed-insights", "^@vercel/analytics"] }],
     },
   },
   {
