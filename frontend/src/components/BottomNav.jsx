@@ -1,12 +1,12 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
 import { useLang } from "../contexts/LanguageContext.jsx";
-import { Home, Sparkles, Map, Handshake, User } from "lucide-react";
+import { BookOpen, Handshake, Home, Map, User } from "lucide-react";
 
 const ITEMS = [
   { to: "/", icon: Home, key: "home", testId: "bottomnav-home", end: true, label: t => t.nav.home },
-  { to: "/planner", icon: Sparkles, key: "aiPlanner", testId: "bottomnav-planner", label: () => "AI Planner" },
   { to: "/explore", icon: Map, key: "destinations", testId: "bottomnav-destinations", label: t => t.nav.destinations },
+  { to: "/docs", icon: BookOpen, key: "docs", testId: "bottomnav-docs", label: t => t.nav.docs },
   { to: "/partners", icon: Handshake, key: "partners", testId: "bottomnav-partners", label: t => t.nav.partners },
   { to: "/profile", icon: User, key: "profile", testId: "bottomnav-profile", label: t => t.nav.profile },
 ];
@@ -24,7 +24,7 @@ export default function BottomNav() {
               to={to}
               data-testid={testId}
               className={({ isActive }) =>
-                `flex min-h-[48px] min-w-0 flex-col items-center justify-center gap-1 px-0.5 text-[10px] font-semibold transition-all duration-200 min-[360px]:text-[11px] ${
+                `flex min-h-[48px] min-w-0 flex-col items-center justify-center gap-1 px-0.5 text-[10px] font-semibold transition-colors duration-200 min-[360px]:text-[11px] ${
                   isActive ? "text-toba" : "text-inkSoft/70 hover:text-ink"
                 }`
               }
@@ -32,7 +32,7 @@ export default function BottomNav() {
               {({ isActive }) => (
                 <>
                   <Icon
-                    className={`w-5 h-5 transition-all duration-200 ${
+                    className={`h-5 w-5 transition-transform duration-200 ${
                       isActive ? "scale-110" : "scale-100"
                     }`}
                     strokeWidth={isActive ? 2.5 : 1.7}

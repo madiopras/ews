@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from "react";
 import { ArrowLeft, Calendar, Compass, Loader2, Sparkles, Wallet } from "lucide-react";
 import { CATEGORY_KEYS } from "../../lib/i18n.js";
 import { travelStyleOptions } from "../../lib/travelStyle.js";
+import TripPromptComposer from "./TripPromptComposer.jsx";
 
 const COPY = {
   id: {
@@ -108,22 +109,18 @@ export default function PlannerWizard({
       {step === "story" && (
         <form onSubmit={onStorySubmit} data-testid="planner-wizard-story" aria-labelledby="planner-story-title">
           <StepHeading id="planner-story-title" icon={Sparkles} title={copy.storyTitle} description={copy.storyDescription} />
-          <textarea
-            rows={6}
-            maxLength={200}
+          <TripPromptComposer
             value={form.extra_context}
-            onChange={(event) => onStoryChange(event.target.value.slice(0, 200))}
+            onChange={onStoryChange}
             placeholder={copy.storyPlaceholder}
-            className="input-flat mt-4 min-h-[140px] resize-none bg-cream/60 px-3.5 py-3 text-sm leading-6 sm:mt-5 sm:min-h-[150px] sm:px-4"
-            data-testid="planner-story-input"
-            aria-labelledby="planner-story-title"
+            submitLabel={copy.planWithStory}
+            lang={lang}
+            testIdPrefix="planner-story"
+            className="mt-4 shadow-[0_12px_30px_rgba(15,61,62,0.12)] sm:mt-5"
             autoFocus
           />
           <div className="mt-3 flex flex-wrap gap-2">
-            {copy.examples.map((example) => <button key={example} type="button" onClick={() => onStoryChange(example)} className="rounded-full border border-line bg-surface px-3 py-1.5 text-[11px] text-inkSoft transition hover:border-toba hover:text-toba">{example}</button>)}
-          </div>
-          <div className="mt-5 flex justify-end border-t border-line/70 pt-4 sm:mt-6">
-            <button type="submit" className="btn-primary w-full rounded-2xl shadow-lg shadow-brick/20 sm:w-auto" data-testid="planner-story-submit"><Sparkles className="h-4 w-4" />{copy.planWithStory}</button>
+            {copy.examples.map((example) => <button key={example} type="button" onClick={() => onStoryChange(example)} className="rounded-full bg-cream px-3 py-1.5 text-[11px] text-inkSoft transition-colors duration-200 hover:bg-toba/10 hover:text-toba">{example}</button>)}
           </div>
         </form>
       )}

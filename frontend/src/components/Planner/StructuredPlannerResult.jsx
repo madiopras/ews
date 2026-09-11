@@ -27,7 +27,7 @@ const PERIOD_ICONS = {
 
 function PlannerSummary({ result, lang, t }) {
   const snapshot = result.request_snapshot;
-  return <section className="relative overflow-hidden rounded-2xl border border-toba/15 bg-[linear-gradient(135deg,rgba(15,61,62,0.08),rgba(193,154,68,0.08))] p-4 sm:p-6" aria-labelledby="planner-summary-title" data-testid="structured-summary">
+  return <section className="relative overflow-hidden rounded-2xl bg-[linear-gradient(135deg,rgba(15,61,62,0.08),rgba(193,154,68,0.08))] p-4 shadow-soft sm:p-6" aria-labelledby="planner-summary-title" data-testid="structured-summary">
     <div className="absolute -right-12 -top-12 h-32 w-32 rounded-full bg-toba/10 blur-2xl" aria-hidden="true" />
     <div className="relative flex items-start gap-3">
       <span className="rounded-xl bg-toba p-2.5 text-cream shadow-sm"><Route className="h-5 w-5" aria-hidden="true" /></span>
@@ -38,9 +38,9 @@ function PlannerSummary({ result, lang, t }) {
     </div>
     <p className="relative mt-4 text-sm leading-7 text-ink sm:text-[15px]">{result.summary}</p>
     <dl className="relative mt-5 flex flex-wrap gap-2 text-[11px]">
-      <div className="rounded-full border border-toba/15 bg-white/80 px-3 py-1.5"><dt className="sr-only">{t.planner.days}</dt><dd>{snapshot.days} {lang === "en" ? "days" : "hari"}</dd></div>
-      <div className="rounded-full border border-toba/15 bg-white/80 px-3 py-1.5"><dt className="sr-only">{t.planner.travelStyle}</dt><dd>{travelStyleLabel(snapshot.budget_style, lang)}</dd></div>
-      {snapshot.interests.slice(0, 5).map((interest) => <div key={interest} className="rounded-full border border-toba/15 bg-white/80 px-3 py-1.5"><dt className="sr-only">{t.planner.interests}</dt><dd>{t.categories[interest] || interest}</dd></div>)}
+      <div className="rounded-full bg-white/80 px-3 py-1.5"><dt className="sr-only">{t.planner.days}</dt><dd>{snapshot.days} {lang === "en" ? "days" : "hari"}</dd></div>
+      <div className="rounded-full bg-white/80 px-3 py-1.5"><dt className="sr-only">{t.planner.travelStyle}</dt><dd>{travelStyleLabel(snapshot.budget_style, lang)}</dd></div>
+      {snapshot.interests.slice(0, 5).map((interest) => <div key={interest} className="rounded-full bg-white/80 px-3 py-1.5"><dt className="sr-only">{t.planner.interests}</dt><dd>{t.categories[interest] || interest}</dd></div>)}
     </dl>
   </section>;
 }
@@ -64,7 +64,7 @@ function PlannerStop({ stop, destination, lang, t, isLast }) {
   return <li className="relative grid min-w-0 grid-cols-[28px_minmax(0,1fr)] gap-3 pb-5 last:pb-0">
     {!isLast && <span className="absolute bottom-0 left-[13px] top-7 w-px bg-line" aria-hidden="true" />}
     <span className="relative z-10 mt-0.5 flex h-7 w-7 items-center justify-center rounded-full border-2 border-surface bg-toba text-[10px] font-semibold text-cream" aria-hidden="true">•</span>
-    {destination ? <Link to={`/destination/${destination.id}`} className="min-w-0 rounded-2xl border border-line/80 bg-white p-3.5 transition hover:border-toba/35 hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-toba" aria-label={`${name} · ${t.detail.viewDetails}`}>{content}</Link> : <div className="min-w-0 rounded-2xl border border-dashed border-amber-300 bg-amber-50/40 p-3.5">{content}</div>}
+    {destination ? <Link to={`/destination/${destination.id}`} className="interactive-lift min-w-0 rounded-2xl bg-white p-3.5 shadow-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-toba" aria-label={`${name} · ${t.detail.viewDetails}`}>{content}</Link> : <div className="min-w-0 rounded-2xl border border-dashed border-amber-300 bg-amber-50/40 p-3.5">{content}</div>}
   </li>;
 }
 
@@ -92,7 +92,7 @@ function DayAccordion({ result, lang, t }) {
       {result.days.map((day, index) => {
         const open = activeDay === day.day;
         const panelId = `planner-day-panel-${day.day}`;
-        return <article key={day.day} className={`avoid-print-break overflow-hidden rounded-2xl border transition ${open ? "border-toba/30 bg-cream/35 shadow-sm" : "border-line bg-white"}`} data-testid={`structured-day-${day.day}`}>
+        return <article key={day.day} className={`avoid-print-break overflow-hidden rounded-2xl transition-[background-color,box-shadow] duration-200 ${open ? "bg-cream/60 shadow-soft-md" : "bg-white shadow-soft"}`} data-testid={`structured-day-${day.day}`}>
           <h4>
             <button
               ref={(node) => { buttonRefs.current[day.day] = node; }}
@@ -181,7 +181,7 @@ function PartnerSections({ result, lang, t, enabled, culinaryEnabled }) {
     </div>
     {groups.map((group) => <div key={group.type} role="tabpanel" id={`structured-partner-panel-${group.type}`} aria-labelledby={`structured-partner-tab-${group.type}`} hidden={activeType !== group.type} className="structured-partner-panel mt-4 grid min-w-0 gap-4 lg:grid-cols-2">
       {group.items.map((match) => <div key={match.partner_id} className="avoid-print-break min-w-0" data-testid={`structured-partner-${match.partner_id}`}>
-        <div className="mb-2 rounded-xl border border-line/80 bg-cream/45 px-3 py-2.5 text-[11px] text-inkSoft">
+        <div className="mb-2 rounded-xl bg-cream/60 px-3 py-2.5 text-[11px] text-inkSoft">
           <div className="flex flex-wrap items-center gap-1.5"><Sparkles className="h-3.5 w-3.5 text-toba" aria-hidden="true" /><span>{t.planner.matches} <strong className="text-ink">{match.destination_names.join(", ") || t.planner.tripRoute}</strong></span>{match.placement === "featured" && <span className="rounded-full bg-toba px-2 py-0.5 font-semibold text-cream">{t.planner.featuredDisclosure}</span>}</div>
           {match.match_reasons.length > 0 && <ul className="mt-2 flex flex-wrap gap-1.5" aria-label={t.planner.matchReasons}>{match.match_reasons.map((reason) => <li key={reason} className="rounded-full bg-white px-2 py-1 text-[10px] text-inkSoft">{reason}</li>)}</ul>}
         </div>
@@ -194,8 +194,8 @@ function PartnerSections({ result, lang, t, enabled, culinaryEnabled }) {
 function NotesAndTips({ result, t }) {
   if (!result.travel_notes.length && !result.travel_tips.length) return null;
   return <section className="mt-8 grid gap-4 border-t border-line pt-6 sm:grid-cols-2" aria-label={t.planner.notesAndTips} data-testid="structured-notes-tips">
-    {result.travel_notes.length > 0 && <div className="rounded-2xl border border-line bg-white p-4"><div className="flex items-center gap-2"><NotebookText className="h-5 w-5 text-toba" aria-hidden="true" /><h3 className="font-display text-lg text-ink">{t.planner.travelNotes}</h3></div><ul className="mt-3 space-y-2 text-[12px] leading-5 text-inkSoft">{result.travel_notes.map((note, index) => <li key={`${index}-${note}`} className="flex gap-2"><span className="text-toba" aria-hidden="true">•</span><span>{note}</span></li>)}</ul></div>}
-    {result.travel_tips.length > 0 && <div className="rounded-2xl border border-amber-200 bg-amber-50/60 p-4"><div className="flex items-center gap-2"><Lightbulb className="h-5 w-5 text-amber-700" aria-hidden="true" /><h3 className="font-display text-lg text-ink">{t.planner.travelTips}</h3></div><ul className="mt-3 space-y-2 text-[12px] leading-5 text-inkSoft">{result.travel_tips.map((tip, index) => <li key={`${index}-${tip}`} className="flex gap-2"><span className="text-amber-700" aria-hidden="true">•</span><span>{tip}</span></li>)}</ul></div>}
+    {result.travel_notes.length > 0 && <div className="rounded-2xl bg-white p-4 shadow-soft"><div className="flex items-center gap-2"><NotebookText className="h-5 w-5 text-toba" aria-hidden="true" /><h3 className="font-display text-lg text-ink">{t.planner.travelNotes}</h3></div><ul className="mt-3 space-y-2 text-[12px] leading-5 text-inkSoft">{result.travel_notes.map((note, index) => <li key={`${index}-${note}`} className="flex gap-2"><span className="text-toba" aria-hidden="true">•</span><span>{note}</span></li>)}</ul></div>}
+    {result.travel_tips.length > 0 && <div className="rounded-2xl bg-amber-50/60 p-4 shadow-soft"><div className="flex items-center gap-2"><Lightbulb className="h-5 w-5 text-amber-700" aria-hidden="true" /><h3 className="font-display text-lg text-ink">{t.planner.travelTips}</h3></div><ul className="mt-3 space-y-2 text-[12px] leading-5 text-inkSoft">{result.travel_tips.map((tip, index) => <li key={`${index}-${tip}`} className="flex gap-2"><span className="text-amber-700" aria-hidden="true">•</span><span>{tip}</span></li>)}</ul></div>}
   </section>;
 }
 
@@ -203,12 +203,12 @@ export function PlannerResultProgress({ phase = "generating", t, onCancel }) {
   const phases = ["generating", "validating", "hydrating"];
   const activeIndex = Math.max(0, phases.indexOf(phase));
   return <div className="min-h-[260px] space-y-4" role="status" aria-live="polite" data-testid="structured-progress">
-    <div className="rounded-2xl border border-toba/10 bg-[linear-gradient(135deg,rgba(15,61,62,0.08),rgba(193,154,68,0.08))] p-4 sm:p-5">
+    <div className="rounded-2xl bg-[linear-gradient(135deg,rgba(15,61,62,0.08),rgba(193,154,68,0.08))] p-4 shadow-soft sm:p-5">
       <div className="flex items-center gap-3"><span className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-toba text-cream"><Compass className="h-5 w-5 animate-pulse" aria-hidden="true" /></span><div><p className="font-semibold text-ink">{t.planner.progressTitle}</p><p className="mt-1 text-[12px] text-inkSoft">{t.planner.progressPhases[phase] || t.planner.generating}</p></div></div>
       <ol className="mt-5 grid grid-cols-3 gap-2" aria-label={t.planner.progressTitle}>{phases.map((item, index) => <li key={item} className={`h-1.5 rounded-full ${index <= activeIndex ? "bg-toba" : "bg-line"}`}><span className="sr-only">{t.planner.progressPhases[item]}</span></li>)}</ol>
       {onCancel && <button type="button" className="btn-outline mt-5 min-h-[44px]" onClick={onCancel}>{t.planner.cancelGeneration}</button>}
     </div>
-    <div className="grid gap-3 sm:grid-cols-2" aria-hidden="true">{[0, 1].map((item) => <div key={item} className="animate-pulse rounded-2xl border border-line bg-white p-4"><div className="h-5 w-1/2 rounded bg-line/60" /><div className="mt-4 h-3 w-full rounded bg-line/40" /><div className="mt-2 h-3 w-4/5 rounded bg-line/40" /></div>)}</div>
+    <div className="grid gap-3 sm:grid-cols-2" aria-hidden="true">{[0, 1].map((item) => <div key={item} className="animate-pulse rounded-2xl bg-white p-4 shadow-soft"><div className="h-5 w-1/2 rounded bg-line/60" /><div className="mt-4 h-3 w-full rounded bg-line/40" /><div className="mt-2 h-3 w-4/5 rounded bg-line/40" /></div>)}</div>
   </div>;
 }
 
