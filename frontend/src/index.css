@@ -40,6 +40,14 @@ textarea {
     max-width: 100%;
 }
 
+@media (max-width: 767px) {
+    input,
+    select,
+    textarea {
+        font-size: 16px;
+    }
+}
+
 @supports (overflow: clip) {
     html,
     body {
@@ -164,6 +172,28 @@ svg {
         padding: clamp(0.875rem, 4vw, 1.5rem);
     }
 
+    .home-hero-surface {
+        background-color: var(--surface-brand-start);
+        background-image: linear-gradient(145deg, var(--surface-brand-start) 0%, var(--surface-brand-mid) 48%, var(--surface-brand-end) 100%);
+    }
+
+    .surface-brand-soft {
+        background-color: var(--surface-brand-start);
+        background-image: linear-gradient(145deg, rgba(228, 235, 226, 0.92) 0%, rgba(239, 228, 215, 0.78) 100%);
+    }
+
+    .surface-content { background-color: var(--surface-content); }
+    .surface-sage { background-color: var(--surface-sage); }
+
+    .section-reveal {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    .section-reveal.is-visible {
+        animation: section-reveal 440ms ease-out both;
+    }
+
     .card-flat {
         @apply bg-surface border border-line rounded-xl;
     }
@@ -221,6 +251,51 @@ svg {
     .section-title {
         @apply font-display text-[24px] sm:text-3xl lg:text-4xl leading-tight text-ink;
     }
+}
+
+:root {
+    --surface-brand-start: #E4EBE2;
+    --surface-brand-mid: #D9E5DD;
+    --surface-brand-end: #EFE4D7;
+    --surface-content: #FFFDF7;
+    --surface-sage: #EDF2EB;
+    --surface-active: #0F3D3E;
+}
+
+@keyframes section-reveal {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.destination-card-media img,
+.inspiration-card img {
+    transition: transform 280ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .interactive-lift {
+        transition: transform 240ms ease, box-shadow 240ms ease;
+    }
+    .interactive-lift:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 14px 34px rgba(15, 61, 62, 0.14);
+    }
+    .destination-card:hover .destination-card-media img,
+    .inspiration-card:hover img {
+        transform: scale(1.035);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .section-reveal,
+    .section-reveal.is-visible {
+        animation: none;
+        opacity: 1;
+        transform: none;
+    }
+    .destination-card-media img,
+    .inspiration-card img,
+    .interactive-lift { transition: none; }
 }
 
 /* Leaflet */

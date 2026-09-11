@@ -140,6 +140,8 @@ scripts/
 docsplan/*
 !docsplan/backend/
 !docsplan/backend/**
+!docsplan/frontend/
+!docsplan/frontend/**
 
 # SECURITY NOTES:
 # NEVER COMMIT: API keys, passwords, OAuth tokens, SSH keys,

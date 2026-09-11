@@ -10,9 +10,9 @@ export default function HomeDestinationCard({ destination, priority = false }) {
   const image = destination.images?.[0] || "/social-share.png";
 
   return (
-    <article className="group min-w-0 overflow-hidden rounded-2xl border border-line/80 bg-surface shadow-[0_8px_24px_rgba(15,61,62,0.08)]" data-testid={`home-destination-${destination.id}`}>
+    <article className="destination-card interactive-lift surface-content min-w-0 overflow-hidden rounded-2xl shadow-[0_8px_24px_rgba(15,61,62,0.08)]" data-testid={`home-destination-${destination.id}`}>
       <Link to={`/destination/${destination.id}`} className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-toba" aria-label={`${name} · ${t.detail.viewDetails}`}>
-        <div className="relative aspect-[4/3] overflow-hidden bg-line/40">
+        <div className="destination-card-media relative aspect-[4/3] overflow-hidden bg-line/40">
           <img
             src={image}
             alt={name}
@@ -23,7 +23,7 @@ export default function HomeDestinationCard({ destination, priority = false }) {
               event.currentTarget.onerror = null;
               event.currentTarget.src = "/social-share.png";
             }}
-            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+            className="h-full w-full object-cover"
           />
           <span className="absolute left-2 top-2 max-w-[calc(100%-1rem)] truncate rounded-full bg-surface/90 px-2 py-1 text-[9px] font-semibold uppercase tracking-wide text-toba backdrop-blur sm:left-3 sm:top-3 sm:px-2.5 sm:text-[10px]">
             {t.categories[destination.category] || destination.category}
@@ -41,7 +41,7 @@ export default function HomeDestinationCard({ destination, priority = false }) {
         <button
           type="button"
           onClick={() => navigate(`/planner?dest=${destination.id}&name=${encodeURIComponent(name)}`)}
-          className="inline-flex min-h-[44px] w-full items-center justify-center gap-1.5 rounded-xl bg-toba px-2 text-[11px] font-semibold text-cream transition hover:bg-tobaDeep focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brick sm:text-xs"
+          className="inline-flex min-h-[44px] w-full items-center justify-center gap-1.5 rounded-xl bg-toba/8 px-2 text-[11px] font-semibold text-toba transition-colors duration-200 hover:bg-toba hover:text-cream focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brick sm:text-xs"
         >
           <Sparkles className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
           {t.home.planDestination}

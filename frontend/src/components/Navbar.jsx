@@ -1,5 +1,5 @@
-import React from "react";
-import { Link, NavLink, useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useLang } from "../contexts/LanguageContext.jsx";
 import { useAuth } from "../contexts/AuthContext.jsx";
 import { LogOut, Languages } from "lucide-react";
@@ -10,10 +10,24 @@ export default function Navbar() {
   const { lang, toggle, t } = useLang();
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const isHome = location.pathname === "/";
+  const [scrolled, setScrolled] = useState(() => (
+    typeof window !== "undefined" ? window.scrollY > 16 : false
+  ));
+
+  useEffect(() => {
+    if (!isHome) return undefined;
+    const updateScrolledState = () => setScrolled(window.scrollY > 16);
+    updateScrolledState();
+    window.addEventListener("scroll", updateScrolledState, { passive: true });
+    return () => window.removeEventListener("scroll", updateScrolledState);
+  }, [isHome]);
 
   const isAuth = user && typeof user === "object";
   const isAdmin = isAuth && user.role === "admin";
   const isPartner = isAuth && user.role === "partner";
+  const homeAtTop = isHome && !scrolled;
 
   const navItem = ({ isActive }) =>
     `px-3 py-2 rounded-lg text-sm transition-colors duration-200 ${
@@ -21,7 +35,11 @@ export default function Navbar() {
     }`;
 
   return (
-    <header className="sticky top-0 z-40 border-b border-line bg-cream/95 pt-[env(safe-area-inset-top)] backdrop-blur">
+    <header
+      className={`sticky top-0 z-40 border-b pt-[env(safe-area-inset-top)] transition-[background-color,border-color,box-shadow,backdrop-filter] duration-300 ${homeAtTop ? "home-hero-surface border-transparent shadow-none" : "border-line bg-cream/95 shadow-[0_4px_18px_rgba(15,61,62,0.08)] backdrop-blur-xl"}`}
+      data-testid="site-header"
+      data-visual-state={homeAtTop ? "home-top" : "solid"}
+    >
       <nav
         className="app-gutter mx-auto flex h-14 max-w-7xl min-w-0 items-center justify-between gap-2 md:h-16 md:gap-3"
         data-testid="main-navbar"
@@ -46,9 +64,9 @@ export default function Navbar() {
           <NavLink to="/planner" className={navItem} data-testid="nav-planner">
             {t.nav.planner}
           </NavLink>
-          <Link to="/docs" className="px-3 py-2 rounded-lg text-sm transition-colors duration-200 text-inkSoft hover:text-toba font-medium">
+          <NavLink to="/docs" className={navItem} data-testid="nav-docs">
             {t.nav.docs}
-          </Link>
+          </NavLink>
           <NavLink to="/partners" className={navItem} data-testid="nav-partners">
             {t.nav.partners}
           </NavLink>
