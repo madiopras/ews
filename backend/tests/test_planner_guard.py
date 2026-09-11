@@ -5,7 +5,7 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from planner_guard import planner_context_violation, planner_scope_message
+from app.modules.planner.guard import planner_context_violation, planner_scope_message
 
 
 @pytest.mark.parametrize("text", [

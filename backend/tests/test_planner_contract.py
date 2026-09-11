@@ -6,7 +6,7 @@ from pydantic import TypeAdapter, ValidationError
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from planner_contract import BUDGET_STYLES, BudgetStyle, planner_style_instruction, resolved_budget_style, style_label
+from app.modules.planner.contract import BUDGET_STYLES, BudgetStyle, planner_style_instruction, resolved_budget_style, style_label
 
 
 def test_budget_style_schema_allows_only_the_three_supported_values():

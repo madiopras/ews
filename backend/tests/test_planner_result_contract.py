@@ -6,7 +6,7 @@ from pydantic import ValidationError
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from planner_result_contract import (
+from app.shared.planner_result import (
     PLANNER_ERROR_CODES,
     PLANNER_RESULT_VERSION,
     PlannerResultV2,

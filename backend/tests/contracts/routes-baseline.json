@@ -1,0 +1,2268 @@
+[
+  {
+    "dependencies": [
+      "app.api.dependencies.get_database",
+      "app.modules.administration.dependencies.get_log_service",
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.auth.dependencies.require_admin"
+    ],
+    "domain": "admin",
+    "method": "GET",
+    "name": "list_ai_logs",
+    "operation_id": null,
+    "path": "/api/admin/ai-logs",
+    "response_model": null,
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_database",
+      "app.modules.administration.dependencies.get_log_service",
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.auth.dependencies.require_admin"
+    ],
+    "domain": "admin",
+    "method": "GET",
+    "name": "list_audit_logs",
+    "operation_id": null,
+    "path": "/api/admin/audit-logs",
+    "response_model": null,
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_app_settings",
+      "app.api.dependencies.get_database",
+      "app.modules.administration.dependencies.get_audit_service",
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.auth.dependencies.require_admin",
+      "app.modules.backups.dependencies.get_backup_files",
+      "app.modules.backups.dependencies.get_backup_repository",
+      "app.modules.backups.dependencies.get_backup_service"
+    ],
+    "domain": "admin",
+    "method": "GET",
+    "name": "list_backups",
+    "operation_id": null,
+    "path": "/api/admin/backups",
+    "response_model": null,
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_app_settings",
+      "app.api.dependencies.get_database",
+      "app.modules.administration.dependencies.get_audit_service",
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.auth.dependencies.require_admin",
+      "app.modules.backups.dependencies.get_backup_files",
+      "app.modules.backups.dependencies.get_backup_repository",
+      "app.modules.backups.dependencies.get_backup_service"
+    ],
+    "domain": "admin",
+    "method": "POST",
+    "name": "create_backup",
+    "operation_id": null,
+    "path": "/api/admin/backups",
+    "response_model": null,
+    "status_code": 202
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_app_settings",
+      "app.api.dependencies.get_database",
+      "app.modules.administration.dependencies.get_audit_service",
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.auth.dependencies.require_admin",
+      "app.modules.backups.dependencies.get_backup_files",
+      "app.modules.backups.dependencies.get_backup_repository",
+      "app.modules.backups.dependencies.get_backup_service"
+    ],
+    "domain": "admin",
+    "method": "GET",
+    "name": "backup_status",
+    "operation_id": null,
+    "path": "/api/admin/backups/status",
+    "response_model": null,
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_app_settings",
+      "app.api.dependencies.get_database",
+      "app.modules.administration.dependencies.get_audit_service",
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.auth.dependencies.require_admin",
+      "app.modules.backups.dependencies.get_backup_files",
+      "app.modules.backups.dependencies.get_backup_repository",
+      "app.modules.backups.dependencies.get_backup_service"
+    ],
+    "domain": "admin",
+    "method": "DELETE",
+    "name": "delete_backup",
+    "operation_id": null,
+    "path": "/api/admin/backups/{backup_id}",
+    "response_model": null,
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_app_settings",
+      "app.api.dependencies.get_database",
+      "app.modules.administration.dependencies.get_audit_service",
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.auth.dependencies.require_admin",
+      "app.modules.backups.dependencies.get_backup_files",
+      "app.modules.backups.dependencies.get_backup_repository",
+      "app.modules.backups.dependencies.get_backup_service"
+    ],
+    "domain": "admin",
+    "method": "GET",
+    "name": "download_backup",
+    "operation_id": null,
+    "path": "/api/admin/backups/{backup_id}/download",
+    "response_model": null,
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_database",
+      "app.modules.administration.dependencies.get_dashboard_service",
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.auth.dependencies.require_admin"
+    ],
+    "domain": "admin",
+    "method": "GET",
+    "name": "admin_dashboard",
+    "operation_id": null,
+    "path": "/api/admin/dashboard",
+    "response_model": null,
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_database",
+      "app.api.dependencies.get_destination_admin_service",
+      "app.api.dependencies.get_destination_repository",
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.auth.dependencies.require_admin"
+    ],
+    "domain": "admin",
+    "method": "GET",
+    "name": "list_destinations_admin_page",
+    "operation_id": null,
+    "path": "/api/admin/destinations",
+    "response_model": "app.modules.destinations.schemas.DestinationAdminPage",
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_database",
+      "app.api.dependencies.get_destination_admin_service",
+      "app.api.dependencies.get_destination_repository",
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.auth.dependencies.require_admin"
+    ],
+    "domain": "admin",
+    "method": "GET",
+    "name": "get_destination_admin",
+    "operation_id": null,
+    "path": "/api/admin/destinations/{dest_id}",
+    "response_model": "app.modules.destinations.schemas.DestinationOut",
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_app_settings",
+      "app.api.dependencies.get_database",
+      "app.modules.administration.dependencies.get_audit_service",
+      "app.modules.administration.dependencies.get_email_template_service",
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.auth.dependencies.require_admin"
+    ],
+    "domain": "admin",
+    "method": "GET",
+    "name": "list_email_templates",
+    "operation_id": null,
+    "path": "/api/admin/email-templates",
+    "response_model": null,
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_app_settings",
+      "app.api.dependencies.get_database",
+      "app.modules.administration.dependencies.get_audit_service",
+      "app.modules.administration.dependencies.get_email_template_service",
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.auth.dependencies.require_admin"
+    ],
+    "domain": "admin",
+    "method": "POST",
+    "name": "create_email_template",
+    "operation_id": null,
+    "path": "/api/admin/email-templates",
+    "response_model": null,
+    "status_code": 201
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_app_settings",
+      "app.api.dependencies.get_database",
+      "app.modules.administration.dependencies.get_audit_service",
+      "app.modules.administration.dependencies.get_email_template_service",
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.auth.dependencies.require_admin"
+    ],
+    "domain": "admin",
+    "method": "DELETE",
+    "name": "delete_email_template",
+    "operation_id": null,
+    "path": "/api/admin/email-templates/{template_id}",
+    "response_model": null,
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_app_settings",
+      "app.api.dependencies.get_database",
+      "app.modules.administration.dependencies.get_audit_service",
+      "app.modules.administration.dependencies.get_email_template_service",
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.auth.dependencies.require_admin"
+    ],
+    "domain": "admin",
+    "method": "GET",
+    "name": "read_email_template",
+    "operation_id": null,
+    "path": "/api/admin/email-templates/{template_id}",
+    "response_model": null,
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_app_settings",
+      "app.api.dependencies.get_database",
+      "app.modules.administration.dependencies.get_audit_service",
+      "app.modules.administration.dependencies.get_email_template_service",
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.auth.dependencies.require_admin"
+    ],
+    "domain": "admin",
+    "method": "PUT",
+    "name": "update_email_template",
+    "operation_id": null,
+    "path": "/api/admin/email-templates/{template_id}",
+    "response_model": null,
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_app_settings",
+      "app.api.dependencies.get_database",
+      "app.modules.administration.dependencies.get_audit_service",
+      "app.modules.administration.dependencies.get_governance_service",
+      "app.modules.administration.dependencies.get_notification_gateway",
+      "app.modules.administration.dependencies.get_notification_repository",
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.auth.dependencies.require_admin"
+    ],
+    "domain": "admin",
+    "method": "GET",
+    "name": "governance_analytics",
+    "operation_id": null,
+    "path": "/api/admin/governance/analytics",
+    "response_model": null,
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_app_settings",
+      "app.api.dependencies.get_database",
+      "app.modules.administration.dependencies.get_audit_service",
+      "app.modules.administration.dependencies.get_governance_service",
+      "app.modules.administration.dependencies.get_notification_gateway",
+      "app.modules.administration.dependencies.get_notification_repository",
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.auth.dependencies.require_admin"
+    ],
+    "domain": "admin",
+    "method": "PATCH",
+    "name": "update_editorial_workflow",
+    "operation_id": null,
+    "path": "/api/admin/governance/destinations/{destination_id}/workflow",
+    "response_model": null,
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_database",
+      "app.modules.administration.dependencies.get_notification_repository",
+      "app.modules.administration.dependencies.get_notification_service",
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.auth.dependencies.require_admin"
+    ],
+    "domain": "admin",
+    "method": "GET",
+    "name": "governance_notifications",
+    "operation_id": null,
+    "path": "/api/admin/governance/notifications",
+    "response_model": null,
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_app_settings",
+      "app.api.dependencies.get_database",
+      "app.modules.administration.dependencies.get_audit_service",
+      "app.modules.administration.dependencies.get_governance_service",
+      "app.modules.administration.dependencies.get_notification_gateway",
+      "app.modules.administration.dependencies.get_notification_repository",
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.auth.dependencies.require_admin"
+    ],
+    "domain": "admin",
+    "method": "GET",
+    "name": "governance_overview",
+    "operation_id": null,
+    "path": "/api/admin/governance/overview",
+    "response_model": null,
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_app_settings",
+      "app.api.dependencies.get_database",
+      "app.modules.administration.dependencies.get_audit_service",
+      "app.modules.administration.dependencies.get_governance_service",
+      "app.modules.administration.dependencies.get_notification_gateway",
+      "app.modules.administration.dependencies.get_notification_repository",
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.auth.dependencies.require_admin"
+    ],
+    "domain": "admin",
+    "method": "POST",
+    "name": "notify_partner_attention",
+    "operation_id": null,
+    "path": "/api/admin/governance/partners/{partner_id}/notify",
+    "response_model": null,
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_app_settings",
+      "app.api.dependencies.get_database",
+      "app.modules.administration.dependencies.get_audit_service",
+      "app.modules.administration.dependencies.get_governance_service",
+      "app.modules.administration.dependencies.get_notification_gateway",
+      "app.modules.administration.dependencies.get_notification_repository",
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.auth.dependencies.require_admin"
+    ],
+    "domain": "admin",
+    "method": "GET",
+    "name": "governance_destination_preview",
+    "operation_id": null,
+    "path": "/api/admin/governance/preview/destinations/{destination_id}",
+    "response_model": null,
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_app_settings",
+      "app.api.dependencies.get_database",
+      "app.modules.administration.dependencies.get_audit_service",
+      "app.modules.administration.dependencies.get_governance_service",
+      "app.modules.administration.dependencies.get_notification_gateway",
+      "app.modules.administration.dependencies.get_notification_repository",
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.auth.dependencies.require_admin"
+    ],
+    "domain": "admin",
+    "method": "GET",
+    "name": "governance_partner_preview",
+    "operation_id": null,
+    "path": "/api/admin/governance/preview/partners/{partner_id}",
+    "response_model": null,
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_app_settings",
+      "app.api.dependencies.get_database",
+      "app.modules.administration.dependencies.get_audit_service",
+      "app.modules.administration.dependencies.get_governance_service",
+      "app.modules.administration.dependencies.get_notification_gateway",
+      "app.modules.administration.dependencies.get_notification_repository",
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.auth.dependencies.require_admin"
+    ],
+    "domain": "admin",
+    "method": "GET",
+    "name": "list_content_reports",
+    "operation_id": null,
+    "path": "/api/admin/governance/reports",
+    "response_model": null,
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_app_settings",
+      "app.api.dependencies.get_database",
+      "app.modules.administration.dependencies.get_audit_service",
+      "app.modules.administration.dependencies.get_governance_service",
+      "app.modules.administration.dependencies.get_notification_gateway",
+      "app.modules.administration.dependencies.get_notification_repository",
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.auth.dependencies.require_admin"
+    ],
+    "domain": "admin",
+    "method": "PATCH",
+    "name": "moderate_content_report",
+    "operation_id": null,
+    "path": "/api/admin/governance/reports/{report_id}",
+    "response_model": null,
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.auth.dependencies.require_admin"
+    ],
+    "domain": "admin",
+    "method": "GET",
+    "name": "governance_role_preview",
+    "operation_id": null,
+    "path": "/api/admin/governance/role-preview/{role}",
+    "response_model": null,
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_app_settings",
+      "app.api.dependencies.get_database",
+      "app.modules.administration.dependencies.get_audit_service",
+      "app.modules.administration.dependencies.get_llm_profile_service",
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.auth.dependencies.require_admin"
+    ],
+    "domain": "admin",
+    "method": "GET",
+    "name": "list_llm_profiles",
+    "operation_id": null,
+    "path": "/api/admin/llm-profiles",
+    "response_model": null,
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_app_settings",
+      "app.api.dependencies.get_database",
+      "app.modules.administration.dependencies.get_audit_service",
+      "app.modules.administration.dependencies.get_llm_profile_service",
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.auth.dependencies.require_admin"
+    ],
+    "domain": "admin",
+    "method": "POST",
+    "name": "create_llm_profile",
+    "operation_id": null,
+    "path": "/api/admin/llm-profiles",
+    "response_model": null,
+    "status_code": 201
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_app_settings",
+      "app.api.dependencies.get_database",
+      "app.modules.administration.dependencies.get_audit_service",
+      "app.modules.administration.dependencies.get_llm_profile_service",
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.auth.dependencies.require_admin"
+    ],
+    "domain": "admin",
+    "method": "GET",
+    "name": "llm_runtime_status",
+    "operation_id": null,
+    "path": "/api/admin/llm-profiles/runtime",
+    "response_model": null,
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_app_settings",
+      "app.api.dependencies.get_database",
+      "app.modules.administration.dependencies.get_audit_service",
+      "app.modules.administration.dependencies.get_llm_profile_service",
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.auth.dependencies.require_admin"
+    ],
+    "domain": "admin",
+    "method": "POST",
+    "name": "activate_environment_llm",
+    "operation_id": null,
+    "path": "/api/admin/llm-profiles/use-environment",
+    "response_model": null,
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_app_settings",
+      "app.api.dependencies.get_database",
+      "app.modules.administration.dependencies.get_audit_service",
+      "app.modules.administration.dependencies.get_llm_profile_service",
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.auth.dependencies.require_admin"
+    ],
+    "domain": "admin",
+    "method": "DELETE",
+    "name": "delete_llm_profile",
+    "operation_id": null,
+    "path": "/api/admin/llm-profiles/{profile_id}",
+    "response_model": null,
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_app_settings",
+      "app.api.dependencies.get_database",
+      "app.modules.administration.dependencies.get_audit_service",
+      "app.modules.administration.dependencies.get_llm_profile_service",
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.auth.dependencies.require_admin"
+    ],
+    "domain": "admin",
+    "method": "GET",
+    "name": "read_llm_profile",
+    "operation_id": null,
+    "path": "/api/admin/llm-profiles/{profile_id}",
+    "response_model": null,
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_app_settings",
+      "app.api.dependencies.get_database",
+      "app.modules.administration.dependencies.get_audit_service",
+      "app.modules.administration.dependencies.get_llm_profile_service",
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.auth.dependencies.require_admin"
+    ],
+    "domain": "admin",
+    "method": "PUT",
+    "name": "update_llm_profile",
+    "operation_id": null,
+    "path": "/api/admin/llm-profiles/{profile_id}",
+    "response_model": null,
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_app_settings",
+      "app.api.dependencies.get_database",
+      "app.modules.administration.dependencies.get_audit_service",
+      "app.modules.administration.dependencies.get_llm_profile_service",
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.auth.dependencies.require_admin"
+    ],
+    "domain": "admin",
+    "method": "POST",
+    "name": "activate_llm_profile",
+    "operation_id": null,
+    "path": "/api/admin/llm-profiles/{profile_id}/activate",
+    "response_model": null,
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_app_settings",
+      "app.api.dependencies.get_database",
+      "app.modules.administration.dependencies.get_audit_service",
+      "app.modules.administration.dependencies.get_llm_profile_service",
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.auth.dependencies.require_admin"
+    ],
+    "domain": "admin",
+    "method": "POST",
+    "name": "duplicate_llm_profile",
+    "operation_id": null,
+    "path": "/api/admin/llm-profiles/{profile_id}/duplicate",
+    "response_model": null,
+    "status_code": 201
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_app_settings",
+      "app.api.dependencies.get_database",
+      "app.modules.administration.dependencies.get_audit_service",
+      "app.modules.administration.dependencies.get_llm_profile_service",
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.auth.dependencies.require_admin"
+    ],
+    "domain": "admin",
+    "method": "POST",
+    "name": "test_llm_profile",
+    "operation_id": null,
+    "path": "/api/admin/llm-profiles/{profile_id}/test",
+    "response_model": null,
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.auth.dependencies.require_admin",
+      "app.modules.partners.dependencies.get_partner_notifications",
+      "app.modules.partners.dependencies.get_partner_repository",
+      "app.modules.partners.dependencies.get_partner_service",
+      "app.modules.partners.dependencies.get_partner_storage"
+    ],
+    "domain": "admin",
+    "method": "GET",
+    "name": "list_partners_admin_page",
+    "operation_id": null,
+    "path": "/api/admin/partners",
+    "response_model": "app.modules.partners.schemas.PartnerAdminPage",
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.auth.dependencies.require_admin",
+      "app.modules.partners.dependencies.get_partner_notifications",
+      "app.modules.partners.dependencies.get_partner_repository",
+      "app.modules.partners.dependencies.get_partner_service",
+      "app.modules.partners.dependencies.get_partner_storage"
+    ],
+    "domain": "admin",
+    "method": "GET",
+    "name": "get_partner_admin",
+    "operation_id": null,
+    "path": "/api/admin/partners/{partner_id}",
+    "response_model": "app.modules.partners.schemas.PartnerAdminOut",
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.partners.dependencies.get_partner_notifications",
+      "app.modules.partners.dependencies.get_partner_repository",
+      "app.modules.partners.dependencies.get_partner_service",
+      "app.modules.partners.dependencies.get_partner_storage"
+    ],
+    "domain": "admin",
+    "method": "GET",
+    "name": "download_partner_document",
+    "operation_id": null,
+    "path": "/api/admin/partners/{partner_id}/documents/{document_id}",
+    "response_model": null,
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.auth.dependencies.require_admin",
+      "app.modules.partners.dependencies.get_partner_notifications",
+      "app.modules.partners.dependencies.get_partner_repository",
+      "app.modules.partners.dependencies.get_partner_service",
+      "app.modules.partners.dependencies.get_partner_storage"
+    ],
+    "domain": "admin",
+    "method": "PUT",
+    "name": "assign_partner_owner",
+    "operation_id": null,
+    "path": "/api/admin/partners/{partner_id}/owner",
+    "response_model": "app.modules.partners.schemas.PartnerAdminOut",
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_app_settings",
+      "app.api.dependencies.get_database",
+      "app.modules.administration.dependencies.get_audit_service",
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.auth.dependencies.require_admin",
+      "app.modules.billing.dependencies.get_plan_repository",
+      "app.modules.billing.dependencies.get_plan_service"
+    ],
+    "domain": "admin",
+    "method": "GET",
+    "name": "list_admin_plans",
+    "operation_id": null,
+    "path": "/api/admin/premium/plans",
+    "response_model": "app.modules.billing.schemas.PlanAdminPage",
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_app_settings",
+      "app.api.dependencies.get_database",
+      "app.modules.administration.dependencies.get_audit_service",
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.auth.dependencies.require_admin",
+      "app.modules.billing.dependencies.get_plan_repository",
+      "app.modules.billing.dependencies.get_plan_service"
+    ],
+    "domain": "admin",
+    "method": "POST",
+    "name": "create_plan",
+    "operation_id": null,
+    "path": "/api/admin/premium/plans",
+    "response_model": "app.modules.billing.schemas.PlanOut",
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_app_settings",
+      "app.api.dependencies.get_database",
+      "app.modules.administration.dependencies.get_audit_service",
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.auth.dependencies.require_admin",
+      "app.modules.billing.dependencies.get_plan_repository",
+      "app.modules.billing.dependencies.get_plan_service"
+    ],
+    "domain": "admin",
+    "method": "DELETE",
+    "name": "delete_plan",
+    "operation_id": null,
+    "path": "/api/admin/premium/plans/{plan_id}",
+    "response_model": null,
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_app_settings",
+      "app.api.dependencies.get_database",
+      "app.modules.administration.dependencies.get_audit_service",
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.auth.dependencies.require_admin",
+      "app.modules.billing.dependencies.get_plan_repository",
+      "app.modules.billing.dependencies.get_plan_service"
+    ],
+    "domain": "admin",
+    "method": "PUT",
+    "name": "update_plan",
+    "operation_id": null,
+    "path": "/api/admin/premium/plans/{plan_id}",
+    "response_model": "app.modules.billing.schemas.PlanOut",
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_app_settings",
+      "app.api.dependencies.get_database",
+      "app.modules.administration.dependencies.get_audit_service",
+      "app.modules.administration.dependencies.get_mongo_client",
+      "app.modules.administration.dependencies.get_settings_service",
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.auth.dependencies.require_admin"
+    ],
+    "domain": "admin",
+    "method": "GET",
+    "name": "read_admin_settings",
+    "operation_id": null,
+    "path": "/api/admin/settings",
+    "response_model": null,
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_app_settings",
+      "app.api.dependencies.get_database",
+      "app.modules.administration.dependencies.get_audit_service",
+      "app.modules.administration.dependencies.get_mongo_client",
+      "app.modules.administration.dependencies.get_settings_service",
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.auth.dependencies.require_admin"
+    ],
+    "domain": "admin",
+    "method": "PUT",
+    "name": "update_admin_settings",
+    "operation_id": null,
+    "path": "/api/admin/settings",
+    "response_model": null,
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_app_settings",
+      "app.api.dependencies.get_database",
+      "app.modules.administration.dependencies.get_audit_service",
+      "app.modules.administration.dependencies.get_mongo_client",
+      "app.modules.administration.dependencies.get_settings_service",
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.auth.dependencies.require_admin"
+    ],
+    "domain": "admin",
+    "method": "GET",
+    "name": "integration_status",
+    "operation_id": null,
+    "path": "/api/admin/settings/integrations",
+    "response_model": null,
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_database",
+      "app.modules.administration.dependencies.get_log_service",
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.auth.dependencies.require_admin"
+    ],
+    "domain": "admin",
+    "method": "GET",
+    "name": "list_system_logs",
+    "operation_id": null,
+    "path": "/api/admin/system-logs",
+    "response_model": null,
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_app_settings",
+      "app.api.dependencies.get_database",
+      "app.modules.administration.dependencies.get_admin_user_service",
+      "app.modules.administration.dependencies.get_audit_service",
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.auth.dependencies.require_admin"
+    ],
+    "domain": "admin",
+    "method": "GET",
+    "name": "list_admin_users",
+    "operation_id": null,
+    "path": "/api/admin/users",
+    "response_model": "app.modules.administration.schemas.AdminUserPage",
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_app_settings",
+      "app.api.dependencies.get_database",
+      "app.modules.administration.dependencies.get_admin_user_service",
+      "app.modules.administration.dependencies.get_audit_service",
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.auth.dependencies.require_admin"
+    ],
+    "domain": "admin",
+    "method": "PATCH",
+    "name": "update_admin_user",
+    "operation_id": null,
+    "path": "/api/admin/users/{user_id}",
+    "response_model": "app.modules.administration.schemas.AdminUserOut",
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.auth.dependencies.get_manage_account",
+      "app.modules.auth.dependencies.get_user_repository"
+    ],
+    "domain": "auth-users",
+    "method": "DELETE",
+    "name": "delete_account",
+    "operation_id": null,
+    "path": "/api/account",
+    "response_model": null,
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.auth.dependencies.get_manage_account",
+      "app.modules.auth.dependencies.get_user_repository"
+    ],
+    "domain": "auth-users",
+    "method": "GET",
+    "name": "export_account",
+    "operation_id": null,
+    "path": "/api/account/export",
+    "response_model": null,
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.modules.auth.dependencies.get_email_gateway",
+      "app.modules.auth.dependencies.get_rate_limiter",
+      "app.modules.auth.dependencies.get_recover_credentials",
+      "app.modules.auth.dependencies.get_token_service",
+      "app.modules.auth.dependencies.get_user_repository"
+    ],
+    "domain": "auth-users",
+    "method": "POST",
+    "name": "forgot_password",
+    "operation_id": null,
+    "path": "/api/auth/forgot-password",
+    "response_model": null,
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.modules.auth.dependencies.get_google_gateway",
+      "app.modules.auth.dependencies.get_google_login_user",
+      "app.modules.auth.dependencies.get_rate_limiter",
+      "app.modules.auth.dependencies.get_token_service",
+      "app.modules.auth.dependencies.get_user_repository"
+    ],
+    "domain": "auth-users",
+    "method": "POST",
+    "name": "google_login",
+    "operation_id": null,
+    "path": "/api/auth/google",
+    "response_model": "app.modules.auth.schemas.UserOut",
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_app_settings"
+    ],
+    "domain": "auth-users",
+    "method": "GET",
+    "name": "google_auth_config",
+    "operation_id": null,
+    "path": "/api/auth/google/config",
+    "response_model": null,
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.modules.auth.dependencies.get_login_user",
+      "app.modules.auth.dependencies.get_rate_limiter",
+      "app.modules.auth.dependencies.get_token_service",
+      "app.modules.auth.dependencies.get_user_repository"
+    ],
+    "domain": "auth-users",
+    "method": "POST",
+    "name": "login",
+    "operation_id": null,
+    "path": "/api/auth/login",
+    "response_model": "app.modules.auth.schemas.UserOut",
+    "status_code": 200
+  },
+  {
+    "dependencies": [],
+    "domain": "auth-users",
+    "method": "POST",
+    "name": "logout",
+    "operation_id": null,
+    "path": "/api/auth/logout",
+    "response_model": null,
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.modules.auth.dependencies.get_current_user"
+    ],
+    "domain": "auth-users",
+    "method": "GET",
+    "name": "me",
+    "operation_id": null,
+    "path": "/api/auth/me",
+    "response_model": "app.modules.auth.schemas.UserOut",
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.modules.auth.dependencies.get_email_gateway",
+      "app.modules.auth.dependencies.get_rate_limiter",
+      "app.modules.auth.dependencies.get_register_user",
+      "app.modules.auth.dependencies.get_token_service",
+      "app.modules.auth.dependencies.get_user_repository"
+    ],
+    "domain": "auth-users",
+    "method": "POST",
+    "name": "register",
+    "operation_id": null,
+    "path": "/api/auth/register",
+    "response_model": "app.modules.auth.schemas.UserOut",
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.modules.auth.dependencies.get_email_gateway",
+      "app.modules.auth.dependencies.get_rate_limiter",
+      "app.modules.auth.dependencies.get_recover_credentials",
+      "app.modules.auth.dependencies.get_token_service",
+      "app.modules.auth.dependencies.get_user_repository"
+    ],
+    "domain": "auth-users",
+    "method": "POST",
+    "name": "reset_password",
+    "operation_id": null,
+    "path": "/api/auth/reset-password",
+    "response_model": null,
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.modules.auth.dependencies.get_email_gateway",
+      "app.modules.auth.dependencies.get_rate_limiter",
+      "app.modules.auth.dependencies.get_recover_credentials",
+      "app.modules.auth.dependencies.get_token_service",
+      "app.modules.auth.dependencies.get_user_repository"
+    ],
+    "domain": "auth-users",
+    "method": "POST",
+    "name": "verify_email",
+    "operation_id": null,
+    "path": "/api/auth/verify-email",
+    "response_model": null,
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.auth.dependencies.get_email_gateway",
+      "app.modules.auth.dependencies.get_rate_limiter",
+      "app.modules.auth.dependencies.get_recover_credentials",
+      "app.modules.auth.dependencies.get_token_service",
+      "app.modules.auth.dependencies.get_user_repository"
+    ],
+    "domain": "auth-users",
+    "method": "POST",
+    "name": "resend_verification",
+    "operation_id": null,
+    "path": "/api/auth/verify-email/resend",
+    "response_model": null,
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.auth.dependencies.get_manage_account",
+      "app.modules.auth.dependencies.get_user_repository"
+    ],
+    "domain": "auth-users",
+    "method": "PUT",
+    "name": "update_profile",
+    "operation_id": null,
+    "path": "/api/profile",
+    "response_model": "app.modules.auth.schemas.UserOut",
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_database",
+      "app.api.dependencies.get_destination_repository",
+      "app.api.dependencies.get_destination_service"
+    ],
+    "domain": "destinations",
+    "method": "GET",
+    "name": "list_destinations",
+    "operation_id": null,
+    "path": "/api/destinations",
+    "response_model": "typing.List",
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_database",
+      "app.api.dependencies.get_destination_admin_service",
+      "app.api.dependencies.get_destination_repository",
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.auth.dependencies.require_admin"
+    ],
+    "domain": "destinations",
+    "method": "POST",
+    "name": "create_destination",
+    "operation_id": null,
+    "path": "/api/destinations",
+    "response_model": "app.modules.destinations.schemas.DestinationOut",
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_database",
+      "app.api.dependencies.get_destination_admin_service",
+      "app.api.dependencies.get_destination_repository",
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.auth.dependencies.require_admin"
+    ],
+    "domain": "destinations",
+    "method": "GET",
+    "name": "list_destinations_admin",
+    "operation_id": null,
+    "path": "/api/destinations/admin",
+    "response_model": "typing.List",
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_database",
+      "app.api.dependencies.get_destination_repository",
+      "app.api.dependencies.get_destination_service"
+    ],
+    "domain": "destinations",
+    "method": "POST",
+    "name": "destination_batch",
+    "operation_id": null,
+    "path": "/api/destinations/batch",
+    "response_model": "typing.List",
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_database",
+      "app.api.dependencies.get_destination_repository",
+      "app.api.dependencies.get_destination_service"
+    ],
+    "domain": "destinations",
+    "method": "GET",
+    "name": "destination_locations",
+    "operation_id": null,
+    "path": "/api/destinations/locations",
+    "response_model": "typing.List",
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_database",
+      "app.api.dependencies.get_destination_repository",
+      "app.api.dependencies.get_destination_service"
+    ],
+    "domain": "destinations",
+    "method": "GET",
+    "name": "search_destinations",
+    "operation_id": null,
+    "path": "/api/destinations/search",
+    "response_model": "app.modules.destinations.schemas.DestinationPublicPage",
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_database",
+      "app.api.dependencies.get_destination_repository",
+      "app.api.dependencies.get_destination_service"
+    ],
+    "domain": "destinations",
+    "method": "GET",
+    "name": "destination_suggestions",
+    "operation_id": null,
+    "path": "/api/destinations/suggestions",
+    "response_model": "typing.List",
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_database",
+      "app.api.dependencies.get_destination_repository",
+      "app.api.dependencies.get_destination_service"
+    ],
+    "domain": "destinations",
+    "method": "GET",
+    "name": "trending",
+    "operation_id": null,
+    "path": "/api/destinations/trending",
+    "response_model": "typing.List",
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_database",
+      "app.api.dependencies.get_destination_admin_service",
+      "app.api.dependencies.get_destination_repository",
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.auth.dependencies.require_admin"
+    ],
+    "domain": "destinations",
+    "method": "DELETE",
+    "name": "delete_destination",
+    "operation_id": null,
+    "path": "/api/destinations/{dest_id}",
+    "response_model": null,
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_database",
+      "app.api.dependencies.get_destination_repository",
+      "app.api.dependencies.get_destination_service"
+    ],
+    "domain": "destinations",
+    "method": "GET",
+    "name": "get_destination",
+    "operation_id": null,
+    "path": "/api/destinations/{dest_id}",
+    "response_model": "app.modules.destinations.schemas.DestinationOut",
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_database",
+      "app.api.dependencies.get_destination_admin_service",
+      "app.api.dependencies.get_destination_repository",
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.auth.dependencies.require_admin"
+    ],
+    "domain": "destinations",
+    "method": "PUT",
+    "name": "update_destination",
+    "operation_id": null,
+    "path": "/api/destinations/{dest_id}",
+    "response_model": "app.modules.destinations.schemas.DestinationOut",
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_database",
+      "app.api.dependencies.get_destination_admin_service",
+      "app.api.dependencies.get_destination_repository",
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.auth.dependencies.require_admin"
+    ],
+    "domain": "destinations",
+    "method": "PATCH",
+    "name": "toggle_destination_active",
+    "operation_id": null,
+    "path": "/api/destinations/{dest_id}/toggle-active",
+    "response_model": "app.modules.destinations.schemas.DestinationOut",
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_app_settings",
+      "app.api.dependencies.get_database",
+      "app.modules.administration.dependencies.get_audit_service",
+      "app.modules.administration.dependencies.get_mongo_client",
+      "app.modules.administration.dependencies.get_settings_service",
+      "app.modules.auth.dependencies.get_optional_user"
+    ],
+    "domain": "experience",
+    "method": "GET",
+    "name": "read_experience_features",
+    "operation_id": null,
+    "path": "/api/experience/features",
+    "response_model": null,
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_database",
+      "app.modules.administration.dependencies.get_notification_repository",
+      "app.modules.administration.dependencies.get_notification_service",
+      "app.modules.auth.dependencies.get_current_user"
+    ],
+    "domain": "governance-notifications",
+    "method": "GET",
+    "name": "list_my_notifications",
+    "operation_id": null,
+    "path": "/api/notifications",
+    "response_model": null,
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_database",
+      "app.modules.administration.dependencies.get_notification_repository",
+      "app.modules.administration.dependencies.get_notification_service",
+      "app.modules.auth.dependencies.get_current_user"
+    ],
+    "domain": "governance-notifications",
+    "method": "PATCH",
+    "name": "read_my_notification",
+    "operation_id": null,
+    "path": "/api/notifications/{notification_id}/read",
+    "response_model": null,
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_app_settings",
+      "app.api.dependencies.get_database",
+      "app.modules.administration.dependencies.get_audit_service",
+      "app.modules.administration.dependencies.get_governance_service",
+      "app.modules.administration.dependencies.get_notification_gateway",
+      "app.modules.administration.dependencies.get_notification_repository",
+      "app.modules.auth.dependencies.get_optional_user"
+    ],
+    "domain": "governance-notifications",
+    "method": "POST",
+    "name": "create_content_report",
+    "operation_id": null,
+    "path": "/api/reports",
+    "response_model": null,
+    "status_code": 201
+  },
+  {
+    "dependencies": [],
+    "domain": "health",
+    "method": "GET",
+    "name": "root",
+    "operation_id": null,
+    "path": "/api/",
+    "response_model": null,
+    "status_code": 200
+  },
+  {
+    "dependencies": [],
+    "domain": "health",
+    "method": "GET",
+    "name": "health",
+    "operation_id": null,
+    "path": "/health",
+    "response_model": null,
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_database",
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.itineraries.dependencies.get_itinerary_repository",
+      "app.modules.itineraries.dependencies.get_itinerary_service"
+    ],
+    "domain": "itineraries",
+    "method": "GET",
+    "name": "list_itineraries",
+    "operation_id": null,
+    "path": "/api/itineraries",
+    "response_model": "typing.List",
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_database",
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.itineraries.dependencies.get_itinerary_repository",
+      "app.modules.itineraries.dependencies.get_itinerary_service"
+    ],
+    "domain": "itineraries",
+    "method": "POST",
+    "name": "save_itinerary",
+    "operation_id": null,
+    "path": "/api/itineraries",
+    "response_model": "app.modules.itineraries.schemas.ItineraryOut",
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_database",
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.itineraries.dependencies.get_itinerary_repository",
+      "app.modules.itineraries.dependencies.get_itinerary_service"
+    ],
+    "domain": "itineraries",
+    "method": "DELETE",
+    "name": "delete_itinerary",
+    "operation_id": null,
+    "path": "/api/itineraries/{itin_id}",
+    "response_model": null,
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_database",
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.itineraries.dependencies.get_itinerary_repository",
+      "app.modules.itineraries.dependencies.get_itinerary_service"
+    ],
+    "domain": "itineraries",
+    "method": "GET",
+    "name": "get_itinerary",
+    "operation_id": null,
+    "path": "/api/itineraries/{itin_id}",
+    "response_model": "app.modules.itineraries.schemas.ItineraryOut",
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_database",
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.itineraries.dependencies.get_itinerary_repository",
+      "app.modules.itineraries.dependencies.get_itinerary_service"
+    ],
+    "domain": "itineraries",
+    "method": "PUT",
+    "name": "update_itinerary",
+    "operation_id": null,
+    "path": "/api/itineraries/{itin_id}",
+    "response_model": "app.modules.itineraries.schemas.ItineraryOut",
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_database",
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.itineraries.dependencies.get_itinerary_repository",
+      "app.modules.itineraries.dependencies.get_itinerary_service"
+    ],
+    "domain": "itineraries",
+    "method": "POST",
+    "name": "duplicate_itinerary",
+    "operation_id": null,
+    "path": "/api/itineraries/{itin_id}/duplicate",
+    "response_model": "app.modules.itineraries.schemas.ItineraryOut",
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_database",
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.itineraries.dependencies.get_itinerary_repository",
+      "app.modules.itineraries.dependencies.get_itinerary_service"
+    ],
+    "domain": "itineraries",
+    "method": "PATCH",
+    "name": "toggle_itinerary_share",
+    "operation_id": null,
+    "path": "/api/itineraries/{itin_id}/share",
+    "response_model": "app.modules.itineraries.schemas.ItineraryOut",
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_database",
+      "app.modules.itineraries.dependencies.get_itinerary_repository",
+      "app.modules.itineraries.dependencies.get_itinerary_service"
+    ],
+    "domain": "itineraries",
+    "method": "GET",
+    "name": "get_public_itinerary",
+    "operation_id": null,
+    "path": "/api/public/itineraries/{slug}",
+    "response_model": "app.modules.itineraries.schemas.PublicItineraryOut",
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_app_settings",
+      "app.api.dependencies.get_database",
+      "app.modules.administration.dependencies.get_audit_service",
+      "app.modules.media.dependencies.get_media_repository",
+      "app.modules.media.dependencies.get_media_service",
+      "app.modules.media.dependencies.get_object_storage"
+    ],
+    "domain": "media",
+    "method": "GET",
+    "name": "serve_file",
+    "operation_id": null,
+    "path": "/api/files/{path:path}",
+    "response_model": null,
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_app_settings",
+      "app.api.dependencies.get_database",
+      "app.modules.administration.dependencies.get_audit_service",
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.auth.dependencies.require_admin",
+      "app.modules.media.dependencies.get_media_repository",
+      "app.modules.media.dependencies.get_media_service",
+      "app.modules.media.dependencies.get_object_storage"
+    ],
+    "domain": "media",
+    "method": "POST",
+    "name": "upload_file",
+    "operation_id": null,
+    "path": "/api/upload",
+    "response_model": null,
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.modules.auth.dependencies.get_optional_user",
+      "app.modules.partners.dependencies.get_partner_notifications",
+      "app.modules.partners.dependencies.get_partner_repository",
+      "app.modules.partners.dependencies.get_partner_service",
+      "app.modules.partners.dependencies.get_partner_storage"
+    ],
+    "domain": "partners",
+    "method": "POST",
+    "name": "track_partner_event",
+    "operation_id": null,
+    "path": "/api/analytics/partner-events",
+    "response_model": null,
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.partners.dependencies.get_partner_notifications",
+      "app.modules.partners.dependencies.get_partner_repository",
+      "app.modules.partners.dependencies.get_partner_service",
+      "app.modules.partners.dependencies.get_partner_storage"
+    ],
+    "domain": "partners",
+    "method": "POST",
+    "name": "start_partner_onboarding",
+    "operation_id": null,
+    "path": "/api/mitra/onboarding",
+    "response_model": "app.modules.partners.schemas.PartnerWorkspaceOut",
+    "status_code": 201
+  },
+  {
+    "dependencies": [
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.partners.dependencies.get_partner_notifications",
+      "app.modules.partners.dependencies.get_partner_repository",
+      "app.modules.partners.dependencies.get_partner_service",
+      "app.modules.partners.dependencies.get_partner_storage"
+    ],
+    "domain": "partners",
+    "method": "GET",
+    "name": "list_my_partners",
+    "operation_id": null,
+    "path": "/api/mitra/partners",
+    "response_model": "typing.List",
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.partners.dependencies.get_partner_notifications",
+      "app.modules.partners.dependencies.get_partner_repository",
+      "app.modules.partners.dependencies.get_partner_service",
+      "app.modules.partners.dependencies.get_partner_storage"
+    ],
+    "domain": "partners",
+    "method": "GET",
+    "name": "get_my_partner",
+    "operation_id": null,
+    "path": "/api/mitra/partners/{partner_id}",
+    "response_model": "app.modules.partners.schemas.PartnerWorkspaceOut",
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.partners.dependencies.get_partner_notifications",
+      "app.modules.partners.dependencies.get_partner_repository",
+      "app.modules.partners.dependencies.get_partner_service",
+      "app.modules.partners.dependencies.get_partner_storage"
+    ],
+    "domain": "partners",
+    "method": "PATCH",
+    "name": "update_my_partner_availability",
+    "operation_id": null,
+    "path": "/api/mitra/partners/{partner_id}/availability",
+    "response_model": "app.modules.partners.schemas.PartnerWorkspaceOut",
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.partners.dependencies.get_partner_notifications",
+      "app.modules.partners.dependencies.get_partner_repository",
+      "app.modules.partners.dependencies.get_partner_service",
+      "app.modules.partners.dependencies.get_partner_storage"
+    ],
+    "domain": "partners",
+    "method": "POST",
+    "name": "confirm_my_partner_freshness",
+    "operation_id": null,
+    "path": "/api/mitra/partners/{partner_id}/confirm-freshness",
+    "response_model": "app.modules.partners.schemas.PartnerWorkspaceOut",
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.partners.dependencies.get_partner_notifications",
+      "app.modules.partners.dependencies.get_partner_repository",
+      "app.modules.partners.dependencies.get_partner_service",
+      "app.modules.partners.dependencies.get_partner_storage"
+    ],
+    "domain": "partners",
+    "method": "GET",
+    "name": "download_partner_document",
+    "operation_id": null,
+    "path": "/api/mitra/partners/{partner_id}/documents/{document_id}",
+    "response_model": null,
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.partners.dependencies.get_partner_notifications",
+      "app.modules.partners.dependencies.get_partner_repository",
+      "app.modules.partners.dependencies.get_partner_service",
+      "app.modules.partners.dependencies.get_partner_storage"
+    ],
+    "domain": "partners",
+    "method": "PUT",
+    "name": "save_partner_draft",
+    "operation_id": null,
+    "path": "/api/mitra/partners/{partner_id}/draft",
+    "response_model": "app.modules.partners.schemas.PartnerWorkspaceOut",
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.partners.dependencies.get_partner_notifications",
+      "app.modules.partners.dependencies.get_partner_repository",
+      "app.modules.partners.dependencies.get_partner_service",
+      "app.modules.partners.dependencies.get_partner_storage"
+    ],
+    "domain": "partners",
+    "method": "POST",
+    "name": "upload_partner_gallery_image",
+    "operation_id": null,
+    "path": "/api/mitra/partners/{partner_id}/gallery",
+    "response_model": "app.modules.partners.schemas.PartnerWorkspaceOut",
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.partners.dependencies.get_partner_notifications",
+      "app.modules.partners.dependencies.get_partner_repository",
+      "app.modules.partners.dependencies.get_partner_service",
+      "app.modules.partners.dependencies.get_partner_storage"
+    ],
+    "domain": "partners",
+    "method": "DELETE",
+    "name": "delete_partner_gallery_image",
+    "operation_id": null,
+    "path": "/api/mitra/partners/{partner_id}/gallery/{image_id}",
+    "response_model": "app.modules.partners.schemas.PartnerWorkspaceOut",
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.partners.dependencies.get_partner_notifications",
+      "app.modules.partners.dependencies.get_partner_repository",
+      "app.modules.partners.dependencies.get_partner_service",
+      "app.modules.partners.dependencies.get_partner_storage"
+    ],
+    "domain": "partners",
+    "method": "GET",
+    "name": "get_my_partner_insights",
+    "operation_id": null,
+    "path": "/api/mitra/partners/{partner_id}/insights",
+    "response_model": null,
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.partners.dependencies.get_partner_notifications",
+      "app.modules.partners.dependencies.get_partner_repository",
+      "app.modules.partners.dependencies.get_partner_service",
+      "app.modules.partners.dependencies.get_partner_storage"
+    ],
+    "domain": "partners",
+    "method": "POST",
+    "name": "add_partner_staff",
+    "operation_id": null,
+    "path": "/api/mitra/partners/{partner_id}/members",
+    "response_model": "app.modules.partners.schemas.PartnerWorkspaceOut",
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.partners.dependencies.get_partner_notifications",
+      "app.modules.partners.dependencies.get_partner_repository",
+      "app.modules.partners.dependencies.get_partner_service",
+      "app.modules.partners.dependencies.get_partner_storage"
+    ],
+    "domain": "partners",
+    "method": "DELETE",
+    "name": "remove_partner_staff",
+    "operation_id": null,
+    "path": "/api/mitra/partners/{partner_id}/members/{member_user_id}",
+    "response_model": "app.modules.partners.schemas.PartnerWorkspaceOut",
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.partners.dependencies.get_partner_notifications",
+      "app.modules.partners.dependencies.get_partner_repository",
+      "app.modules.partners.dependencies.get_partner_service",
+      "app.modules.partners.dependencies.get_partner_storage"
+    ],
+    "domain": "partners",
+    "method": "GET",
+    "name": "list_my_partner_offerings",
+    "operation_id": null,
+    "path": "/api/mitra/partners/{partner_id}/offerings",
+    "response_model": "typing.List",
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.partners.dependencies.get_partner_notifications",
+      "app.modules.partners.dependencies.get_partner_repository",
+      "app.modules.partners.dependencies.get_partner_service",
+      "app.modules.partners.dependencies.get_partner_storage"
+    ],
+    "domain": "partners",
+    "method": "POST",
+    "name": "create_my_partner_offering",
+    "operation_id": null,
+    "path": "/api/mitra/partners/{partner_id}/offerings",
+    "response_model": "app.modules.partners.schemas.PartnerOfferingOut",
+    "status_code": 201
+  },
+  {
+    "dependencies": [
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.partners.dependencies.get_partner_notifications",
+      "app.modules.partners.dependencies.get_partner_repository",
+      "app.modules.partners.dependencies.get_partner_service",
+      "app.modules.partners.dependencies.get_partner_storage"
+    ],
+    "domain": "partners",
+    "method": "DELETE",
+    "name": "delete_my_partner_offering",
+    "operation_id": null,
+    "path": "/api/mitra/partners/{partner_id}/offerings/{offering_id}",
+    "response_model": null,
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.partners.dependencies.get_partner_notifications",
+      "app.modules.partners.dependencies.get_partner_repository",
+      "app.modules.partners.dependencies.get_partner_service",
+      "app.modules.partners.dependencies.get_partner_storage"
+    ],
+    "domain": "partners",
+    "method": "PUT",
+    "name": "update_my_partner_offering",
+    "operation_id": null,
+    "path": "/api/mitra/partners/{partner_id}/offerings/{offering_id}",
+    "response_model": "app.modules.partners.schemas.PartnerOfferingOut",
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_app_settings",
+      "app.api.dependencies.get_database",
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.billing.dependencies.get_midtrans_gateway",
+      "app.modules.billing.dependencies.get_payment_repository",
+      "app.modules.billing.dependencies.get_payment_service",
+      "app.modules.billing.dependencies.get_plan_repository"
+    ],
+    "domain": "partners",
+    "method": "GET",
+    "name": "list_my_partner_payments",
+    "operation_id": null,
+    "path": "/api/mitra/partners/{partner_id}/payments",
+    "response_model": null,
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_app_settings",
+      "app.api.dependencies.get_database",
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.billing.dependencies.get_midtrans_gateway",
+      "app.modules.billing.dependencies.get_payment_repository",
+      "app.modules.billing.dependencies.get_payment_service",
+      "app.modules.billing.dependencies.get_plan_repository"
+    ],
+    "domain": "partners",
+    "method": "POST",
+    "name": "retry_my_partner_payment",
+    "operation_id": null,
+    "path": "/api/mitra/partners/{partner_id}/payments/{order_id}/retry",
+    "response_model": null,
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.partners.dependencies.get_partner_notifications",
+      "app.modules.partners.dependencies.get_partner_repository",
+      "app.modules.partners.dependencies.get_partner_service",
+      "app.modules.partners.dependencies.get_partner_storage"
+    ],
+    "domain": "partners",
+    "method": "PUT",
+    "name": "update_my_partner_profile",
+    "operation_id": null,
+    "path": "/api/mitra/partners/{partner_id}/profile",
+    "response_model": "app.modules.partners.schemas.PartnerWorkspaceOut",
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.partners.dependencies.get_partner_notifications",
+      "app.modules.partners.dependencies.get_partner_repository",
+      "app.modules.partners.dependencies.get_partner_service",
+      "app.modules.partners.dependencies.get_partner_storage"
+    ],
+    "domain": "partners",
+    "method": "POST",
+    "name": "resubmit_my_partner",
+    "operation_id": null,
+    "path": "/api/mitra/partners/{partner_id}/resubmit",
+    "response_model": "app.modules.partners.schemas.PartnerWorkspaceOut",
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.partners.dependencies.get_partner_notifications",
+      "app.modules.partners.dependencies.get_partner_repository",
+      "app.modules.partners.dependencies.get_partner_service",
+      "app.modules.partners.dependencies.get_partner_storage"
+    ],
+    "domain": "partners",
+    "method": "POST",
+    "name": "submit_my_partner",
+    "operation_id": null,
+    "path": "/api/mitra/partners/{partner_id}/submit",
+    "response_model": "app.modules.partners.schemas.PartnerWorkspaceOut",
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.modules.partners.dependencies.get_partner_notifications",
+      "app.modules.partners.dependencies.get_partner_repository",
+      "app.modules.partners.dependencies.get_partner_service",
+      "app.modules.partners.dependencies.get_partner_storage"
+    ],
+    "domain": "partners",
+    "method": "GET",
+    "name": "list_partners",
+    "operation_id": null,
+    "path": "/api/partners",
+    "response_model": "typing.List",
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.partners.dependencies.get_partner_notifications",
+      "app.modules.partners.dependencies.get_partner_repository",
+      "app.modules.partners.dependencies.get_partner_service",
+      "app.modules.partners.dependencies.get_partner_storage"
+    ],
+    "domain": "partners",
+    "method": "POST",
+    "name": "register_partner",
+    "operation_id": null,
+    "path": "/api/partners",
+    "response_model": "app.modules.partners.schemas.PartnerOut",
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.auth.dependencies.require_admin",
+      "app.modules.partners.dependencies.get_partner_notifications",
+      "app.modules.partners.dependencies.get_partner_repository",
+      "app.modules.partners.dependencies.get_partner_service",
+      "app.modules.partners.dependencies.get_partner_storage"
+    ],
+    "domain": "partners",
+    "method": "GET",
+    "name": "list_partners_admin",
+    "operation_id": null,
+    "path": "/api/partners/admin",
+    "response_model": "typing.List",
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.auth.dependencies.require_admin",
+      "app.modules.partners.dependencies.get_partner_notifications",
+      "app.modules.partners.dependencies.get_partner_repository",
+      "app.modules.partners.dependencies.get_partner_service",
+      "app.modules.partners.dependencies.get_partner_storage"
+    ],
+    "domain": "partners",
+    "method": "POST",
+    "name": "create_partner_admin",
+    "operation_id": null,
+    "path": "/api/partners/admin",
+    "response_model": "app.modules.partners.schemas.PartnerAdminOut",
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.auth.dependencies.require_admin",
+      "app.modules.partners.dependencies.get_partner_notifications",
+      "app.modules.partners.dependencies.get_partner_repository",
+      "app.modules.partners.dependencies.get_partner_service",
+      "app.modules.partners.dependencies.get_partner_storage"
+    ],
+    "domain": "partners",
+    "method": "DELETE",
+    "name": "delete_partner",
+    "operation_id": null,
+    "path": "/api/partners/{partner_id}",
+    "response_model": null,
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.auth.dependencies.require_admin",
+      "app.modules.partners.dependencies.get_partner_notifications",
+      "app.modules.partners.dependencies.get_partner_repository",
+      "app.modules.partners.dependencies.get_partner_service",
+      "app.modules.partners.dependencies.get_partner_storage"
+    ],
+    "domain": "partners",
+    "method": "PUT",
+    "name": "update_partner_admin",
+    "operation_id": null,
+    "path": "/api/partners/{partner_id}",
+    "response_model": "app.modules.partners.schemas.PartnerAdminOut",
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.partners.dependencies.get_partner_notifications",
+      "app.modules.partners.dependencies.get_partner_repository",
+      "app.modules.partners.dependencies.get_partner_service",
+      "app.modules.partners.dependencies.get_partner_storage"
+    ],
+    "domain": "partners",
+    "method": "DELETE",
+    "name": "delete_partner_document",
+    "operation_id": null,
+    "path": "/api/partners/{partner_id}/documents/{document_id}",
+    "response_model": "app.modules.partners.schemas.PartnerAdminOut",
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.modules.partners.dependencies.get_partner_notifications",
+      "app.modules.partners.dependencies.get_partner_repository",
+      "app.modules.partners.dependencies.get_partner_service",
+      "app.modules.partners.dependencies.get_partner_storage"
+    ],
+    "domain": "partners",
+    "method": "GET",
+    "name": "get_public_partner",
+    "operation_id": null,
+    "path": "/api/partners/{partner_id}/public",
+    "response_model": "app.modules.partners.schemas.PartnerPublicDetailOut",
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.auth.dependencies.require_admin",
+      "app.modules.partners.dependencies.get_partner_notifications",
+      "app.modules.partners.dependencies.get_partner_repository",
+      "app.modules.partners.dependencies.get_partner_service",
+      "app.modules.partners.dependencies.get_partner_storage"
+    ],
+    "domain": "partners",
+    "method": "PATCH",
+    "name": "update_partner_status",
+    "operation_id": null,
+    "path": "/api/partners/{partner_id}/status",
+    "response_model": "app.modules.partners.schemas.PartnerAdminOut",
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.auth.dependencies.require_admin",
+      "app.modules.partners.dependencies.get_partner_notifications",
+      "app.modules.partners.dependencies.get_partner_repository",
+      "app.modules.partners.dependencies.get_partner_service",
+      "app.modules.partners.dependencies.get_partner_storage"
+    ],
+    "domain": "partners",
+    "method": "PATCH",
+    "name": "toggle_partner_active",
+    "operation_id": null,
+    "path": "/api/partners/{partner_id}/toggle-active",
+    "response_model": "app.modules.partners.schemas.PartnerAdminOut",
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.partners.dependencies.get_partner_notifications",
+      "app.modules.partners.dependencies.get_partner_repository",
+      "app.modules.partners.dependencies.get_partner_service",
+      "app.modules.partners.dependencies.get_partner_storage"
+    ],
+    "domain": "partners",
+    "method": "POST",
+    "name": "upload_partner_document",
+    "operation_id": null,
+    "path": "/api/partners/{partner_id}/upload-docs",
+    "response_model": "app.modules.partners.schemas.PartnerAdminOut",
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_app_settings",
+      "app.api.dependencies.get_database",
+      "app.modules.billing.dependencies.get_midtrans_gateway",
+      "app.modules.billing.dependencies.get_payment_repository",
+      "app.modules.billing.dependencies.get_payment_service",
+      "app.modules.billing.dependencies.get_plan_repository"
+    ],
+    "domain": "payments",
+    "method": "GET",
+    "name": "payments_config",
+    "operation_id": null,
+    "path": "/api/payments/config",
+    "response_model": null,
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_app_settings",
+      "app.api.dependencies.get_database",
+      "app.modules.billing.dependencies.get_midtrans_gateway",
+      "app.modules.billing.dependencies.get_payment_repository",
+      "app.modules.billing.dependencies.get_payment_service",
+      "app.modules.billing.dependencies.get_plan_repository"
+    ],
+    "domain": "payments",
+    "method": "POST",
+    "name": "midtrans_notification",
+    "operation_id": null,
+    "path": "/api/payments/midtrans/notification",
+    "response_model": null,
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_app_settings",
+      "app.api.dependencies.get_database",
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.billing.dependencies.get_midtrans_gateway",
+      "app.modules.billing.dependencies.get_payment_repository",
+      "app.modules.billing.dependencies.get_payment_service",
+      "app.modules.billing.dependencies.get_plan_repository"
+    ],
+    "domain": "payments",
+    "method": "POST",
+    "name": "create_snap_token",
+    "operation_id": null,
+    "path": "/api/payments/snap-token",
+    "response_model": null,
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_app_settings",
+      "app.api.dependencies.get_database",
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.billing.dependencies.get_midtrans_gateway",
+      "app.modules.billing.dependencies.get_payment_repository",
+      "app.modules.billing.dependencies.get_payment_service",
+      "app.modules.billing.dependencies.get_plan_repository"
+    ],
+    "domain": "payments",
+    "method": "GET",
+    "name": "payment_status",
+    "operation_id": null,
+    "path": "/api/payments/{order_id}/status",
+    "response_model": null,
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_app_settings",
+      "app.api.dependencies.get_database",
+      "app.modules.administration.dependencies.get_audit_service",
+      "app.modules.billing.dependencies.get_plan_repository",
+      "app.modules.billing.dependencies.get_plan_service"
+    ],
+    "domain": "payments",
+    "method": "GET",
+    "name": "list_public_plans",
+    "operation_id": null,
+    "path": "/api/premium/plans",
+    "response_model": "builtins.list",
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_app_settings",
+      "app.api.dependencies.get_database",
+      "app.modules.planner.dependencies.get_planner_analytics_service",
+      "app.modules.planner.dependencies.get_planner_identity"
+    ],
+    "domain": "planner",
+    "method": "POST",
+    "name": "track_planner_event",
+    "operation_id": null,
+    "path": "/api/analytics/planner-events",
+    "response_model": null,
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_app_settings",
+      "app.api.dependencies.get_database",
+      "app.modules.auth.dependencies.get_optional_user",
+      "app.modules.planner.dependencies.get_mongo_client",
+      "app.modules.planner.dependencies.get_planner_identity",
+      "app.modules.planner.dependencies.get_planner_quota_service",
+      "app.modules.planner.dependencies.get_planner_settings"
+    ],
+    "domain": "planner",
+    "method": "GET",
+    "name": "planner_quota",
+    "operation_id": null,
+    "path": "/api/planner/quota",
+    "response_model": null,
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_app_settings",
+      "app.api.dependencies.get_database",
+      "app.modules.administration.dependencies.get_audit_service",
+      "app.modules.auth.dependencies.get_optional_user",
+      "app.modules.planner.dependencies.get_mongo_client",
+      "app.modules.planner.dependencies.get_planner_generation_service",
+      "app.modules.planner.dependencies.get_planner_identity",
+      "app.modules.planner.dependencies.get_planner_llm_gateway",
+      "app.modules.planner.dependencies.get_planner_quota_service",
+      "app.modules.planner.dependencies.get_planner_settings"
+    ],
+    "domain": "planner",
+    "method": "POST",
+    "name": "trip_planner_stream",
+    "operation_id": null,
+    "path": "/api/trip-planner/stream",
+    "response_model": null,
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_database",
+      "app.modules.reviews.dependencies.get_review_repository",
+      "app.modules.reviews.dependencies.get_review_service"
+    ],
+    "domain": "reviews",
+    "method": "GET",
+    "name": "list_reviews",
+    "operation_id": null,
+    "path": "/api/destinations/{dest_id}/reviews",
+    "response_model": null,
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_database",
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.reviews.dependencies.get_review_repository",
+      "app.modules.reviews.dependencies.get_review_service"
+    ],
+    "domain": "reviews",
+    "method": "POST",
+    "name": "create_review",
+    "operation_id": null,
+    "path": "/api/destinations/{dest_id}/reviews",
+    "response_model": "app.modules.reviews.schemas.ReviewOut",
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_database",
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.reviews.dependencies.get_review_repository",
+      "app.modules.reviews.dependencies.get_review_service"
+    ],
+    "domain": "reviews",
+    "method": "DELETE",
+    "name": "delete_review",
+    "operation_id": null,
+    "path": "/api/reviews/{review_id}",
+    "response_model": null,
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_database",
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.reviews.dependencies.get_review_repository",
+      "app.modules.reviews.dependencies.get_review_service"
+    ],
+    "domain": "reviews",
+    "method": "PUT",
+    "name": "update_review",
+    "operation_id": null,
+    "path": "/api/reviews/{review_id}",
+    "response_model": "app.modules.reviews.schemas.ReviewOut",
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_app_settings",
+      "app.api.dependencies.get_database",
+      "app.modules.sharing.dependencies.get_sharing_repository",
+      "app.modules.sharing.dependencies.get_sharing_service"
+    ],
+    "domain": "sharing",
+    "method": "GET",
+    "name": "share_preview_page",
+    "operation_id": null,
+    "path": "/api/share/{slug}",
+    "response_model": null,
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_app_settings",
+      "app.api.dependencies.get_database",
+      "app.modules.sharing.dependencies.get_sharing_repository",
+      "app.modules.sharing.dependencies.get_sharing_service"
+    ],
+    "domain": "sharing",
+    "method": "GET",
+    "name": "share_card_image",
+    "operation_id": null,
+    "path": "/api/share/{slug}/image.png",
+    "response_model": null,
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_database",
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.wishlist.dependencies.get_wishlist_repository",
+      "app.modules.wishlist.dependencies.get_wishlist_service"
+    ],
+    "domain": "wishlist",
+    "method": "GET",
+    "name": "get_wishlist",
+    "operation_id": null,
+    "path": "/api/wishlist",
+    "response_model": "typing.List",
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_database",
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.wishlist.dependencies.get_wishlist_repository",
+      "app.modules.wishlist.dependencies.get_wishlist_service"
+    ],
+    "domain": "wishlist",
+    "method": "DELETE",
+    "name": "remove_wishlist",
+    "operation_id": null,
+    "path": "/api/wishlist/{dest_id}",
+    "response_model": null,
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_database",
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.wishlist.dependencies.get_wishlist_repository",
+      "app.modules.wishlist.dependencies.get_wishlist_service"
+    ],
+    "domain": "wishlist",
+    "method": "POST",
+    "name": "add_wishlist",
+    "operation_id": null,
+    "path": "/api/wishlist/{dest_id}",
+    "response_model": null,
+    "status_code": 200
+  }
+]
