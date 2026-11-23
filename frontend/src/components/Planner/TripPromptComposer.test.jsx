@@ -86,4 +86,21 @@ describe("TripPromptComposer animated placeholder", () => {
     await act(async () => jest.advanceTimersByTime(5000));
     expect(placeholder.textContent).toBe("Liburan keluarga");
   });
+
+  test("allows up to 500 characters and displays counter when approaching limit", async () => {
+    await act(async () => {
+      root.render(<ControlledComposer examples={[]} />);
+    });
+
+    const input = document.querySelector('[data-testid="test-prompt-input"]');
+    expect(input.getAttribute("maxlength")).toBe("500");
+    expect(document.querySelector('[data-testid="test-prompt-counter"]')).toBeNull();
+
+    const valueSetter = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, "value").set;
+    await act(async () => {
+      valueSetter.call(input, "a".repeat(420));
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+    });
+    expect(document.querySelector('[data-testid="test-prompt-counter"]').textContent).toBe("420/500");
+  });
 });

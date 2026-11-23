@@ -3,6 +3,7 @@ import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Search } from "lucide-react";
 import ImageDropzone from "../../../components/ImageDropzone.jsx";
+import PartnerTypeFields from "../../../components/PartnerTypeFields.jsx";
 import { FormActions } from "../../../components/admin/index.js";
 import { useLang } from "../../../contexts/LanguageContext.jsx";
 import useUnsavedChanges from "../../../hooks/useUnsavedChanges.js";
@@ -31,7 +32,7 @@ function Section({ title, hint, children }) {
 }
 
 export default function PartnerForm({ partner, destinations = [], destinationsLoading = false, onSubmit, onCancel, saving = false }) {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const copy = t.admin.partnerAdmin;
   const fields = t.admin.partnerForm;
   const [destinationSearch, setDestinationSearch] = useState("");
@@ -39,10 +40,12 @@ export default function PartnerForm({ partner, destinations = [], destinationsLo
     control,
     register,
     watch,
+    setValue,
     handleSubmit,
     formState: { errors, isDirty },
   } = useForm({ resolver: zodResolver(partnerSchema), defaultValues: partnerToForm(partner) });
-  const partnerType = watch("type");
+  const formValues = watch();
+  const partnerType = formValues.type;
   const visibleDestinations = useMemo(() => {
     const query = destinationSearch.trim().toLowerCase();
     if (!query) return destinations;
@@ -98,28 +101,19 @@ export default function PartnerForm({ partner, destinations = [], destinationsLo
         </div>
       </Section>
 
-      {partnerType === "culinary" && <Section title={fields.culinarySection} hint={fields.culinaryHint}>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {[
-            ["culinary_categories", fields.culinaryCategories],
-            ["culinary_specialties", fields.culinarySpecialties],
-            ["culinary_service_modes", fields.culinaryServiceModes],
-            ["culinary_dietary_tags", fields.culinaryDietaryTags],
-          ].map(([name, label]) => <Field key={name} label={label} error={errors[name]}>
-            <Controller
-              name={name}
-              control={control}
-              render={({ field }) => <input value={field.value.join(", ")} onChange={(event) => field.onChange(event.target.value.split(",").map((value) => value.trim()).filter(Boolean))} className="input-flat" />}
-            />
-          </Field>)}
-          <Field label={fields.culinaryOpeningInfo} error={errors.culinary_opening_info}>
-            <input {...register("culinary_opening_info")} className="input-flat" />
-          </Field>
-          <Field label={fields.culinaryReservationNote} error={errors.culinary_reservation_note}>
-            <input {...register("culinary_reservation_note")} className="input-flat" />
-          </Field>
+      <Section
+        title={lang === "en" ? `Details · ${t.partners.types[partnerType] || partnerType}` : `Detail Khusus · ${t.partners.types[partnerType] || partnerType}`}
+        hint={lang === "en" ? "Structured attributes used on the public profile and AI Trip Planner matching." : "Atribut terstruktur yang tampil di profil publik dan membantu pencocokan AI Trip Planner."}
+      >
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <PartnerTypeFields
+            type={partnerType}
+            values={formValues}
+            onChange={(key, val) => setValue(key, val, { shouldDirty: true, shouldValidate: true })}
+            lang={lang}
+          />
         </div>
-      </Section>}
+      </Section>
 
       <Section title={copy.coverageSection} hint={copy.coverageHint}>
         <div className="relative max-w-md mb-3">

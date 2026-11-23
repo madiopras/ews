@@ -10,6 +10,9 @@ export function createPlannerStreamState() {
     result: null,
     resultFormat: PLANNER_RESULT_FORMAT.LEGACY,
     progressPhase: "generating",
+    progressDay: 0,
+    progressTotalDays: 0,
+    generationId: "",
     completed: false,
     error: "",
     errorCode: "",
@@ -23,12 +26,21 @@ export function applyPlannerStreamEvent(state, event) {
   if (Array.isArray(event.recommendations)) next.recommendations = event.recommendations;
   if (Array.isArray(event.destination_ids)) next.destinationIds = event.destination_ids;
   if (PROGRESS_PHASES.has(event.progress?.phase)) next.progressPhase = event.progress.phase;
+  if (Number.isInteger(event.progress?.current_day) && event.progress.current_day > 0) {
+    next.progressDay = event.progress.current_day;
+  }
+  if (Number.isInteger(event.progress?.total_days) && event.progress.total_days > 0) {
+    next.progressTotalDays = event.progress.total_days;
+  }
   if (isPlannerResultV2(event.result)) {
     next.result = event.result;
     next.resultFormat = PLANNER_RESULT_FORMAT.STRUCTURED;
   } else if (event.result_format === PLANNER_RESULT_FORMAT.LEGACY) {
     next.result = null;
     next.resultFormat = PLANNER_RESULT_FORMAT.LEGACY;
+  }
+  if (typeof event.generation_id === "string" && event.generation_id.trim()) {
+    next.generationId = event.generation_id.trim();
   }
   if (event.done === true) next.completed = true;
   if (typeof event.error === "string") next.error = event.error;

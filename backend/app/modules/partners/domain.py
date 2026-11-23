@@ -4,6 +4,7 @@ import re
 from datetime import datetime, timezone
 
 from app.modules.partners.exceptions import PartnerError
+from app.shared.urls import safe_public_http_url
 
 EDITABLE_APPLICATION_STATUSES = {"draft", "needs_revision", "rejected"}
 GALLERY_EDITABLE_STATUSES = {*EDITABLE_APPLICATION_STATUSES, "approved"}
@@ -14,6 +15,38 @@ ADMIN_TRANSITIONS = {
     "rejected": {"rejected", "needs_revision", "pending"},
     "approved": {"rejected", "needs_revision", "pending"},
 }
+
+LIST_FIELD_LIMITS: tuple[tuple[str, int], ...] = (
+    ("guide_languages", 50),
+    ("guide_specialties", 80),
+    ("rental_vehicle_types", 80),
+    ("rental_service_options", 60),
+    ("rental_pickup_areas", 80),
+    ("homestay_room_types", 80),
+    ("homestay_facilities", 80),
+    ("souvenir_categories", 80),
+    ("souvenir_products", 100),
+    ("culinary_categories", 80),
+    ("culinary_specialties", 120),
+    ("culinary_service_modes", 50),
+    ("culinary_dietary_tags", 50),
+    ("tour_trip_types", 80),
+    ("tour_inclusions", 80),
+    ("tour_departure_hubs", 80),
+    ("activity_categories", 80),
+)
+
+TEXT_DETAIL_FIELDS: tuple[str, ...] = (
+    "guide_license_number",
+    "homestay_checkin_info",
+    "souvenir_packaging_note",
+    "souvenir_shop_hours",
+    "culinary_opening_info",
+    "culinary_reservation_note",
+    "tour_license_number",
+    "activity_duration_info",
+    "activity_safety_note",
+)
 
 
 def premium_active(document: dict, now: datetime | None = None) -> bool:
@@ -45,31 +78,38 @@ def normalize_partner_list(values: list[str], max_length: int = 80) -> list[str]
     )
 
 
+def normalize_optional_public_url(value: str, field_label: str) -> str:
+    trimmed = (value or "").strip()
+    if not trimmed:
+        return ""
+    validated = safe_public_http_url(trimmed)
+    if not validated:
+        raise PartnerError(400, f"Invalid {field_label}: must be a public HTTP(S) URL")
+    return validated
+
+
+def normalize_partner_type_fields(payload) -> dict:
+    """Normalize shared social links and all 7 partner type detail fields."""
+    changes = payload.model_dump(mode="json")
+    for field, length in LIST_FIELD_LIMITS:
+        changes[field] = normalize_partner_list(getattr(payload, field, []), length)
+    for field in TEXT_DETAIL_FIELDS:
+        changes[field] = (getattr(payload, field, "") or "").strip()
+    changes["instagram_url"] = normalize_optional_public_url(
+        getattr(payload, "instagram_url", ""), "Instagram URL"
+    )
+    changes["google_maps_url"] = normalize_optional_public_url(
+        getattr(payload, "google_maps_url", ""), "Google Maps URL"
+    )
+    return changes
+
+
 def partner_draft_changes(payload, updated_at: str) -> dict:
     """Normalize an onboarding draft without transport or persistence concerns."""
-    changes = payload.model_dump(mode="json")
+    changes = normalize_partner_type_fields(payload)
     for field in ("business_name", "description", "city", "address"):
-        changes[field] = getattr(payload, field).strip()
+        changes[field] = (getattr(payload, field) or "").strip()
     changes["service_tags"] = normalize_service_tags(payload.service_tags)
-    for field, length in (
-        ("guide_languages", 50),
-        ("rental_vehicle_types", 80),
-        ("homestay_facilities", 80),
-        ("souvenir_products", 100),
-        ("culinary_categories", 80),
-        ("culinary_specialties", 120),
-        ("culinary_service_modes", 50),
-        ("culinary_dietary_tags", 50),
-    ):
-        changes[field] = normalize_partner_list(getattr(payload, field), length)
-    for field in (
-        "guide_license_number",
-        "homestay_checkin_info",
-        "souvenir_shop_hours",
-        "culinary_opening_info",
-        "culinary_reservation_note",
-    ):
-        changes[field] = getattr(payload, field).strip()
     changes["whatsapp"] = (
         normalize_whatsapp(payload.whatsapp) if payload.whatsapp.strip() else ""
     )
@@ -90,13 +130,39 @@ def partner_completeness(
         "gallery": bool(document.get("gallery")),
         "offerings": offerings_count > 0,
     }
-    if document.get("type") == "culinary":
+    partner_type = document.get("type")
+    if partner_type == "guide":
+        checks["guide_languages"] = bool(document.get("guide_languages"))
+    elif partner_type == "rental":
+        checks["rental_vehicle_types"] = bool(document.get("rental_vehicle_types"))
+        checks["rental_service_options"] = bool(
+            document.get("rental_service_options")
+            or document.get("rental_driver_available")
+        )
+    elif partner_type == "homestay":
+        checks["homestay_room_types"] = bool(
+            document.get("homestay_room_types")
+            or int(document.get("homestay_room_count") or 0) > 0
+        )
+        checks["homestay_facilities"] = bool(document.get("homestay_facilities"))
+    elif partner_type == "souvenir":
+        checks["souvenir_products"] = bool(document.get("souvenir_products"))
+    elif partner_type == "culinary":
         checks.update(
             {
                 "culinary_specialties": bool(document.get("culinary_specialties")),
                 "culinary_service_modes": bool(document.get("culinary_service_modes")),
             }
         )
+    elif partner_type == "tour_operator":
+        checks.update(
+            {
+                "tour_trip_types": bool(document.get("tour_trip_types")),
+                "tour_inclusions": bool(document.get("tour_inclusions")),
+            }
+        )
+    elif partner_type == "activity":
+        checks["activity_categories"] = bool(document.get("activity_categories"))
     missing = [key for key, complete in checks.items() if not complete]
     return round(100 * (len(checks) - len(missing)) / len(checks)), missing
 
@@ -131,6 +197,13 @@ def validate_submission(document: dict) -> None:
         missing.append("souvenir_products")
     if partner_type == "culinary" and not document.get("culinary_specialties"):
         missing.append("culinary_specialties")
+    if partner_type == "tour_operator":
+        if not document.get("tour_trip_types"):
+            missing.append("tour_trip_types")
+        if not document.get("tour_inclusions"):
+            missing.append("tour_inclusions")
+    if partner_type == "activity" and not document.get("activity_categories"):
+        missing.append("activity_categories")
     if missing:
         raise PartnerError(
             400,

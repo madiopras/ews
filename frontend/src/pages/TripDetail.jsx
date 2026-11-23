@@ -13,6 +13,8 @@ import TripShareControls from "../components/TripShareControls.jsx";
 import ItineraryResult from "../components/Planner/ItineraryResult.jsx";
 import { travelStyleLabel, travelStyleOptions } from "../lib/travelStyle.js";
 import { hydratedDestinationsFromTrip, isPlannerResultV2, plannerResultForStorage } from "../lib/plannerResultContract.js";
+import { structuredResultToPlainMarkdown } from "../lib/plannerResultEditor.js";
+import { formatItineraryForWhatsapp } from "../lib/itineraryExport.js";
 
 const TripMap = React.lazy(() => import("../components/TripMap.jsx"));
 
@@ -119,6 +121,36 @@ export default function TripDetail() {
     }
   };
 
+  const saveStructuredStops = async (updatedResult) => {
+    if (!trip || offlineAt) return;
+    const storedResult = plannerResultForStorage(updatedResult);
+    if (!storedResult) return;
+    setBusy(true);
+    try {
+      const payload = {
+        title: trip.title,
+        days: trip.days,
+        budget_style: trip.budget_style || updatedResult.request_snapshot?.budget_style || "mid_range",
+        interests: trip.interests || [],
+        lang: trip.lang === "en" ? "en" : "id",
+        extra_context: trip.extra_context || "",
+        destination_ids: storedResult.destination_ids,
+        result_version: 2,
+        structured_result: storedResult,
+      };
+      const { data } = await api.put(`/itineraries/${id}`, payload);
+      const updatedMarkdown = structuredResultToPlainMarkdown(updatedResult, payload.lang);
+      const nextTrip = { ...data, content: updatedMarkdown || data.content };
+      setTrip(nextTrip);
+      privateCacheSet(user.id, cacheKey, nextTrip);
+      toast.success(t.savedTrips.updateSuccess);
+    } catch (error) {
+      toast.error(formatError(error.response?.data?.detail) || t.common.saveError);
+    } finally {
+      setBusy(false);
+    }
+  };
+
   const duplicate = async () => {
     setBusy(true);
     try {
@@ -142,6 +174,21 @@ export default function TripDetail() {
     } catch {
       toast.error(t.common.error);
       setBusy(false);
+    }
+  };
+
+  const copyWhatsapp = async () => {
+    const text = formatItineraryForWhatsapp({
+      title: trip.title,
+      result: isPlannerResultV2(trip.structured_result) ? trip.structured_result : null,
+      fallbackContent: trip.content,
+      lang: trip.lang === "en" ? "en" : lang,
+    });
+    try {
+      await navigator.clipboard?.writeText(text);
+      toast.success(t.planner.copiedWhatsapp || (lang === "en" ? "Copied for WhatsApp!" : "Disalin untuk WhatsApp!"));
+    } catch {
+      toast.error(t.common.error);
     }
   };
 
@@ -207,6 +254,7 @@ export default function TripDetail() {
             <button type="button" onClick={() => setEditing((value) => !value)} className="btn-outline"><Edit3 className="w-4 h-4" /> {t.savedTrips.edit}</button>
             <button type="button" onClick={duplicate} disabled={busy || offlineAt} className="btn-outline"><Copy className="w-4 h-4" /> {t.savedTrips.duplicate}</button>
             <Link to={`/planner?itinerary=${id}`} className="btn-outline"><Sparkles className="w-4 h-4" /> {t.savedTrips.regenerate}</Link>
+            <button type="button" onClick={copyWhatsapp} className="btn-outline" data-testid="trip-copy-wa-btn"><Copy className="w-4 h-4" /> {t.planner.copyWhatsapp || (lang === "en" ? "Copy for WhatsApp" : "Salin untuk WhatsApp")}</button>
             <button type="button" onClick={() => window.print()} className="btn-outline"><Printer className="w-4 h-4" /> {t.savedTrips.printPdf}</button>
             <button type="button" onClick={exportTrip} className="btn-outline"><Download className="w-4 h-4" /> {t.savedTrips.exportFile}</button>
             <button type="button" onClick={remove} disabled={busy || offlineAt} className="btn-outline text-red-700"><Trash2 className="w-4 h-4" /> {t.savedTrips.deleteBtn}</button>
@@ -232,7 +280,7 @@ export default function TripDetail() {
 
       <div className="print-hidden mb-5"><TripShareControls trip={trip} onChange={(data) => { setTrip(data); privateCacheSet(user.id, cacheKey, data); }} /></div>
 
-      <ItineraryResult trip={trip} t={t} lang={lang} testId="trip-content" />
+      <ItineraryResult trip={trip} t={t} lang={lang} testId="trip-content" onResultChange={!offlineAt ? saveStructuredStops : null} />
 
       {!hasStructuredResult && <section className="mt-8 avoid-print-break">
         <div className="flex items-center gap-2 mb-4"><Map className="w-5 h-5 text-toba" /><h2 className="font-display text-[24px]">{t.savedTrips.destinationsInTrip}</h2></div>
@@ -243,7 +291,7 @@ export default function TripDetail() {
         )}
       </section>}
 
-      {!!mapDestinations.length && (
+      {!hasStructuredResult && !!mapDestinations.length && (
         <section className="mt-8 print-hidden">
           <h2 className="font-display text-[24px] mb-4">{t.savedTrips.map}</h2>
           <div className="rounded-xl overflow-hidden border border-line h-[360px]">

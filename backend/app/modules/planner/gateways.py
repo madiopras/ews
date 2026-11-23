@@ -54,6 +54,11 @@ class PlannerLlmGateway:
     async def runtime(self) -> tuple[Any, dict]:
         return await self.profile_service.runtime()
 
+    async def fallback_runtime(self, primary_metadata: dict) -> tuple[Any, dict] | None:
+        if hasattr(self.profile_service, "fallback_runtime"):
+            return await self.profile_service.fallback_runtime(primary_metadata)
+        return None
+
 
 class PlannerSystemLogGateway:
     def __init__(self, audit_service: Any):

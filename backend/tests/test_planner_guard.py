@@ -42,6 +42,9 @@ def test_blocks_prompt_injection(text):
     "apakah perjalanan ini cocok untuk kursi roda?",
     "saya programmer yang ingin liburan santai bersama keluarga",
     "honeymoon yang romantis dan tidak terlalu padat",
+    "bagaimana rute ke Bukit Lawang dan Tangkahan 3D2N?",
+    "kapan waktu terbaik ke Nias atau Sibolga dari Kualanamu?",
+    "tiba di bandara Silangit pagi, lanjut ke Parapat dan Holbung bersama orang tua",
 ])
 def test_allows_trip_stories_and_constraints(text):
     assert planner_context_violation(text) is None

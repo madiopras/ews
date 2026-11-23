@@ -42,6 +42,7 @@ export default function GeneralSettingsPage() {
       planner_structured_rollout_percentage: Number(form.planner_structured_rollout_percentage),
       planner_culinary_rollout_percentage: Number(form.planner_culinary_rollout_percentage),
       planner_partner_matches_rollout_percentage: Number(form.planner_partner_matches_rollout_percentage),
+      affiliate_tiket_rollout_percentage: Number(form.affiliate_tiket_rollout_percentage ?? 0),
       mitra_onboarding_rollout_percentage: Number(form.mitra_onboarding_rollout_percentage),
       mitra_dashboard_rollout_percentage: Number(form.mitra_dashboard_rollout_percentage),
     }); }}>
@@ -80,6 +81,7 @@ export default function GeneralSettingsPage() {
             ["planner_partner_matches_enabled", "planner_partner_matches_rollout_percentage", copy.plannerPartnerMatches],
             ["planner_culinary_enabled", "planner_culinary_rollout_percentage", copy.plannerCulinary],
             ["planner_structured_results_enabled", "planner_structured_rollout_percentage", copy.plannerStructuredResults],
+            ["affiliate_tiket_enabled", "affiliate_tiket_rollout_percentage", copy.affiliateTiketRollout],
           ].map(([enabledKey, percentageKey, label]) => <fieldset key={enabledKey} className="rounded-xl border border-line p-4">
             <legend className="px-1 text-sm font-semibold">{label}</legend>
             <label className="flex items-center gap-3 text-sm">

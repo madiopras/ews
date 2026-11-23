@@ -76,6 +76,8 @@ def default_general_settings(settings: Settings) -> dict:
         "planner_culinary_rollout_percentage": 0,
         "planner_partner_matches_enabled": False,
         "planner_partner_matches_rollout_percentage": 0,
+        "affiliate_tiket_enabled": False,
+        "affiliate_tiket_rollout_percentage": 0,
         "mitra_onboarding_enabled": True,
         "mitra_onboarding_rollout_percentage": 100,
         "mitra_dashboard_enabled": True,
@@ -369,6 +371,7 @@ class SettingsService:
             "planner_structured_results",
             "planner_culinary",
             "planner_partner_matches",
+            "affiliate_tiket",
         )
         return {name: await self.feature(name, user) for name in names}
 
@@ -562,9 +565,46 @@ class LlmProfileService:
             "model_name": row.get("model_name", ""),
             "enabled": True,
             "configured": True,
+            "supports_json_mode": bool(row.get("supports_json_mode", False)),
+            "temperature": row.get("temperature"),
+            "max_tokens": row.get("max_tokens"),
+            "fallback_profile_id": row.get("fallback_profile_id"),
             "health_status": row.get("health_status", "untested"),
             "latency_ms": row.get("latency_ms"),
         }
+
+    async def fallback_runtime(self, primary_metadata: dict) -> tuple[Any, dict] | None:
+        fallback_id = (primary_metadata or {}).get("fallback_profile_id")
+        primary_id = (primary_metadata or {}).get("profile_id")
+        if fallback_id and str(fallback_id) != str(primary_id):
+            try:
+                row = await self.repository.get(str(fallback_id))
+            except Exception:
+                row = None
+            if row and row.get("enabled", True):
+                return self.gateway.client(row), {
+                    "source": "profile_fallback",
+                    "profile_id": str(row["_id"]),
+                    "profile_name": row.get("name", ""),
+                    "base_url": row.get("base_url", ""),
+                    "model_name": row.get("model_name", ""),
+                    "enabled": True,
+                    "configured": True,
+                    "supports_json_mode": bool(row.get("supports_json_mode", False)),
+                    "temperature": row.get("temperature"),
+                    "max_tokens": row.get("max_tokens"),
+                    "fallback_profile_id": None,
+                    "health_status": row.get("health_status", "untested"),
+                    "latency_ms": row.get("latency_ms"),
+                }
+        if (primary_metadata or {}).get("source") == "profile":
+            env_meta = self.gateway.environment_metadata()
+            if env_meta.get("enabled") and env_meta.get("configured"):
+                return self.gateway.environment_client(), {
+                    **env_meta,
+                    "source": "environment_fallback",
+                }
+        return None
 
     async def runtime_status(self) -> dict:
         try:
@@ -611,6 +651,10 @@ class LlmProfileService:
             "model_name": payload.model_name.strip(),
             "enabled": payload.enabled,
             "active": False,
+            "supports_json_mode": payload.supports_json_mode,
+            "temperature": payload.temperature,
+            "max_tokens": payload.max_tokens,
+            "fallback_profile_id": (payload.fallback_profile_id or "").strip() or None,
             "health_status": "untested",
             "created_at": now,
             "updated_at": now,
@@ -650,12 +694,21 @@ class LlmProfileService:
             raise AdministrationError(
                 400, "Set API key action to replace before sending a new key"
             )
+        fallback_profile_id = (payload.fallback_profile_id or "").strip() or None
+        if fallback_profile_id == identifier:
+            raise AdministrationError(
+                400, "A profile cannot reference itself as fallback"
+            )
         changes = {
             "name": name,
             "name_normalized": name.lower(),
             "base_url": await self.gateway.validate_base_url(payload.base_url),
             "model_name": payload.model_name.strip(),
             "enabled": payload.enabled,
+            "supports_json_mode": payload.supports_json_mode,
+            "temperature": payload.temperature,
+            "max_tokens": payload.max_tokens,
+            "fallback_profile_id": fallback_profile_id,
             "health_status": "untested",
             "latency_ms": None,
             "last_error": "",
@@ -701,6 +754,10 @@ class LlmProfileService:
             "model_name": source["model_name"],
             "enabled": source.get("enabled", True),
             "active": False,
+            "supports_json_mode": bool(source.get("supports_json_mode", False)),
+            "temperature": source.get("temperature"),
+            "max_tokens": source.get("max_tokens"),
+            "fallback_profile_id": source.get("fallback_profile_id"),
             "health_status": "untested",
             "created_at": now,
             "updated_at": now,

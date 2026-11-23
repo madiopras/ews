@@ -248,8 +248,9 @@ def test_index_registry_replays_every_definition_with_options():
 
     asyncio.run(ensure_indexes(Database()))
 
-    assert len(INDEX_DEFINITIONS) == 67
+    assert len(INDEX_DEFINITIONS) == 70
     assert len(calls) == len(INDEX_DEFINITIONS)
+    assert ("affiliate_clicks", "expires_at", {"expireAfterSeconds": 0}) in calls
     assert ("users", "email", {"unique": True}) in calls
     assert (
         "llm_profiles",

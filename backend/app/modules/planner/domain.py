@@ -17,13 +17,21 @@ PLANNER_PARTNER_RANKING_SIGNALS = (
     "multi_destination_coverage",
     "daily_rotation_tiebreaker",
 )
-PARTNER_TYPES = ("guide", "rental", "homestay", "culinary", "souvenir")
+PARTNER_TYPES = (
+    "guide",
+    "rental",
+    "homestay",
+    "culinary",
+    "souvenir",
+    "tour_operator",
+    "activity",
+)
 
 
 def sanitize_context(value: str) -> str:
     return "".join(
         character for character in (value or "").strip() if character.isprintable()
-    )[:200]
+    )[:500]
 
 
 def valid_whatsapp(value: object) -> str:
@@ -75,19 +83,72 @@ def group_matchable_partners(
         offering_tags = [
             tag for offering in partner_offerings for tag in offering.get("ai_tags", [])
         ]
-        culinary_tags = (
-            list(partner.get("culinary_categories") or [])
-            + list(partner.get("culinary_specialties") or [])
-            + list(partner.get("culinary_service_modes") or [])
-            + list(partner.get("culinary_dietary_tags") or [])
-            if partner.get("type") == "culinary"
-            else []
-        )
+        partner_type = partner.get("type")
+        type_specific_tags: list[str] = []
+        if partner_type == "culinary":
+            type_specific_tags = (
+                list(partner.get("culinary_categories") or [])
+                + list(partner.get("culinary_specialties") or [])
+                + list(partner.get("culinary_service_modes") or [])
+                + list(partner.get("culinary_dietary_tags") or [])
+            )
+        elif partner_type == "rental":
+            type_specific_tags = (
+                list(partner.get("rental_vehicle_types") or [])
+                + list(partner.get("rental_service_options") or [])
+                + list(partner.get("rental_pickup_areas") or [])
+                + (
+                    ["supir", "driver"]
+                    if partner.get("rental_driver_available")
+                    else []
+                )
+            )
+        elif partner_type == "homestay":
+            subtype = str(partner.get("accommodation_subtype") or "").strip()
+            type_specific_tags = (
+                ([subtype] if subtype else [])
+                + list(partner.get("homestay_room_types") or [])
+                + list(partner.get("homestay_facilities") or [])
+            )
+        elif partner_type == "guide":
+            type_specific_tags = list(partner.get("guide_languages") or []) + list(
+                partner.get("guide_specialties") or []
+            )
+        elif partner_type == "souvenir":
+            type_specific_tags = list(partner.get("souvenir_categories") or []) + list(
+                partner.get("souvenir_products") or []
+            )
+        elif partner_type == "tour_operator":
+            type_specific_tags = (
+                list(partner.get("tour_trip_types") or [])
+                + list(partner.get("tour_inclusions") or [])
+                + list(partner.get("tour_departure_hubs") or [])
+            )
+        elif partner_type == "activity":
+            type_specific_tags = list(partner.get("activity_categories") or [])
         combined_tags = list(
             dict.fromkeys(
-                list(partner.get("service_tags") or []) + offering_tags + culinary_tags
+                list(partner.get("service_tags") or [])
+                + offering_tags
+                + type_specific_tags
             )
         )
+        normalized_offerings = [
+            {
+                "id": str(offering.get("_id") or offering.get("id") or ""),
+                "name": str(offering.get("name") or "").strip()[:120],
+                "kind": "product" if offering.get("kind") == "product" else "service",
+                "destination_ids": [
+                    str(dest_id)
+                    for dest_id in (offering.get("destination_ids") or [])
+                    if dest_id
+                ],
+                "ai_tags": [str(tag) for tag in (offering.get("ai_tags") or []) if tag],
+            }
+            for offering in partner_offerings
+            if str(offering.get("_id") or offering.get("id") or "")
+            and str(offering.get("name") or "").strip()
+        ]
         public = {
             "id": partner_id,
             "business_name": partner.get("business_name", ""),
@@ -101,6 +162,7 @@ def group_matchable_partners(
             "status": partner.get("status", ""),
             "is_active": partner.get("is_active", True),
             "accepting_contacts": partner.get("accepting_contacts", True),
+            "_offerings": normalized_offerings,
         }
         for destination_id in destination_ids:
             grouped.setdefault(str(destination_id), []).append(public)
@@ -129,9 +191,33 @@ def build_planner_partner_recommendations(
 
     context = extra_context.lower()
     type_keywords = {
-        "guide": ("guide", "pemandu"),
-        "rental": ("rental", "mobil", "driver", "transport"),
-        "homestay": ("homestay", "penginapan", "akomodasi", "menginap"),
+        "guide": ("guide", "pemandu", "fotografi", "budaya batak"),
+        "rental": (
+            "rental",
+            "sewa mobil",
+            "mobil",
+            "driver",
+            "supir",
+            "transport",
+            "hiace",
+            "innova",
+            "avanza",
+            "lepas kunci",
+            "antar jemput",
+        ),
+        "homestay": (
+            "homestay",
+            "penginapan",
+            "akomodasi",
+            "menginap",
+            "hotel",
+            "villa",
+            "resort",
+            "glamping",
+            "cottage",
+            "family room",
+            "kamar",
+        ),
         "culinary": (
             "kuliner",
             "makanan",
@@ -143,7 +229,36 @@ def build_planner_partner_recommendations(
             "coffee",
             "sarapan",
         ),
-        "souvenir": ("oleh-oleh", "oleh oleh", "souvenir", "buah tangan"),
+        "souvenir": ("oleh-oleh", "oleh oleh", "souvenir", "buah tangan", "ulos"),
+        "tour_operator": (
+            "paket wisata",
+            "open trip",
+            "private tour",
+            "tour operator",
+            "travel agent",
+            "rombongan",
+            "gathering",
+            "all in",
+            "honeymoon",
+        ),
+        "activity": (
+            "trekking",
+            "orangutan",
+            "rafting",
+            "arung jeram",
+            "surfing",
+            "diving",
+            "snorkeling",
+            "kayak",
+            "kapal",
+            "boat",
+            "jetski",
+            "camping",
+            "workshop",
+            "tubing",
+            "aktivitas",
+            "petualangan",
+        ),
     }
     requested_types = {
         partner_type
@@ -290,10 +405,35 @@ def build_planner_partner_recommendations(
                 ("Sesuai kebutuhan: " if lang == "id" else "Matches needs: ")
                 + ", ".join(entry["tag_matches"][:3])
             )
+        entry_destination_set = set(entry["destination_ids"])
+        matched_offerings = [
+            offering
+            for offering in (entry["partner"].get("_offerings") or [])
+            if set(offering.get("destination_ids") or []).intersection(
+                entry_destination_set
+            )
+        ]
+        matched_offerings.sort(
+            key=lambda offering: (
+                -sum(
+                    tag.replace("-", " ").lower() in context
+                    for tag in (offering.get("ai_tags") or [])
+                ),
+                -len(
+                    set(offering.get("destination_ids") or []).intersection(
+                        entry_destination_set
+                    )
+                ),
+                offering["id"],
+            )
+        )
+        selected_offerings = matched_offerings[:4]
         try:
             match = planner_partner_match_from_doc(
                 {**entry["partner"], "_id": entry["partner_id"]},
                 destination_ids=entry["destination_ids"],
+                offering_ids=[offering["id"] for offering in selected_offerings],
+                offerings=selected_offerings,
                 match_reasons=reasons[:3],
                 relevance_score=entry["relevance_score"],
                 match_factor_codes=entry["match_factor_codes"],
@@ -361,6 +501,8 @@ def build_legacy_planner_messages(
     preferred_names: Sequence[str],
     used_names: Sequence[str],
     catalog: Sequence[dict],
+    refinement_instruction: str = "",
+    target_day: int | None = None,
 ) -> list[dict]:
     catalog_json = json.dumps(list(catalog), ensure_ascii=False, indent=2)
     if lang == "id":
@@ -393,6 +535,13 @@ def build_legacy_planner_messages(
                 + ", ".join(used_names[:20])
                 + "."
             )
+        if refinement_instruction:
+            day_focus = (
+                f" Fokuskan penyesuaian pada Hari {target_day}." if target_day else ""
+            )
+            parts.append(
+                f'Instruksi penyempurnaan dari user: "{refinement_instruction}".{day_focus}'
+            )
         parts.append("Gunakan HANYA destinasi dari katalog.")
     else:
         system = (
@@ -423,6 +572,11 @@ def build_legacy_planner_messages(
                 "Produce a different version from the previous plan that used: "
                 + ", ".join(used_names[:20])
                 + "."
+            )
+        if refinement_instruction:
+            day_focus = f" Focus the changes on Day {target_day}." if target_day else ""
+            parts.append(
+                f'User refinement request: "{refinement_instruction}".{day_focus}'
             )
         parts.append("Use ONLY destinations from the catalog.")
     return [

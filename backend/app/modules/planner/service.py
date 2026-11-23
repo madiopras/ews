@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import inspect
 import json
 import logging
 import re
@@ -24,8 +25,13 @@ from app.modules.planner.domain import (
     sanitize_context,
 )
 from app.modules.planner.exceptions import PlannerError
+from app.modules.planner.geo import analyze_itinerary_route
 from app.modules.planner.guard import planner_context_violation, planner_scope_message
-from app.modules.planner.schemas import PlannerAnalyticsEventIn, TripPlanIn
+from app.modules.planner.schemas import (
+    PlannerAnalyticsEventIn,
+    PlannerFeedbackIn,
+    TripPlanIn,
+)
 from app.modules.planner.sse import PlannerStreamMetrics
 from app.modules.planner.structured_engine import (
     PlannerStructuredParseError,
@@ -78,6 +84,28 @@ class PlannerAnalyticsService:
             }
         )
         return {"accepted": True, "duplicate": not inserted}
+
+    async def record_feedback(
+        self, payload: PlannerFeedbackIn, voter_identity: str
+    ) -> dict:
+        if not re.fullmatch(r"[A-Za-z0-9_:-]{8,80}", payload.generation_id):
+            raise PlannerError(400, "Invalid generation id")
+        now = datetime.now(timezone.utc)
+        voter_hash = self.identity.identity_hash(voter_identity or "anonymous")
+        await self.repository.upsert_feedback(
+            payload.generation_id,
+            voter_hash,
+            {
+                "generation_id": payload.generation_id,
+                "voter_hash": voter_hash,
+                "rating": payload.rating,
+                "reason_code": payload.reason_code,
+                "lang": payload.lang,
+                "updated_at": now.isoformat(),
+                "expires_at": now + timedelta(days=365),
+            },
+        )
+        return {"accepted": True, "rating": payload.rating}
 
 
 class PlannerQuotaService:
@@ -269,7 +297,10 @@ class PlannerGenerationService:
         if payload.budget_style is None and payload.budget is None:
             raise PlannerError(422, "Choose a travel style")
         safe_context = sanitize_context(payload.extra_context or "")
-        if planner_context_violation(safe_context):
+        safe_refinement = sanitize_context(payload.refinement_instruction or "")[:240]
+        if planner_context_violation(safe_context) or planner_context_violation(
+            safe_refinement
+        ):
             raise PlannerError(
                 422,
                 {
@@ -313,7 +344,9 @@ class PlannerGenerationService:
             if structured_enabled
             else destinations
         )
-        catalog_items = destination_catalog_payload(prompt_destinations)
+        catalog_items = destination_catalog_payload(
+            prompt_destinations, lang=payload.lang
+        )
         catalog_json = json.dumps(
             catalog_items,
             ensure_ascii=False,
@@ -333,6 +366,10 @@ class PlannerGenerationService:
                 preferred_ids=preferred_ids,
                 previous_destination_names=used_names,
                 catalog=catalog_items,
+                starting_point=payload.starting_point,
+                travel_pace=payload.travel_pace,
+                refinement_instruction=safe_refinement,
+                target_day=payload.target_day,
             )
         else:
             messages = build_legacy_planner_messages(
@@ -344,6 +381,8 @@ class PlannerGenerationService:
                 preferred_names=preferred_names,
                 used_names=used_names,
                 catalog=catalog_items,
+                refinement_instruction=safe_refinement,
+                target_day=payload.target_day,
             )
         try:
             active_llm, runtime = await self.llm.runtime()
@@ -381,6 +420,28 @@ class PlannerGenerationService:
             cookie_ttl_days=int(quota.get("ttl_days", 0)),
         )
 
+    @staticmethod
+    def _stream_chunks(
+        client: Any, messages: list[dict], *, json_mode: bool
+    ) -> AsyncIterator[str]:
+        stream_fn = client.stream
+        try:
+            params = inspect.signature(stream_fn).parameters
+            if "json_mode" in params:
+                return stream_fn(messages, json_mode=json_mode)
+        except (TypeError, ValueError):
+            pass
+        return stream_fn(messages)
+
+    @staticmethod
+    def _detected_day(buffer_text: str, total_days: int) -> int:
+        matches = [
+            int(match)
+            for match in re.findall(r'"day"\s*:\s*(\d{1,2})', buffer_text)
+            if 1 <= int(match) <= total_days
+        ]
+        return max(matches) if matches else 0
+
     async def _generate(
         self,
         *,
@@ -415,6 +476,9 @@ class PlannerGenerationService:
         fallback_reason = ""
         final_result_format = "legacy"
         unknown_destination_count = 0
+        geo_anomaly_count = 0
+        llm_failover_used = False
+        effective_runtime = dict(runtime)
         used_destination_ids: list[str] = []
         recommendations: list[dict] = []
         try:
@@ -444,26 +508,70 @@ class PlannerGenerationService:
                 }
             )
             progress_at = asyncio.get_running_loop().time()
+            detected_day = 0
             if structured_enabled:
-                yield {"progress": {"phase": "generating", "format": "structured"}}
-            async for content in active_llm.stream(messages):
-                if not quota_consumed:
-                    await self.quota.consume(quota)
-                    quota_consumed = True
-                output_chars += len(content)
-                output_parts.append(content)
-                if not structured_enabled:
-                    yield {"text": content}
-                elif asyncio.get_running_loop().time() - progress_at >= 2:
-                    progress_at = asyncio.get_running_loop().time()
-                    yield {
-                        "progress": {
-                            "phase": "generating",
-                            "format": "structured",
-                        }
+                yield {
+                    "progress": {
+                        "phase": "generating",
+                        "format": "structured",
+                        "total_days": payload.days,
                     }
-            if not output_parts:
-                raise RuntimeError("LLM provider returned an empty response")
+                }
+
+            async def _consume_client(client: Any) -> AsyncIterator[dict]:
+                nonlocal quota_consumed, output_chars, progress_at, detected_day
+                async for content in self._stream_chunks(
+                    client, messages, json_mode=structured_enabled
+                ):
+                    if not quota_consumed:
+                        await self.quota.consume(quota)
+                        quota_consumed = True
+                    output_chars += len(content)
+                    output_parts.append(content)
+                    if not structured_enabled:
+                        yield {"text": content}
+                    else:
+                        next_day = self._detected_day(
+                            "".join(output_parts), payload.days
+                        )
+                        now_tick = asyncio.get_running_loop().time()
+                        if next_day > detected_day or now_tick - progress_at >= 2:
+                            detected_day = max(detected_day, next_day)
+                            progress_at = now_tick
+                            progress_payload: dict[str, Any] = {
+                                "phase": "generating",
+                                "format": "structured",
+                                "total_days": payload.days,
+                            }
+                            if detected_day > 0:
+                                progress_payload["current_day"] = detected_day
+                            yield {"progress": progress_payload}
+
+            try:
+                async for event in _consume_client(active_llm):
+                    yield event
+                if not output_parts:
+                    raise RuntimeError("LLM provider returned an empty response")
+            except (asyncio.CancelledError, GeneratorExit):
+                raise
+            except Exception as primary_error:
+                if quota_consumed or not hasattr(self.llm, "fallback_runtime"):
+                    raise
+                fallback = await self.llm.fallback_runtime(runtime)
+                if not fallback:
+                    raise
+                fallback_client, fallback_meta = fallback
+                logger.warning(
+                    "Primary LLM failed before first chunk (%s); failing over to %s",
+                    type(primary_error).__name__,
+                    fallback_meta.get("profile_name") or fallback_meta.get("source"),
+                )
+                llm_failover_used = True
+                effective_runtime = dict(fallback_meta)
+                async for event in _consume_client(fallback_client):
+                    yield event
+                if not output_parts:
+                    raise RuntimeError("LLM provider returned an empty response")
             raw_output = "".join(output_parts)
             if structured_enabled:
                 try:
@@ -510,6 +618,9 @@ class PlannerGenerationService:
                         for value in used_destination_ids
                         if value in validated_set
                     ]
+                    geo_anomaly_count, geo_notes = analyze_itinerary_route(
+                        provider_result.days, destinations_by_id, payload.lang
+                    )
                     result = hydrate_structured_planner_result(
                         provider_result,
                         request_days=payload.days,
@@ -518,6 +629,9 @@ class PlannerGenerationService:
                         lang=payload.lang,
                         destinations=destinations,
                         partner_matches=recommendations,
+                        starting_point=payload.starting_point,
+                        travel_pace=payload.travel_pace,
+                        extra_travel_notes=geo_notes,
                     )
                     parse_status = (
                         "success_with_unknown_ids_removed" if unknown_ids else "success"
@@ -570,7 +684,13 @@ class PlannerGenerationService:
                     "result_format": "legacy",
                 }
             final_status = "completed"
-            yield {"done": True, "result_format": final_result_format}
+            done_event: dict[str, Any] = {
+                "done": True,
+                "result_format": final_result_format,
+            }
+            if log_id is not None:
+                done_event["generation_id"] = str(log_id)
+            yield done_event
         except (asyncio.CancelledError, GeneratorExit):
             final_status = "cancelled"
             error_message = "planner_cancelled"
@@ -610,6 +730,12 @@ class PlannerGenerationService:
                     "fallback_reason": fallback_reason,
                     "result_format": final_result_format,
                     "unknown_destination_count": unknown_destination_count,
+                    "geo_anomaly_count": geo_anomaly_count,
+                    "llm_failover_used": llm_failover_used,
+                    "llm_source": effective_runtime.get("source", runtime["source"]),
+                    "llm_profile_id": effective_runtime.get("profile_id"),
+                    "llm_profile_name": effective_runtime.get("profile_name", ""),
+                    "llm_model": effective_runtime.get("model_name", ""),
                     "partner_match_count": len(recommendations),
                     "partner_match_types": sorted(
                         {

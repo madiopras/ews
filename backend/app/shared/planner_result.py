@@ -19,12 +19,21 @@ from pydantic import (
 )
 
 from app.modules.planner.contract import BudgetStyle
+from app.modules.planner.geo import StartingPoint, TravelPace
 
 PLANNER_RESULT_VERSION = 2
 PlannerResultFormat = Literal["structured"]
 PlannerLanguage = Literal["id", "en"]
 PlannerPeriod = Literal["morning", "afternoon", "evening", "flexible"]
-PlannerPartnerType = Literal["guide", "rental", "homestay", "culinary", "souvenir"]
+PlannerPartnerType = Literal[
+    "guide",
+    "rental",
+    "homestay",
+    "culinary",
+    "souvenir",
+    "tour_operator",
+    "activity",
+]
 PlannerPlacement = Literal["organic", "featured"]
 PlannerMatchFactor = Literal[
     "destination_coverage",
@@ -144,6 +153,8 @@ class PlannerRequestSnapshot(PlannerContractModel):
     budget_style: BudgetStyle
     interests: List[PlannerTag] = Field(default_factory=list, max_length=14)
     lang: PlannerLanguage = "id"
+    starting_point: Optional[StartingPoint] = None
+    travel_pace: Optional[TravelPace] = None
 
 
 class PlannerStop(PlannerContractModel):
@@ -197,6 +208,12 @@ class PlannerPartnerPublicOut(PlannerContractModel):
         return self
 
 
+class PlannerOfferingSummaryOut(PlannerContractModel):
+    id: PlannerIdentifier
+    name: str = Field(..., min_length=1, max_length=120)
+    kind: Literal["service", "product"] = "service"
+
+
 class PlannerPartnerMatchOut(PlannerContractModel):
     partner_id: PlannerIdentifier
     type: PlannerPartnerType
@@ -204,6 +221,9 @@ class PlannerPartnerMatchOut(PlannerContractModel):
         default_factory=list, min_length=1, max_length=20
     )
     offering_ids: List[PlannerIdentifier] = Field(default_factory=list, max_length=20)
+    offerings: List[PlannerOfferingSummaryOut] = Field(
+        default_factory=list, max_length=6
+    )
     match_reasons: List[PlannerReason] = Field(
         default_factory=list, min_length=1, max_length=3
     )
@@ -445,6 +465,7 @@ def planner_partner_match_from_doc(
     destination_ids: List[str],
     match_reasons: List[str],
     offering_ids: Optional[List[str]] = None,
+    offerings: Optional[List[dict]] = None,
     relevance_score: int = 0,
     match_factor_codes: Optional[List[PlannerMatchFactor]] = None,
     placement: PlannerPlacement = "organic",
@@ -454,11 +475,23 @@ def planner_partner_match_from_doc(
     partner = planner_partner_public_from_doc(doc, is_premium=is_premium)
     if not partner.accepting_contacts or not partner.whatsapp:
         raise ValueError("Planner matches must be available for direct contact")
+    hydrated_offerings: List[PlannerOfferingSummaryOut] = []
+    for item in (offerings or [])[:6]:
+        if not isinstance(item, dict):
+            continue
+        oid = str(item.get("id") or item.get("_id") or "").strip()
+        name = str(item.get("name") or "").strip()[:120]
+        kind = "product" if item.get("kind") == "product" else "service"
+        if oid and name:
+            hydrated_offerings.append(
+                PlannerOfferingSummaryOut(id=oid, name=name, kind=kind)
+            )
     return PlannerPartnerMatchOut(
         partner_id=partner.id,
         type=partner.type,
         destination_ids=destination_ids,
         offering_ids=offering_ids or [],
+        offerings=hydrated_offerings,
         match_reasons=match_reasons,
         relevance_score=relevance_score,
         match_factor_codes=match_factor_codes or [],

@@ -23,6 +23,7 @@ export default function PlannerResultCards({
   culinaryEnabled,
   destinationIds,
   recommendations,
+  tripContext = null,
   t,
 }) {
   const ids = useMemo(() => stableIds(destinationIds), [destinationIds]);
@@ -125,7 +126,13 @@ export default function PlannerResultCards({
               {recommendation.match_reasons.map((reason) => <li key={reason} className="rounded-full bg-white px-2 py-1 text-[10px] text-inkSoft">{reason}</li>)}
             </ul>}
           </div>
-          <PartnerCard partner={recommendation.partner} source="planner" destinationId={recommendation.destination_id} analyticsContext={recommendation} />
+          <PartnerCard
+            partner={recommendation.partner}
+            source="planner"
+            destinationId={recommendation.destination_id}
+            analyticsContext={recommendation}
+            tripContext={tripContext ? { ...tripContext, destinationNames: recommendation.destination_names } : null}
+          />
         </div>)}
       </div>
     </section>}

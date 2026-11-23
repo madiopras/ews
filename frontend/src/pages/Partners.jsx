@@ -3,19 +3,27 @@ import { Link, useSearchParams } from "react-router-dom";
 import { api } from "../lib/api.js";
 import { useLang } from "../contexts/LanguageContext.jsx";
 import PartnerCard from "../components/PartnerCard.jsx";
-import { ChevronLeft, ChevronRight, Handshake, Plus } from "lucide-react";
+import AffiliateBookingSection from "../components/AffiliateBookingSection.jsx";
+import { ALL_PARTNER_TYPES } from "../components/PartnerTypeFields.jsx";
+import { ChevronLeft, ChevronRight, Handshake, MapPin, Plus, Search } from "lucide-react";
 import UlosPattern from "../components/UlosPattern.jsx";
 import Seo from "../components/Seo.jsx";
 
-const TYPES = ["guide", "rental", "homestay", "culinary", "souvenir"];
+const TYPES = ALL_PARTNER_TYPES;
 
 export default function Partners() {
   const { t, lang } = useLang();
   const [params, setParams] = useSearchParams();
   const [partners, setPartners] = useState([]);
+  const [cities, setCities] = useState([]);
   const [loading, setLoading] = useState(true);
   const urlType = TYPES.includes(params.get("type")) ? params.get("type") : "";
+  const urlQuery = params.get("q") || "";
+  const urlCity = params.get("city") || "";
   const [type, setType] = useState(urlType);
+  const [searchInput, setSearchInput] = useState(urlQuery);
+  const [queryText, setQueryText] = useState(urlQuery);
+  const [city, setCity] = useState(urlCity);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
@@ -31,15 +39,23 @@ export default function Partners() {
     setType(urlType);
   }, [urlType]);
 
+  useEffect(() => {
+    api.get("/partners/cities").then(({ data }) => {
+      if (Array.isArray(data)) setCities(data);
+    }).catch(() => {});
+  }, []);
+
   const load = () => {
     setLoading(true);
-    const params = { status: "approved" };
-    if (type) params.type = type;
-    params.page = page;
-    params.per_page = 9;
+    const reqParams = { status: "approved" };
+    if (type) reqParams.type = type;
+    if (queryText.trim()) reqParams.q = queryText.trim();
+    if (city.trim()) reqParams.city = city.trim();
+    reqParams.page = page;
+    reqParams.per_page = 9;
 
     api
-      .get("/partners", { params })
+      .get("/partners", { params: reqParams })
       .then(({ data }) => {
         if (data && Array.isArray(data.data) && data.pagination) {
           setPartners(data.data);
@@ -60,7 +76,7 @@ export default function Partners() {
       .finally(() => setLoading(false));
   };
 
-  useEffect(load, [type, page]);
+  useEffect(load, [type, queryText, city, page]);
   const goToPage = (nextPage) => {
     const next = new URLSearchParams(params);
     if (nextPage === 1) next.delete("page");
@@ -75,6 +91,26 @@ export default function Partners() {
     next.delete("page");
     setParams(next);
     setType(nextType);
+    setPage(1);
+  };
+  const applySearch = (event) => {
+    event.preventDefault();
+    const cleaned = searchInput.trim();
+    const next = new URLSearchParams(params);
+    if (cleaned) next.set("q", cleaned);
+    else next.delete("q");
+    next.delete("page");
+    setParams(next);
+    setQueryText(cleaned);
+    setPage(1);
+  };
+  const selectCity = (nextCity) => {
+    const next = new URLSearchParams(params);
+    if (nextCity) next.set("city", nextCity);
+    else next.delete("city");
+    next.delete("page");
+    setParams(next);
+    setCity(nextCity);
     setPage(1);
   };
 
@@ -106,6 +142,53 @@ export default function Partners() {
       </header>
 
       <div className="app-gutter mx-auto mt-5 max-w-7xl sm:mt-6 md:pb-16">
+        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center">
+          <form onSubmit={applySearch} className="relative flex-1">
+            <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-inkSoft" />
+            <input
+              type="search"
+              value={searchInput}
+              onChange={(event) => {
+                setSearchInput(event.target.value);
+                if (!event.target.value.trim() && queryText) {
+                  setQueryText("");
+                  const next = new URLSearchParams(params);
+                  next.delete("q");
+                  next.delete("page");
+                  setParams(next);
+                  setPage(1);
+                }
+              }}
+              placeholder={
+                lang === "en"
+                  ? "Search Hiace, villa, guide, Medan, Lake Toba..."
+                  : "Cari Hiace, family room, rental KNO, homestay Toba..."
+              }
+              className="input-flat pl-10"
+              data-testid="partner-search-input"
+            />
+          </form>
+          {cities.length > 0 && (
+            <label className="relative flex items-center sm:w-56">
+              <MapPin className="pointer-events-none absolute left-3 h-4 w-4 text-inkSoft" />
+              <select
+                value={city}
+                onChange={(event) => selectCity(event.target.value)}
+                className="input-flat pl-9"
+                aria-label={lang === "en" ? "Filter by city" : "Filter kota"}
+                data-testid="partner-city-filter"
+              >
+                <option value="">{lang === "en" ? "All cities / regencies" : "Semua kota / kabupaten"}</option>
+                {cities.map((item) => (
+                  <option key={item} value={item}>
+                    {item}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
+        </div>
+
         <div className="scroll-x mb-6">
           <button
             type="button"
@@ -181,6 +264,17 @@ export default function Partners() {
            </div>
          </div>
        )}
+
+        <AffiliateBookingSection
+          source="partners"
+          variant="strip"
+          heading={lang === "en" ? "Need instant flights or hotels?" : "Butuh tiket pesawat atau hotel instan?"}
+          subheading={
+            lang === "en"
+              ? "Compare flights and hotel availability via tiket.com while booking local car rentals, guides, and homestays directly with North Sumatra partners above."
+              : "Cek penerbangan dan hotel instan via tiket.com untuk melengkapi rental mobil, pemandu, dan homestay dari Mitra Lokal Sumut di atas."
+          }
+        />
 
       </div>
 

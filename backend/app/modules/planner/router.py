@@ -16,7 +16,11 @@ from app.modules.planner.dependencies import (
 )
 from app.modules.planner.exceptions import PlannerError
 from app.modules.planner.gateways import PlannerSettingsGateway
-from app.modules.planner.schemas import PlannerAnalyticsEventIn, TripPlanIn
+from app.modules.planner.schemas import (
+    PlannerAnalyticsEventIn,
+    PlannerFeedbackIn,
+    TripPlanIn,
+)
 from app.modules.planner.service import (
     PlannerAnalyticsService,
     PlannerGenerationService,
@@ -46,6 +50,23 @@ async def track_planner_event(
         payload,
         request.headers.get("x-analytics-consent", "").lower() == "granted",
     )
+
+
+@router.post("/planner/feedback")
+async def submit_planner_feedback(
+    payload: PlannerFeedbackIn,
+    request: Request,
+    user: dict | None = Depends(get_optional_user),
+    service: PlannerAnalyticsService = Depends(get_planner_analytics_service),
+):
+    """Record privacy-safe thumbs up/down quality feedback for an itinerary."""
+    voter_identity = (
+        f"user:{user['id']}"
+        if user and user.get("id")
+        else request.cookies.get(security.PLANNER_GUEST_COOKIE)
+        or (request.client.host if request.client else "anonymous")
+    )
+    return await service.record_feedback(payload, voter_identity)
 
 
 @router.get("/planner/quota")

@@ -143,6 +143,246 @@
         "title": "AdminUserUpdate",
         "type": "object"
       },
+      "AffiliateAnalyticsBucketOut": {
+        "properties": {
+          "count": {
+            "title": "Count",
+            "type": "integer"
+          },
+          "key": {
+            "title": "Key",
+            "type": "string"
+          }
+        },
+        "required": [
+          "key",
+          "count"
+        ],
+        "title": "AffiliateAnalyticsBucketOut",
+        "type": "object"
+      },
+      "AffiliateAnalyticsOut": {
+        "properties": {
+          "by_mode": {
+            "items": {
+              "$ref": "#/components/schemas/AffiliateAnalyticsBucketOut"
+            },
+            "title": "By Mode",
+            "type": "array"
+          },
+          "by_product": {
+            "items": {
+              "$ref": "#/components/schemas/AffiliateAnalyticsBucketOut"
+            },
+            "title": "By Product",
+            "type": "array"
+          },
+          "by_source": {
+            "items": {
+              "$ref": "#/components/schemas/AffiliateAnalyticsBucketOut"
+            },
+            "title": "By Source",
+            "type": "array"
+          },
+          "by_zone": {
+            "items": {
+              "$ref": "#/components/schemas/AffiliateAnalyticsBucketOut"
+            },
+            "title": "By Zone",
+            "type": "array"
+          },
+          "days": {
+            "title": "Days",
+            "type": "integer"
+          },
+          "total_clicks": {
+            "title": "Total Clicks",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "days",
+          "total_clicks"
+        ],
+        "title": "AffiliateAnalyticsOut",
+        "type": "object"
+      },
+      "AffiliateCardOut": {
+        "properties": {
+          "accommodation_area": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Accommodation Area"
+          },
+          "airport_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Airport Code"
+          },
+          "airport_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Airport Name"
+          },
+          "badge": {
+            "title": "Badge",
+            "type": "string"
+          },
+          "cta_label": {
+            "title": "Cta Label",
+            "type": "string"
+          },
+          "destination_label": {
+            "title": "Destination Label",
+            "type": "string"
+          },
+          "disclosure": {
+            "title": "Disclosure",
+            "type": "string"
+          },
+          "go_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Go Url"
+          },
+          "launch_type": {
+            "enum": [
+              "miniapp_session",
+              "redirect"
+            ],
+            "title": "Launch Type",
+            "type": "string"
+          },
+          "mode": {
+            "enum": [
+              "miniapp",
+              "direct_api_v2",
+              "campaign_link"
+            ],
+            "title": "Mode",
+            "type": "string"
+          },
+          "product": {
+            "enum": [
+              "hotel",
+              "flight"
+            ],
+            "title": "Product",
+            "type": "string"
+          },
+          "provider": {
+            "const": "tiket",
+            "default": "tiket",
+            "title": "Provider",
+            "type": "string"
+          },
+          "sub_id": {
+            "title": "Sub Id",
+            "type": "string"
+          },
+          "subtitle": {
+            "title": "Subtitle",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "zone": {
+            "title": "Zone",
+            "type": "string"
+          }
+        },
+        "required": [
+          "product",
+          "zone",
+          "mode",
+          "title",
+          "subtitle",
+          "badge",
+          "cta_label",
+          "destination_label",
+          "launch_type",
+          "sub_id",
+          "disclosure"
+        ],
+        "title": "AffiliateCardOut",
+        "type": "object"
+      },
+      "AffiliateRecommendationsOut": {
+        "properties": {
+          "disclosure": {
+            "default": "",
+            "title": "Disclosure",
+            "type": "string"
+          },
+          "enabled": {
+            "title": "Enabled",
+            "type": "boolean"
+          },
+          "environment": {
+            "default": "sandbox",
+            "enum": [
+              "sandbox",
+              "production"
+            ],
+            "title": "Environment",
+            "type": "string"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/AffiliateCardOut"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "mode": {
+            "default": "miniapp",
+            "enum": [
+              "miniapp",
+              "direct_api_v2",
+              "campaign_link"
+            ],
+            "title": "Mode",
+            "type": "string"
+          },
+          "provider": {
+            "const": "tiket",
+            "default": "tiket",
+            "title": "Provider",
+            "type": "string"
+          }
+        },
+        "required": [
+          "enabled"
+        ],
+        "title": "AffiliateRecommendationsOut",
+        "type": "object"
+      },
       "Body_upload_file_api_upload_post": {
         "properties": {
           "file": {
@@ -825,6 +1065,18 @@
       },
       "GeneralSettingsIn": {
         "properties": {
+          "affiliate_tiket_enabled": {
+            "default": false,
+            "title": "Affiliate Tiket Enabled",
+            "type": "boolean"
+          },
+          "affiliate_tiket_rollout_percentage": {
+            "default": 0,
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Affiliate Tiket Rollout Percentage",
+            "type": "integer"
+          },
           "backup_retention_days": {
             "default": 30,
             "maximum": 365.0,
@@ -1420,6 +1672,31 @@
             "title": "Enabled",
             "type": "boolean"
           },
+          "fallback_profile_id": {
+            "anyOf": [
+              {
+                "maxLength": 64,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fallback Profile Id"
+          },
+          "max_tokens": {
+            "anyOf": [
+              {
+                "maximum": 32768.0,
+                "minimum": 256.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Tokens"
+          },
           "model_name": {
             "maxLength": 200,
             "minLength": 1,
@@ -1431,6 +1708,24 @@
             "minLength": 2,
             "title": "Name",
             "type": "string"
+          },
+          "supports_json_mode": {
+            "default": false,
+            "title": "Supports Json Mode",
+            "type": "boolean"
+          },
+          "temperature": {
+            "anyOf": [
+              {
+                "maximum": 2.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Temperature"
           }
         },
         "required": [
@@ -1476,6 +1771,31 @@
             "title": "Enabled",
             "type": "boolean"
           },
+          "fallback_profile_id": {
+            "anyOf": [
+              {
+                "maxLength": 64,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fallback Profile Id"
+          },
+          "max_tokens": {
+            "anyOf": [
+              {
+                "maximum": 32768.0,
+                "minimum": 256.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Tokens"
+          },
           "model_name": {
             "maxLength": 200,
             "minLength": 1,
@@ -1487,6 +1807,24 @@
             "minLength": 2,
             "title": "Name",
             "type": "string"
+          },
+          "supports_json_mode": {
+            "default": false,
+            "title": "Supports Json Mode",
+            "type": "boolean"
+          },
+          "temperature": {
+            "anyOf": [
+              {
+                "maximum": 2.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Temperature"
           }
         },
         "required": [
@@ -1516,6 +1854,112 @@
           "password"
         ],
         "title": "LoginIn",
+        "type": "object"
+      },
+      "MiniAppSessionIn": {
+        "properties": {
+          "lang": {
+            "default": "id",
+            "enum": [
+              "id",
+              "en"
+            ],
+            "title": "Lang",
+            "type": "string"
+          },
+          "phone_number": {
+            "anyOf": [
+              {
+                "maxLength": 32,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Phone Number"
+          },
+          "product": {
+            "enum": [
+              "hotel",
+              "flight"
+            ],
+            "title": "Product",
+            "type": "string"
+          },
+          "source": {
+            "default": "planner",
+            "enum": [
+              "planner",
+              "destination",
+              "partners"
+            ],
+            "title": "Source",
+            "type": "string"
+          },
+          "use_autologin": {
+            "default": false,
+            "title": "Use Autologin",
+            "type": "boolean"
+          },
+          "zone": {
+            "default": "medan_deli",
+            "maxLength": 64,
+            "title": "Zone",
+            "type": "string"
+          }
+        },
+        "required": [
+          "product"
+        ],
+        "title": "MiniAppSessionIn",
+        "type": "object"
+      },
+      "MiniAppSessionOut": {
+        "properties": {
+          "environment": {
+            "enum": [
+              "sandbox",
+              "production"
+            ],
+            "title": "Environment",
+            "type": "string"
+          },
+          "expires_hint_seconds": {
+            "default": 300,
+            "title": "Expires Hint Seconds",
+            "type": "integer"
+          },
+          "launch_url": {
+            "title": "Launch Url",
+            "type": "string"
+          },
+          "product": {
+            "enum": [
+              "hotel",
+              "flight"
+            ],
+            "title": "Product",
+            "type": "string"
+          },
+          "provider": {
+            "const": "tiket",
+            "default": "tiket",
+            "title": "Provider",
+            "type": "string"
+          },
+          "sub_id": {
+            "title": "Sub Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "product",
+          "environment",
+          "launch_url",
+          "sub_id"
+        ],
+        "title": "MiniAppSessionOut",
         "type": "object"
       },
       "ModerationActionIn": {
@@ -1678,7 +2122,9 @@
               "rental",
               "homestay",
               "culinary",
-              "souvenir"
+              "souvenir",
+              "tour_operator",
+              "activity"
             ],
             "title": "Type",
             "type": "string"
@@ -1713,6 +2159,62 @@
             "default": true,
             "title": "Accepting Contacts",
             "type": "boolean"
+          },
+          "accommodation_subtype": {
+            "default": "",
+            "enum": [
+              "",
+              "homestay",
+              "hotel",
+              "villa",
+              "resort",
+              "glamping"
+            ],
+            "title": "Accommodation Subtype",
+            "type": "string"
+          },
+          "activity_categories": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 20,
+            "title": "Activity Categories",
+            "type": "array"
+          },
+          "activity_difficulty": {
+            "default": "",
+            "enum": [
+              "",
+              "beginner",
+              "moderate",
+              "challenging"
+            ],
+            "title": "Activity Difficulty",
+            "type": "string"
+          },
+          "activity_duration_info": {
+            "default": "",
+            "maxLength": 200,
+            "title": "Activity Duration Info",
+            "type": "string"
+          },
+          "activity_equipment_included": {
+            "default": false,
+            "title": "Activity Equipment Included",
+            "type": "boolean"
+          },
+          "activity_min_age": {
+            "default": 0,
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Activity Min Age",
+            "type": "integer"
+          },
+          "activity_safety_note": {
+            "default": "",
+            "maxLength": 300,
+            "title": "Activity Safety Note",
+            "type": "string"
           },
           "address": {
             "default": "",
@@ -1755,6 +2257,7 @@
             "items": {
               "type": "string"
             },
+            "maxItems": 20,
             "title": "Culinary Categories",
             "type": "array"
           },
@@ -1762,16 +2265,19 @@
             "items": {
               "type": "string"
             },
+            "maxItems": 20,
             "title": "Culinary Dietary Tags",
             "type": "array"
           },
           "culinary_opening_info": {
             "default": "",
+            "maxLength": 300,
             "title": "Culinary Opening Info",
             "type": "string"
           },
           "culinary_reservation_note": {
             "default": "",
+            "maxLength": 300,
             "title": "Culinary Reservation Note",
             "type": "string"
           },
@@ -1779,6 +2285,7 @@
             "items": {
               "type": "string"
             },
+            "maxItems": 10,
             "title": "Culinary Service Modes",
             "type": "array"
           },
@@ -1786,6 +2293,7 @@
             "items": {
               "type": "string"
             },
+            "maxItems": 50,
             "title": "Culinary Specialties",
             "type": "array"
           },
@@ -1834,8 +2342,16 @@
             "title": "Gallery",
             "type": "array"
           },
+          "google_maps_url": {
+            "default": "",
+            "maxLength": 500,
+            "title": "Google Maps Url",
+            "type": "string"
+          },
           "guide_experience_years": {
             "default": 0,
+            "maximum": 80.0,
+            "minimum": 0.0,
             "title": "Guide Experience Years",
             "type": "integer"
           },
@@ -1843,16 +2359,34 @@
             "items": {
               "type": "string"
             },
+            "maxItems": 20,
             "title": "Guide Languages",
             "type": "array"
           },
           "guide_license_number": {
             "default": "",
+            "maxLength": 100,
             "title": "Guide License Number",
             "type": "string"
           },
+          "guide_max_group_size": {
+            "default": 0,
+            "maximum": 500.0,
+            "minimum": 0.0,
+            "title": "Guide Max Group Size",
+            "type": "integer"
+          },
+          "guide_specialties": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 20,
+            "title": "Guide Specialties",
+            "type": "array"
+          },
           "homestay_checkin_info": {
             "default": "",
+            "maxLength": 300,
             "title": "Homestay Checkin Info",
             "type": "string"
           },
@@ -1860,13 +2394,31 @@
             "items": {
               "type": "string"
             },
+            "maxItems": 30,
             "title": "Homestay Facilities",
             "type": "array"
           },
+          "homestay_max_guests": {
+            "default": 0,
+            "maximum": 500.0,
+            "minimum": 0.0,
+            "title": "Homestay Max Guests",
+            "type": "integer"
+          },
           "homestay_room_count": {
             "default": 0,
+            "maximum": 10000.0,
+            "minimum": 0.0,
             "title": "Homestay Room Count",
             "type": "integer"
+          },
+          "homestay_room_types": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 30,
+            "title": "Homestay Room Types",
+            "type": "array"
           },
           "id": {
             "title": "Id",
@@ -1883,6 +2435,12 @@
             ],
             "default": "",
             "title": "Image"
+          },
+          "instagram_url": {
+            "default": "",
+            "maxLength": 300,
+            "title": "Instagram Url",
+            "type": "string"
           },
           "is_active": {
             "default": true,
@@ -1938,13 +2496,32 @@
           },
           "rental_fleet_size": {
             "default": 0,
+            "maximum": 10000.0,
+            "minimum": 0.0,
             "title": "Rental Fleet Size",
             "type": "integer"
+          },
+          "rental_pickup_areas": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 30,
+            "title": "Rental Pickup Areas",
+            "type": "array"
+          },
+          "rental_service_options": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 15,
+            "title": "Rental Service Options",
+            "type": "array"
           },
           "rental_vehicle_types": {
             "items": {
               "type": "string"
             },
+            "maxItems": 30,
             "title": "Rental Vehicle Types",
             "type": "array"
           },
@@ -1993,20 +2570,36 @@
             "title": "Service Tags",
             "type": "array"
           },
+          "souvenir_categories": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 20,
+            "title": "Souvenir Categories",
+            "type": "array"
+          },
           "souvenir_delivery_available": {
             "default": false,
             "title": "Souvenir Delivery Available",
             "type": "boolean"
           },
+          "souvenir_packaging_note": {
+            "default": "",
+            "maxLength": 300,
+            "title": "Souvenir Packaging Note",
+            "type": "string"
+          },
           "souvenir_products": {
             "items": {
               "type": "string"
             },
+            "maxItems": 50,
             "title": "Souvenir Products",
             "type": "array"
           },
           "souvenir_shop_hours": {
             "default": "",
+            "maxLength": 200,
             "title": "Souvenir Shop Hours",
             "type": "string"
           },
@@ -2025,13 +2618,59 @@
             ],
             "title": "Submitted At"
           },
+          "tour_departure_hubs": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 20,
+            "title": "Tour Departure Hubs",
+            "type": "array"
+          },
+          "tour_inclusions": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 30,
+            "title": "Tour Inclusions",
+            "type": "array"
+          },
+          "tour_license_number": {
+            "default": "",
+            "maxLength": 100,
+            "title": "Tour License Number",
+            "type": "string"
+          },
+          "tour_max_pax": {
+            "default": 0,
+            "maximum": 1000.0,
+            "minimum": 0.0,
+            "title": "Tour Max Pax",
+            "type": "integer"
+          },
+          "tour_min_pax": {
+            "default": 0,
+            "maximum": 500.0,
+            "minimum": 0.0,
+            "title": "Tour Min Pax",
+            "type": "integer"
+          },
+          "tour_trip_types": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 20,
+            "title": "Tour Trip Types",
+            "type": "array"
+          },
           "type": {
             "enum": [
               "guide",
               "rental",
               "homestay",
               "culinary",
-              "souvenir"
+              "souvenir",
+              "tour_operator",
+              "activity"
             ],
             "title": "Type",
             "type": "string"
@@ -2228,6 +2867,62 @@
       },
       "PartnerDraftIn": {
         "properties": {
+          "accommodation_subtype": {
+            "default": "",
+            "enum": [
+              "",
+              "homestay",
+              "hotel",
+              "villa",
+              "resort",
+              "glamping"
+            ],
+            "title": "Accommodation Subtype",
+            "type": "string"
+          },
+          "activity_categories": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 20,
+            "title": "Activity Categories",
+            "type": "array"
+          },
+          "activity_difficulty": {
+            "default": "",
+            "enum": [
+              "",
+              "beginner",
+              "moderate",
+              "challenging"
+            ],
+            "title": "Activity Difficulty",
+            "type": "string"
+          },
+          "activity_duration_info": {
+            "default": "",
+            "maxLength": 200,
+            "title": "Activity Duration Info",
+            "type": "string"
+          },
+          "activity_equipment_included": {
+            "default": false,
+            "title": "Activity Equipment Included",
+            "type": "boolean"
+          },
+          "activity_min_age": {
+            "default": 0,
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Activity Min Age",
+            "type": "integer"
+          },
+          "activity_safety_note": {
+            "default": "",
+            "maxLength": 300,
+            "title": "Activity Safety Note",
+            "type": "string"
+          },
           "address": {
             "default": "",
             "maxLength": 300,
@@ -2323,6 +3018,12 @@
             ],
             "title": "Email"
           },
+          "google_maps_url": {
+            "default": "",
+            "maxLength": 500,
+            "title": "Google Maps Url",
+            "type": "string"
+          },
           "guide_experience_years": {
             "default": 0,
             "maximum": 80.0,
@@ -2344,6 +3045,21 @@
             "title": "Guide License Number",
             "type": "string"
           },
+          "guide_max_group_size": {
+            "default": 0,
+            "maximum": 500.0,
+            "minimum": 0.0,
+            "title": "Guide Max Group Size",
+            "type": "integer"
+          },
+          "guide_specialties": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 20,
+            "title": "Guide Specialties",
+            "type": "array"
+          },
           "homestay_checkin_info": {
             "default": "",
             "maxLength": 300,
@@ -2358,12 +3074,33 @@
             "title": "Homestay Facilities",
             "type": "array"
           },
+          "homestay_max_guests": {
+            "default": 0,
+            "maximum": 500.0,
+            "minimum": 0.0,
+            "title": "Homestay Max Guests",
+            "type": "integer"
+          },
           "homestay_room_count": {
             "default": 0,
             "maximum": 10000.0,
             "minimum": 0.0,
             "title": "Homestay Room Count",
             "type": "integer"
+          },
+          "homestay_room_types": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 30,
+            "title": "Homestay Room Types",
+            "type": "array"
+          },
+          "instagram_url": {
+            "default": "",
+            "maxLength": 300,
+            "title": "Instagram Url",
+            "type": "string"
           },
           "rental_driver_available": {
             "default": false,
@@ -2376,6 +3113,22 @@
             "minimum": 0.0,
             "title": "Rental Fleet Size",
             "type": "integer"
+          },
+          "rental_pickup_areas": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 30,
+            "title": "Rental Pickup Areas",
+            "type": "array"
+          },
+          "rental_service_options": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 15,
+            "title": "Rental Service Options",
+            "type": "array"
           },
           "rental_vehicle_types": {
             "items": {
@@ -2393,10 +3146,24 @@
             "title": "Service Tags",
             "type": "array"
           },
+          "souvenir_categories": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 20,
+            "title": "Souvenir Categories",
+            "type": "array"
+          },
           "souvenir_delivery_available": {
             "default": false,
             "title": "Souvenir Delivery Available",
             "type": "boolean"
+          },
+          "souvenir_packaging_note": {
+            "default": "",
+            "maxLength": 300,
+            "title": "Souvenir Packaging Note",
+            "type": "string"
           },
           "souvenir_products": {
             "items": {
@@ -2412,6 +3179,50 @@
             "title": "Souvenir Shop Hours",
             "type": "string"
           },
+          "tour_departure_hubs": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 20,
+            "title": "Tour Departure Hubs",
+            "type": "array"
+          },
+          "tour_inclusions": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 30,
+            "title": "Tour Inclusions",
+            "type": "array"
+          },
+          "tour_license_number": {
+            "default": "",
+            "maxLength": 100,
+            "title": "Tour License Number",
+            "type": "string"
+          },
+          "tour_max_pax": {
+            "default": 0,
+            "maximum": 1000.0,
+            "minimum": 0.0,
+            "title": "Tour Max Pax",
+            "type": "integer"
+          },
+          "tour_min_pax": {
+            "default": 0,
+            "maximum": 500.0,
+            "minimum": 0.0,
+            "title": "Tour Min Pax",
+            "type": "integer"
+          },
+          "tour_trip_types": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 20,
+            "title": "Tour Trip Types",
+            "type": "array"
+          },
           "type": {
             "default": "guide",
             "enum": [
@@ -2419,7 +3230,9 @@
               "rental",
               "homestay",
               "culinary",
-              "souvenir"
+              "souvenir",
+              "tour_operator",
+              "activity"
             ],
             "title": "Type",
             "type": "string"
@@ -2479,6 +3292,62 @@
       },
       "PartnerIn": {
         "properties": {
+          "accommodation_subtype": {
+            "default": "",
+            "enum": [
+              "",
+              "homestay",
+              "hotel",
+              "villa",
+              "resort",
+              "glamping"
+            ],
+            "title": "Accommodation Subtype",
+            "type": "string"
+          },
+          "activity_categories": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 20,
+            "title": "Activity Categories",
+            "type": "array"
+          },
+          "activity_difficulty": {
+            "default": "",
+            "enum": [
+              "",
+              "beginner",
+              "moderate",
+              "challenging"
+            ],
+            "title": "Activity Difficulty",
+            "type": "string"
+          },
+          "activity_duration_info": {
+            "default": "",
+            "maxLength": 200,
+            "title": "Activity Duration Info",
+            "type": "string"
+          },
+          "activity_equipment_included": {
+            "default": false,
+            "title": "Activity Equipment Included",
+            "type": "boolean"
+          },
+          "activity_min_age": {
+            "default": 0,
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Activity Min Age",
+            "type": "integer"
+          },
+          "activity_safety_note": {
+            "default": "",
+            "maxLength": 300,
+            "title": "Activity Safety Note",
+            "type": "string"
+          },
           "address": {
             "anyOf": [
               {
@@ -2574,6 +3443,84 @@
             ],
             "title": "Email"
           },
+          "google_maps_url": {
+            "default": "",
+            "maxLength": 500,
+            "title": "Google Maps Url",
+            "type": "string"
+          },
+          "guide_experience_years": {
+            "default": 0,
+            "maximum": 80.0,
+            "minimum": 0.0,
+            "title": "Guide Experience Years",
+            "type": "integer"
+          },
+          "guide_languages": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 20,
+            "title": "Guide Languages",
+            "type": "array"
+          },
+          "guide_license_number": {
+            "default": "",
+            "maxLength": 100,
+            "title": "Guide License Number",
+            "type": "string"
+          },
+          "guide_max_group_size": {
+            "default": 0,
+            "maximum": 500.0,
+            "minimum": 0.0,
+            "title": "Guide Max Group Size",
+            "type": "integer"
+          },
+          "guide_specialties": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 20,
+            "title": "Guide Specialties",
+            "type": "array"
+          },
+          "homestay_checkin_info": {
+            "default": "",
+            "maxLength": 300,
+            "title": "Homestay Checkin Info",
+            "type": "string"
+          },
+          "homestay_facilities": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 30,
+            "title": "Homestay Facilities",
+            "type": "array"
+          },
+          "homestay_max_guests": {
+            "default": 0,
+            "maximum": 500.0,
+            "minimum": 0.0,
+            "title": "Homestay Max Guests",
+            "type": "integer"
+          },
+          "homestay_room_count": {
+            "default": 0,
+            "maximum": 10000.0,
+            "minimum": 0.0,
+            "title": "Homestay Room Count",
+            "type": "integer"
+          },
+          "homestay_room_types": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 30,
+            "title": "Homestay Room Types",
+            "type": "array"
+          },
           "image": {
             "anyOf": [
               {
@@ -2587,6 +3534,48 @@
             "default": "",
             "title": "Image"
           },
+          "instagram_url": {
+            "default": "",
+            "maxLength": 300,
+            "title": "Instagram Url",
+            "type": "string"
+          },
+          "rental_driver_available": {
+            "default": false,
+            "title": "Rental Driver Available",
+            "type": "boolean"
+          },
+          "rental_fleet_size": {
+            "default": 0,
+            "maximum": 10000.0,
+            "minimum": 0.0,
+            "title": "Rental Fleet Size",
+            "type": "integer"
+          },
+          "rental_pickup_areas": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 30,
+            "title": "Rental Pickup Areas",
+            "type": "array"
+          },
+          "rental_service_options": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 15,
+            "title": "Rental Service Options",
+            "type": "array"
+          },
+          "rental_vehicle_types": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 30,
+            "title": "Rental Vehicle Types",
+            "type": "array"
+          },
           "service_tags": {
             "items": {
               "type": "string"
@@ -2595,13 +3584,92 @@
             "title": "Service Tags",
             "type": "array"
           },
+          "souvenir_categories": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 20,
+            "title": "Souvenir Categories",
+            "type": "array"
+          },
+          "souvenir_delivery_available": {
+            "default": false,
+            "title": "Souvenir Delivery Available",
+            "type": "boolean"
+          },
+          "souvenir_packaging_note": {
+            "default": "",
+            "maxLength": 300,
+            "title": "Souvenir Packaging Note",
+            "type": "string"
+          },
+          "souvenir_products": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 50,
+            "title": "Souvenir Products",
+            "type": "array"
+          },
+          "souvenir_shop_hours": {
+            "default": "",
+            "maxLength": 200,
+            "title": "Souvenir Shop Hours",
+            "type": "string"
+          },
+          "tour_departure_hubs": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 20,
+            "title": "Tour Departure Hubs",
+            "type": "array"
+          },
+          "tour_inclusions": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 30,
+            "title": "Tour Inclusions",
+            "type": "array"
+          },
+          "tour_license_number": {
+            "default": "",
+            "maxLength": 100,
+            "title": "Tour License Number",
+            "type": "string"
+          },
+          "tour_max_pax": {
+            "default": 0,
+            "maximum": 1000.0,
+            "minimum": 0.0,
+            "title": "Tour Max Pax",
+            "type": "integer"
+          },
+          "tour_min_pax": {
+            "default": 0,
+            "maximum": 500.0,
+            "minimum": 0.0,
+            "title": "Tour Min Pax",
+            "type": "integer"
+          },
+          "tour_trip_types": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 20,
+            "title": "Tour Trip Types",
+            "type": "array"
+          },
           "type": {
             "enum": [
               "guide",
               "rental",
               "homestay",
               "culinary",
-              "souvenir"
+              "souvenir",
+              "tour_operator",
+              "activity"
             ],
             "title": "Type",
             "type": "string"
@@ -2691,6 +3759,12 @@
             "title": "Availability Note",
             "type": "string"
           },
+          "capacity_info": {
+            "default": "",
+            "maxLength": 120,
+            "title": "Capacity Info",
+            "type": "string"
+          },
           "description": {
             "default": "",
             "maxLength": 600,
@@ -2703,6 +3777,20 @@
             },
             "maxItems": 100,
             "title": "Destination Ids",
+            "type": "array"
+          },
+          "duration_info": {
+            "default": "",
+            "maxLength": 120,
+            "title": "Duration Info",
+            "type": "string"
+          },
+          "highlights": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 8,
+            "title": "Highlights",
             "type": "array"
           },
           "is_active": {
@@ -2756,6 +3844,12 @@
             "title": "Availability Note",
             "type": "string"
           },
+          "capacity_info": {
+            "default": "",
+            "maxLength": 120,
+            "title": "Capacity Info",
+            "type": "string"
+          },
           "created_at": {
             "title": "Created At",
             "type": "string"
@@ -2772,6 +3866,20 @@
             },
             "maxItems": 100,
             "title": "Destination Ids",
+            "type": "array"
+          },
+          "duration_info": {
+            "default": "",
+            "maxLength": 120,
+            "title": "Duration Info",
+            "type": "string"
+          },
+          "highlights": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 8,
+            "title": "Highlights",
             "type": "array"
           },
           "id": {
@@ -2833,7 +3941,9 @@
               "rental",
               "homestay",
               "culinary",
-              "souvenir"
+              "souvenir",
+              "tour_operator",
+              "activity"
             ],
             "title": "Type",
             "type": "string"
@@ -2945,7 +4055,9 @@
               "rental",
               "homestay",
               "culinary",
-              "souvenir"
+              "souvenir",
+              "tour_operator",
+              "activity"
             ],
             "title": "Type",
             "type": "string"
@@ -3029,6 +4141,11 @@
             "title": "Gallery",
             "type": "array"
           },
+          "google_maps_url": {
+            "default": "",
+            "title": "Google Maps Url",
+            "type": "string"
+          },
           "id": {
             "title": "Id",
             "type": "string"
@@ -3036,6 +4153,11 @@
           "image": {
             "default": "",
             "title": "Image",
+            "type": "string"
+          },
+          "instagram_url": {
+            "default": "",
+            "title": "Instagram Url",
             "type": "string"
           },
           "is_premium": {
@@ -3085,7 +4207,9 @@
               "rental",
               "homestay",
               "culinary",
-              "souvenir"
+              "souvenir",
+              "tour_operator",
+              "activity"
             ],
             "title": "Type",
             "type": "string"
@@ -3158,6 +4282,17 @@
             "title": "Is Premium",
             "type": "boolean"
           },
+          "last_profile_reviewed_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Profile Reviewed At"
+          },
           "promotional_disclosure": {
             "anyOf": [
               {
@@ -3182,7 +4317,9 @@
               "rental",
               "homestay",
               "culinary",
-              "souvenir"
+              "souvenir",
+              "tour_operator",
+              "activity"
             ],
             "title": "Type",
             "type": "string"
@@ -3212,6 +4349,62 @@
       "PartnerSelfServiceIn": {
         "description": "Editable public profile fields after a partner has been approved.",
         "properties": {
+          "accommodation_subtype": {
+            "default": "",
+            "enum": [
+              "",
+              "homestay",
+              "hotel",
+              "villa",
+              "resort",
+              "glamping"
+            ],
+            "title": "Accommodation Subtype",
+            "type": "string"
+          },
+          "activity_categories": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 20,
+            "title": "Activity Categories",
+            "type": "array"
+          },
+          "activity_difficulty": {
+            "default": "",
+            "enum": [
+              "",
+              "beginner",
+              "moderate",
+              "challenging"
+            ],
+            "title": "Activity Difficulty",
+            "type": "string"
+          },
+          "activity_duration_info": {
+            "default": "",
+            "maxLength": 200,
+            "title": "Activity Duration Info",
+            "type": "string"
+          },
+          "activity_equipment_included": {
+            "default": false,
+            "title": "Activity Equipment Included",
+            "type": "boolean"
+          },
+          "activity_min_age": {
+            "default": 0,
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Activity Min Age",
+            "type": "integer"
+          },
+          "activity_safety_note": {
+            "default": "",
+            "maxLength": 300,
+            "title": "Activity Safety Note",
+            "type": "string"
+          },
           "address": {
             "default": "",
             "maxLength": 300,
@@ -3305,6 +4498,12 @@
             ],
             "title": "Email"
           },
+          "google_maps_url": {
+            "default": "",
+            "maxLength": 500,
+            "title": "Google Maps Url",
+            "type": "string"
+          },
           "guide_experience_years": {
             "default": 0,
             "maximum": 80.0,
@@ -3326,6 +4525,21 @@
             "title": "Guide License Number",
             "type": "string"
           },
+          "guide_max_group_size": {
+            "default": 0,
+            "maximum": 500.0,
+            "minimum": 0.0,
+            "title": "Guide Max Group Size",
+            "type": "integer"
+          },
+          "guide_specialties": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 20,
+            "title": "Guide Specialties",
+            "type": "array"
+          },
           "homestay_checkin_info": {
             "default": "",
             "maxLength": 300,
@@ -3340,12 +4554,33 @@
             "title": "Homestay Facilities",
             "type": "array"
           },
+          "homestay_max_guests": {
+            "default": 0,
+            "maximum": 500.0,
+            "minimum": 0.0,
+            "title": "Homestay Max Guests",
+            "type": "integer"
+          },
           "homestay_room_count": {
             "default": 0,
             "maximum": 10000.0,
             "minimum": 0.0,
             "title": "Homestay Room Count",
             "type": "integer"
+          },
+          "homestay_room_types": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 30,
+            "title": "Homestay Room Types",
+            "type": "array"
+          },
+          "instagram_url": {
+            "default": "",
+            "maxLength": 300,
+            "title": "Instagram Url",
+            "type": "string"
           },
           "rental_driver_available": {
             "default": false,
@@ -3358,6 +4593,22 @@
             "minimum": 0.0,
             "title": "Rental Fleet Size",
             "type": "integer"
+          },
+          "rental_pickup_areas": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 30,
+            "title": "Rental Pickup Areas",
+            "type": "array"
+          },
+          "rental_service_options": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 15,
+            "title": "Rental Service Options",
+            "type": "array"
           },
           "rental_vehicle_types": {
             "items": {
@@ -3375,10 +4626,24 @@
             "title": "Service Tags",
             "type": "array"
           },
+          "souvenir_categories": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 20,
+            "title": "Souvenir Categories",
+            "type": "array"
+          },
           "souvenir_delivery_available": {
             "default": false,
             "title": "Souvenir Delivery Available",
             "type": "boolean"
+          },
+          "souvenir_packaging_note": {
+            "default": "",
+            "maxLength": 300,
+            "title": "Souvenir Packaging Note",
+            "type": "string"
           },
           "souvenir_products": {
             "items": {
@@ -3394,6 +4659,50 @@
             "title": "Souvenir Shop Hours",
             "type": "string"
           },
+          "tour_departure_hubs": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 20,
+            "title": "Tour Departure Hubs",
+            "type": "array"
+          },
+          "tour_inclusions": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 30,
+            "title": "Tour Inclusions",
+            "type": "array"
+          },
+          "tour_license_number": {
+            "default": "",
+            "maxLength": 100,
+            "title": "Tour License Number",
+            "type": "string"
+          },
+          "tour_max_pax": {
+            "default": 0,
+            "maximum": 1000.0,
+            "minimum": 0.0,
+            "title": "Tour Max Pax",
+            "type": "integer"
+          },
+          "tour_min_pax": {
+            "default": 0,
+            "maximum": 500.0,
+            "minimum": 0.0,
+            "title": "Tour Min Pax",
+            "type": "integer"
+          },
+          "tour_trip_types": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 20,
+            "title": "Tour Trip Types",
+            "type": "array"
+          },
           "type": {
             "default": "guide",
             "enum": [
@@ -3401,7 +4710,9 @@
               "rental",
               "homestay",
               "culinary",
-              "souvenir"
+              "souvenir",
+              "tour_operator",
+              "activity"
             ],
             "title": "Type",
             "type": "string"
@@ -3448,6 +4759,62 @@
             "title": "Accepting Contacts",
             "type": "boolean"
           },
+          "accommodation_subtype": {
+            "default": "",
+            "enum": [
+              "",
+              "homestay",
+              "hotel",
+              "villa",
+              "resort",
+              "glamping"
+            ],
+            "title": "Accommodation Subtype",
+            "type": "string"
+          },
+          "activity_categories": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 20,
+            "title": "Activity Categories",
+            "type": "array"
+          },
+          "activity_difficulty": {
+            "default": "",
+            "enum": [
+              "",
+              "beginner",
+              "moderate",
+              "challenging"
+            ],
+            "title": "Activity Difficulty",
+            "type": "string"
+          },
+          "activity_duration_info": {
+            "default": "",
+            "maxLength": 200,
+            "title": "Activity Duration Info",
+            "type": "string"
+          },
+          "activity_equipment_included": {
+            "default": false,
+            "title": "Activity Equipment Included",
+            "type": "boolean"
+          },
+          "activity_min_age": {
+            "default": 0,
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Activity Min Age",
+            "type": "integer"
+          },
+          "activity_safety_note": {
+            "default": "",
+            "maxLength": 300,
+            "title": "Activity Safety Note",
+            "type": "string"
+          },
           "address": {
             "default": "",
             "title": "Address",
@@ -3489,6 +4856,7 @@
             "items": {
               "type": "string"
             },
+            "maxItems": 20,
             "title": "Culinary Categories",
             "type": "array"
           },
@@ -3496,16 +4864,19 @@
             "items": {
               "type": "string"
             },
+            "maxItems": 20,
             "title": "Culinary Dietary Tags",
             "type": "array"
           },
           "culinary_opening_info": {
             "default": "",
+            "maxLength": 300,
             "title": "Culinary Opening Info",
             "type": "string"
           },
           "culinary_reservation_note": {
             "default": "",
+            "maxLength": 300,
             "title": "Culinary Reservation Note",
             "type": "string"
           },
@@ -3513,6 +4884,7 @@
             "items": {
               "type": "string"
             },
+            "maxItems": 10,
             "title": "Culinary Service Modes",
             "type": "array"
           },
@@ -3520,6 +4892,7 @@
             "items": {
               "type": "string"
             },
+            "maxItems": 50,
             "title": "Culinary Specialties",
             "type": "array"
           },
@@ -3568,8 +4941,16 @@
             "title": "Gallery",
             "type": "array"
           },
+          "google_maps_url": {
+            "default": "",
+            "maxLength": 500,
+            "title": "Google Maps Url",
+            "type": "string"
+          },
           "guide_experience_years": {
             "default": 0,
+            "maximum": 80.0,
+            "minimum": 0.0,
             "title": "Guide Experience Years",
             "type": "integer"
           },
@@ -3577,16 +4958,34 @@
             "items": {
               "type": "string"
             },
+            "maxItems": 20,
             "title": "Guide Languages",
             "type": "array"
           },
           "guide_license_number": {
             "default": "",
+            "maxLength": 100,
             "title": "Guide License Number",
             "type": "string"
           },
+          "guide_max_group_size": {
+            "default": 0,
+            "maximum": 500.0,
+            "minimum": 0.0,
+            "title": "Guide Max Group Size",
+            "type": "integer"
+          },
+          "guide_specialties": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 20,
+            "title": "Guide Specialties",
+            "type": "array"
+          },
           "homestay_checkin_info": {
             "default": "",
+            "maxLength": 300,
             "title": "Homestay Checkin Info",
             "type": "string"
           },
@@ -3594,13 +4993,31 @@
             "items": {
               "type": "string"
             },
+            "maxItems": 30,
             "title": "Homestay Facilities",
             "type": "array"
           },
+          "homestay_max_guests": {
+            "default": 0,
+            "maximum": 500.0,
+            "minimum": 0.0,
+            "title": "Homestay Max Guests",
+            "type": "integer"
+          },
           "homestay_room_count": {
             "default": 0,
+            "maximum": 10000.0,
+            "minimum": 0.0,
             "title": "Homestay Room Count",
             "type": "integer"
+          },
+          "homestay_room_types": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 30,
+            "title": "Homestay Room Types",
+            "type": "array"
           },
           "id": {
             "title": "Id",
@@ -3617,6 +5034,12 @@
             ],
             "default": "",
             "title": "Image"
+          },
+          "instagram_url": {
+            "default": "",
+            "maxLength": 300,
+            "title": "Instagram Url",
+            "type": "string"
           },
           "is_active": {
             "default": true,
@@ -3683,13 +5106,32 @@
           },
           "rental_fleet_size": {
             "default": 0,
+            "maximum": 10000.0,
+            "minimum": 0.0,
             "title": "Rental Fleet Size",
             "type": "integer"
+          },
+          "rental_pickup_areas": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 30,
+            "title": "Rental Pickup Areas",
+            "type": "array"
+          },
+          "rental_service_options": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 15,
+            "title": "Rental Service Options",
+            "type": "array"
           },
           "rental_vehicle_types": {
             "items": {
               "type": "string"
             },
+            "maxItems": 30,
             "title": "Rental Vehicle Types",
             "type": "array"
           },
@@ -3738,20 +5180,36 @@
             "title": "Service Tags",
             "type": "array"
           },
+          "souvenir_categories": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 20,
+            "title": "Souvenir Categories",
+            "type": "array"
+          },
           "souvenir_delivery_available": {
             "default": false,
             "title": "Souvenir Delivery Available",
             "type": "boolean"
           },
+          "souvenir_packaging_note": {
+            "default": "",
+            "maxLength": 300,
+            "title": "Souvenir Packaging Note",
+            "type": "string"
+          },
           "souvenir_products": {
             "items": {
               "type": "string"
             },
+            "maxItems": 50,
             "title": "Souvenir Products",
             "type": "array"
           },
           "souvenir_shop_hours": {
             "default": "",
+            "maxLength": 200,
             "title": "Souvenir Shop Hours",
             "type": "string"
           },
@@ -3770,13 +5228,59 @@
             ],
             "title": "Submitted At"
           },
+          "tour_departure_hubs": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 20,
+            "title": "Tour Departure Hubs",
+            "type": "array"
+          },
+          "tour_inclusions": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 30,
+            "title": "Tour Inclusions",
+            "type": "array"
+          },
+          "tour_license_number": {
+            "default": "",
+            "maxLength": 100,
+            "title": "Tour License Number",
+            "type": "string"
+          },
+          "tour_max_pax": {
+            "default": 0,
+            "maximum": 1000.0,
+            "minimum": 0.0,
+            "title": "Tour Max Pax",
+            "type": "integer"
+          },
+          "tour_min_pax": {
+            "default": 0,
+            "maximum": 500.0,
+            "minimum": 0.0,
+            "title": "Tour Min Pax",
+            "type": "integer"
+          },
+          "tour_trip_types": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 20,
+            "title": "Tour Trip Types",
+            "type": "array"
+          },
           "type": {
             "enum": [
               "guide",
               "rental",
               "homestay",
               "culinary",
-              "souvenir"
+              "souvenir",
+              "tour_operator",
+              "activity"
             ],
             "title": "Type",
             "type": "string"
@@ -4155,6 +5659,92 @@
         "title": "PlannerDestinationCardOut",
         "type": "object"
       },
+      "PlannerFeedbackIn": {
+        "additionalProperties": false,
+        "description": "Privacy-safe thumbs up/down itinerary feedback; no free-text or story field.",
+        "properties": {
+          "generation_id": {
+            "maxLength": 80,
+            "minLength": 8,
+            "title": "Generation Id",
+            "type": "string"
+          },
+          "lang": {
+            "default": "id",
+            "enum": [
+              "id",
+              "en"
+            ],
+            "title": "Lang",
+            "type": "string"
+          },
+          "rating": {
+            "enum": [
+              "up",
+              "down"
+            ],
+            "title": "Rating",
+            "type": "string"
+          },
+          "reason_code": {
+            "anyOf": [
+              {
+                "enum": [
+                  "route_too_far",
+                  "mismatch_interests",
+                  "too_packed",
+                  "great_route",
+                  "helpful_partners",
+                  "other"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason Code"
+          }
+        },
+        "required": [
+          "generation_id",
+          "rating"
+        ],
+        "title": "PlannerFeedbackIn",
+        "type": "object"
+      },
+      "PlannerOfferingSummaryOut": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Id",
+            "type": "string"
+          },
+          "kind": {
+            "default": "service",
+            "enum": [
+              "service",
+              "product"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "name": {
+            "maxLength": 120,
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ],
+        "title": "PlannerOfferingSummaryOut",
+        "type": "object"
+      },
       "PlannerPartnerMatchOut": {
         "additionalProperties": false,
         "properties": {
@@ -4204,6 +5794,14 @@
             "title": "Offering Ids",
             "type": "array"
           },
+          "offerings": {
+            "items": {
+              "$ref": "#/components/schemas/PlannerOfferingSummaryOut"
+            },
+            "maxItems": 6,
+            "title": "Offerings",
+            "type": "array"
+          },
           "partner": {
             "$ref": "#/components/schemas/PlannerPartnerPublicOut"
           },
@@ -4235,7 +5833,9 @@
               "rental",
               "homestay",
               "culinary",
-              "souvenir"
+              "souvenir",
+              "tour_operator",
+              "activity"
             ],
             "title": "Type",
             "type": "string"
@@ -4320,7 +5920,9 @@
               "rental",
               "homestay",
               "culinary",
-              "souvenir"
+              "souvenir",
+              "tour_operator",
+              "activity"
             ],
             "title": "Type",
             "type": "string"
@@ -4382,6 +5984,40 @@
             ],
             "title": "Lang",
             "type": "string"
+          },
+          "starting_point": {
+            "anyOf": [
+              {
+                "enum": [
+                  "kualanamu",
+                  "medan",
+                  "silangit",
+                  "parapat",
+                  "flexible"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Starting Point"
+          },
+          "travel_pace": {
+            "anyOf": [
+              {
+                "enum": [
+                  "relaxed",
+                  "balanced",
+                  "packed"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Travel Pace"
           }
         },
         "required": [
@@ -4608,7 +6244,9 @@
               "rental",
               "homestay",
               "culinary",
-              "souvenir"
+              "souvenir",
+              "tour_operator",
+              "activity"
             ],
             "title": "Type",
             "type": "string"
@@ -5020,6 +6658,423 @@
         "title": "SnapTokenIn",
         "type": "object"
       },
+      "TiketAffiliateConfigIn": {
+        "properties": {
+          "affiliate_id": {
+            "default": "",
+            "maxLength": 120,
+            "title": "Affiliate Id",
+            "type": "string"
+          },
+          "allowed_redirect_hosts": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 20,
+            "title": "Allowed Redirect Hosts",
+            "type": "array"
+          },
+          "campaign_url_template": {
+            "default": "",
+            "maxLength": 600,
+            "title": "Campaign Url Template",
+            "type": "string"
+          },
+          "enabled": {
+            "default": false,
+            "title": "Enabled",
+            "type": "boolean"
+          },
+          "environment": {
+            "default": "sandbox",
+            "enum": [
+              "sandbox",
+              "production"
+            ],
+            "title": "Environment",
+            "type": "string"
+          },
+          "flight_v2_api_key": {
+            "anyOf": [
+              {
+                "maxLength": 2000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Flight V2 Api Key"
+          },
+          "flight_v2_api_key_action": {
+            "default": "preserve",
+            "enum": [
+              "preserve",
+              "replace",
+              "remove"
+            ],
+            "title": "Flight V2 Api Key Action",
+            "type": "string"
+          },
+          "hotel_v2_auth": {
+            "anyOf": [
+              {
+                "maxLength": 2000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hotel V2 Auth"
+          },
+          "hotel_v2_auth_action": {
+            "default": "preserve",
+            "enum": [
+              "preserve",
+              "replace",
+              "remove"
+            ],
+            "title": "Hotel V2 Auth Action",
+            "type": "string"
+          },
+          "miniapp_api_key": {
+            "anyOf": [
+              {
+                "maxLength": 2000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Miniapp Api Key"
+          },
+          "miniapp_api_key_action": {
+            "default": "preserve",
+            "enum": [
+              "preserve",
+              "replace",
+              "remove"
+            ],
+            "title": "Miniapp Api Key Action",
+            "type": "string"
+          },
+          "miniapp_production_base_url": {
+            "default": "",
+            "maxLength": 300,
+            "title": "Miniapp Production Base Url",
+            "type": "string"
+          },
+          "miniapp_rsa_public_key": {
+            "anyOf": [
+              {
+                "maxLength": 8000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Miniapp Rsa Public Key"
+          },
+          "miniapp_rsa_public_key_action": {
+            "default": "preserve",
+            "enum": [
+              "preserve",
+              "replace",
+              "remove"
+            ],
+            "title": "Miniapp Rsa Public Key Action",
+            "type": "string"
+          },
+          "mode": {
+            "default": "miniapp",
+            "enum": [
+              "miniapp",
+              "direct_api_v2",
+              "campaign_link"
+            ],
+            "title": "Mode",
+            "type": "string"
+          },
+          "partner_identifier": {
+            "default": "",
+            "maxLength": 120,
+            "title": "Partner Identifier",
+            "type": "string"
+          },
+          "partner_slug": {
+            "default": "",
+            "maxLength": 120,
+            "title": "Partner Slug",
+            "type": "string"
+          },
+          "products_enabled": {
+            "$ref": "#/components/schemas/TiketProductsEnabledIn"
+          }
+        },
+        "title": "TiketAffiliateConfigIn",
+        "type": "object"
+      },
+      "TiketAffiliateConfigOut": {
+        "properties": {
+          "affiliate_id": {
+            "default": "",
+            "title": "Affiliate Id",
+            "type": "string"
+          },
+          "allowed_redirect_hosts": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Allowed Redirect Hosts",
+            "type": "array"
+          },
+          "api_base_url": {
+            "title": "Api Base Url",
+            "type": "string"
+          },
+          "campaign_url_template": {
+            "default": "",
+            "title": "Campaign Url Template",
+            "type": "string"
+          },
+          "enabled": {
+            "default": false,
+            "title": "Enabled",
+            "type": "boolean"
+          },
+          "environment": {
+            "default": "sandbox",
+            "enum": [
+              "sandbox",
+              "production"
+            ],
+            "title": "Environment",
+            "type": "string"
+          },
+          "has_flight_v2_api_key": {
+            "default": false,
+            "title": "Has Flight V2 Api Key",
+            "type": "boolean"
+          },
+          "has_hotel_v2_auth": {
+            "default": false,
+            "title": "Has Hotel V2 Auth",
+            "type": "boolean"
+          },
+          "has_miniapp_api_key": {
+            "default": false,
+            "title": "Has Miniapp Api Key",
+            "type": "boolean"
+          },
+          "has_miniapp_rsa_public_key": {
+            "default": false,
+            "title": "Has Miniapp Rsa Public Key",
+            "type": "boolean"
+          },
+          "miniapp_base_url": {
+            "title": "Miniapp Base Url",
+            "type": "string"
+          },
+          "miniapp_production_base_url": {
+            "default": "",
+            "title": "Miniapp Production Base Url",
+            "type": "string"
+          },
+          "mode": {
+            "default": "miniapp",
+            "enum": [
+              "miniapp",
+              "direct_api_v2",
+              "campaign_link"
+            ],
+            "title": "Mode",
+            "type": "string"
+          },
+          "partner_identifier": {
+            "default": "",
+            "title": "Partner Identifier",
+            "type": "string"
+          },
+          "partner_slug": {
+            "default": "",
+            "title": "Partner Slug",
+            "type": "string"
+          },
+          "products_enabled": {
+            "$ref": "#/components/schemas/TiketProductsEnabledIn"
+          },
+          "provider": {
+            "const": "tiket",
+            "default": "tiket",
+            "title": "Provider",
+            "type": "string"
+          },
+          "readiness_notes": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Readiness Notes",
+            "type": "array"
+          },
+          "ready_for_launch": {
+            "default": false,
+            "title": "Ready For Launch",
+            "type": "boolean"
+          },
+          "updated_at": {
+            "default": "",
+            "title": "Updated At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "api_base_url",
+          "miniapp_base_url"
+        ],
+        "title": "TiketAffiliateConfigOut",
+        "type": "object"
+      },
+      "TiketAffiliatePreviewIn": {
+        "properties": {
+          "lang": {
+            "default": "id",
+            "enum": [
+              "id",
+              "en"
+            ],
+            "title": "Lang",
+            "type": "string"
+          },
+          "live_token_test": {
+            "default": false,
+            "title": "Live Token Test",
+            "type": "boolean"
+          },
+          "product": {
+            "default": "hotel",
+            "enum": [
+              "hotel",
+              "flight"
+            ],
+            "title": "Product",
+            "type": "string"
+          },
+          "zone": {
+            "default": "toba_samosir",
+            "maxLength": 64,
+            "title": "Zone",
+            "type": "string"
+          }
+        },
+        "title": "TiketAffiliatePreviewIn",
+        "type": "object"
+      },
+      "TiketAffiliatePreviewOut": {
+        "properties": {
+          "api_base_url": {
+            "title": "Api Base Url",
+            "type": "string"
+          },
+          "card": {
+            "$ref": "#/components/schemas/AffiliateCardOut"
+          },
+          "environment": {
+            "enum": [
+              "sandbox",
+              "production"
+            ],
+            "title": "Environment",
+            "type": "string"
+          },
+          "live_test_message": {
+            "default": "",
+            "title": "Live Test Message",
+            "type": "string"
+          },
+          "live_test_status": {
+            "default": "skipped",
+            "enum": [
+              "skipped",
+              "ok",
+              "error"
+            ],
+            "title": "Live Test Status",
+            "type": "string"
+          },
+          "mode": {
+            "enum": [
+              "miniapp",
+              "direct_api_v2",
+              "campaign_link"
+            ],
+            "title": "Mode",
+            "type": "string"
+          },
+          "preview_url": {
+            "title": "Preview Url",
+            "type": "string"
+          },
+          "product": {
+            "enum": [
+              "hotel",
+              "flight"
+            ],
+            "title": "Product",
+            "type": "string"
+          },
+          "readiness_notes": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Readiness Notes",
+            "type": "array"
+          },
+          "ready": {
+            "title": "Ready",
+            "type": "boolean"
+          },
+          "sub_id": {
+            "title": "Sub Id",
+            "type": "string"
+          },
+          "zone": {
+            "title": "Zone",
+            "type": "string"
+          }
+        },
+        "required": [
+          "mode",
+          "environment",
+          "product",
+          "zone",
+          "api_base_url",
+          "preview_url",
+          "sub_id",
+          "ready",
+          "card"
+        ],
+        "title": "TiketAffiliatePreviewOut",
+        "type": "object"
+      },
+      "TiketProductsEnabledIn": {
+        "properties": {
+          "flight": {
+            "default": true,
+            "title": "Flight",
+            "type": "boolean"
+          },
+          "hotel": {
+            "default": true,
+            "title": "Hotel",
+            "type": "boolean"
+          }
+        },
+        "title": "TiketProductsEnabledIn",
+        "type": "object"
+      },
       "TripPlanIn": {
         "properties": {
           "budget": {
@@ -5059,7 +7114,7 @@
           "extra_context": {
             "anyOf": [
               {
-                "maxLength": 200,
+                "maxLength": 500,
                 "type": "string"
               },
               {
@@ -5122,6 +7177,66 @@
             ],
             "default": "",
             "title": "Previous Content"
+          },
+          "refinement_instruction": {
+            "anyOf": [
+              {
+                "maxLength": 240,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": "",
+            "title": "Refinement Instruction"
+          },
+          "starting_point": {
+            "anyOf": [
+              {
+                "enum": [
+                  "kualanamu",
+                  "medan",
+                  "silangit",
+                  "parapat",
+                  "flexible"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Starting Point"
+          },
+          "target_day": {
+            "anyOf": [
+              {
+                "maximum": 14.0,
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Day"
+          },
+          "travel_pace": {
+            "anyOf": [
+              {
+                "enum": [
+                  "relaxed",
+                  "balanced",
+                  "packed"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Travel Pace"
           }
         },
         "required": [
@@ -5359,6 +7474,140 @@
           }
         },
         "summary": "Export Account"
+      }
+    },
+    "/api/admin/affiliates/analytics": {
+      "get": {
+        "operationId": "read_admin_affiliate_analytics_api_admin_affiliates_analytics_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "days",
+            "required": false,
+            "schema": {
+              "default": 30,
+              "maximum": 90,
+              "minimum": 1,
+              "title": "Days",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AffiliateAnalyticsOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Read Admin Affiliate Analytics"
+      }
+    },
+    "/api/admin/affiliates/tiket": {
+      "get": {
+        "operationId": "read_admin_tiket_affiliate_config_api_admin_affiliates_tiket_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TiketAffiliateConfigOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Read Admin Tiket Affiliate Config"
+      },
+      "put": {
+        "operationId": "update_admin_tiket_affiliate_config_api_admin_affiliates_tiket_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TiketAffiliateConfigIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TiketAffiliateConfigOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Update Admin Tiket Affiliate Config"
+      }
+    },
+    "/api/admin/affiliates/tiket/preview": {
+      "post": {
+        "operationId": "preview_admin_tiket_affiliate_config_api_admin_affiliates_tiket_preview_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TiketAffiliatePreviewIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TiketAffiliatePreviewOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Preview Admin Tiket Affiliate Config"
       }
     },
     "/api/admin/ai-logs": {
@@ -7037,7 +9286,9 @@
                     "rental",
                     "homestay",
                     "culinary",
-                    "souvenir"
+                    "souvenir",
+                    "tour_operator",
+                    "activity"
                   ],
                   "type": "string"
                 },
@@ -7891,6 +10142,221 @@
           }
         },
         "summary": "Update Admin User"
+      }
+    },
+    "/api/affiliates/go": {
+      "get": {
+        "operationId": "redirect_affiliate_link_api_affiliates_go_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "provider",
+            "required": false,
+            "schema": {
+              "const": "tiket",
+              "default": "tiket",
+              "title": "Provider",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "product",
+            "required": false,
+            "schema": {
+              "default": "hotel",
+              "enum": [
+                "hotel",
+                "flight"
+              ],
+              "title": "Product",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "zone",
+            "required": false,
+            "schema": {
+              "default": "medan_deli",
+              "maxLength": 64,
+              "title": "Zone",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "source",
+            "required": false,
+            "schema": {
+              "default": "planner",
+              "enum": [
+                "planner",
+                "destination",
+                "partners"
+              ],
+              "title": "Source",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Redirect Affiliate Link"
+      }
+    },
+    "/api/affiliates/recommendations": {
+      "get": {
+        "operationId": "list_affiliate_recommendations_api_affiliates_recommendations_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "zones",
+            "required": false,
+            "schema": {
+              "default": "",
+              "maxLength": 200,
+              "title": "Zones",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "destination_ids",
+            "required": false,
+            "schema": {
+              "default": "",
+              "maxLength": 600,
+              "title": "Destination Ids",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "starting_point",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 32,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Starting Point"
+            }
+          },
+          {
+            "in": "query",
+            "name": "source",
+            "required": false,
+            "schema": {
+              "default": "planner",
+              "enum": [
+                "planner",
+                "destination",
+                "partners"
+              ],
+              "title": "Source",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "lang",
+            "required": false,
+            "schema": {
+              "default": "id",
+              "enum": [
+                "id",
+                "en"
+              ],
+              "title": "Lang",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AffiliateRecommendationsOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Affiliate Recommendations"
+      }
+    },
+    "/api/affiliates/tiket/miniapp-session": {
+      "post": {
+        "operationId": "create_tiket_miniapp_session_api_affiliates_tiket_miniapp_session_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MiniAppSessionIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MiniAppSessionOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Tiket Miniapp Session"
       }
     },
     "/api/analytics/partner-events": {
@@ -8805,6 +11271,69 @@
           }
         },
         "summary": "Update Destination"
+      }
+    },
+    "/api/destinations/{dest_id}/alternatives": {
+      "get": {
+        "operationId": "get_destination_alternatives_api_destinations__dest_id__alternatives_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "dest_id",
+            "required": true,
+            "schema": {
+              "title": "Dest Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "exclude",
+            "required": false,
+            "schema": {
+              "default": "",
+              "title": "Exclude",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 4,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/DestinationOut"
+                  },
+                  "title": "Response Get Destination Alternatives Api Destinations  Dest Id  Alternatives Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Destination Alternatives"
       }
     },
     "/api/destinations/{dest_id}/reviews": {
@@ -10270,7 +12799,9 @@
                     "rental",
                     "homestay",
                     "culinary",
-                    "souvenir"
+                    "souvenir",
+                    "tour_operator",
+                    "activity"
                   ],
                   "type": "string"
                 },
@@ -10279,6 +12810,38 @@
                 }
               ],
               "title": "Type"
+            }
+          },
+          {
+            "in": "query",
+            "name": "q",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Q"
+            }
+          },
+          {
+            "in": "query",
+            "name": "city",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "City"
             }
           }
         ],
@@ -10403,6 +12966,28 @@
           }
         },
         "summary": "Create Partner Admin"
+      }
+    },
+    "/api/partners/cities": {
+      "get": {
+        "operationId": "list_partner_cities_api_partners_cities_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "title": "Response List Partner Cities Api Partners Cities Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "List Partner Cities"
       }
     },
     "/api/partners/{partner_id}": {
@@ -10816,6 +13401,43 @@
           }
         },
         "summary": "Payment Status"
+      }
+    },
+    "/api/planner/feedback": {
+      "post": {
+        "description": "Record privacy-safe thumbs up/down quality feedback for an itinerary.",
+        "operationId": "submit_planner_feedback_api_planner_feedback_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PlannerFeedbackIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Submit Planner Feedback"
       }
     },
     "/api/planner/quota": {

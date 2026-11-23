@@ -44,6 +44,12 @@ EXPERIENCE_FEATURE_CONFIG = {
         False,
         0,
     ),
+    "affiliate_tiket": (
+        "affiliate_tiket_enabled",
+        "affiliate_tiket_rollout_percentage",
+        False,
+        0,
+    ),
 }
 
 PLANNER_PARTNER_RELEVANCE_THRESHOLD = 45
@@ -543,6 +549,8 @@ def governance_fairness_summary(
                 "homestay",
                 "culinary",
                 "souvenir",
+                "tour_operator",
+                "activity",
             }:
                 continue
             gap_counts[(area[:120], partner_type)] = (

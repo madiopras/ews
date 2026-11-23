@@ -1,4 +1,9 @@
-import { extractPlannerPreferences, nextPlannerStep, PLANNER_NEXT_STEP } from "./plannerPreferenceExtractor.js";
+import {
+  extractPlannerOptionalPreferences,
+  extractPlannerPreferences,
+  nextPlannerStep,
+  PLANNER_NEXT_STEP,
+} from "./plannerPreferenceExtractor.js";
 
 describe("planner preference extractor", () => {
   test("extracts explicit Indonesian trip preferences", () => {
@@ -55,5 +60,31 @@ describe("planner preference extractor", () => {
   test("chooses the next wizard step from only missing required slots", () => {
     expect(nextPlannerStep({ days: 3, budget_style: "budget", interests: [] })).toBe(PLANNER_NEXT_STEP.INTERESTS);
     expect(nextPlannerStep({ days: 3, budget_style: "budget", interests: ["nature"] })).toBe(PLANNER_NEXT_STEP.GENERATE);
+  });
+
+  test("extracts local shorthand durations and expanded travel synonyms", () => {
+    expect(extractPlannerPreferences("Trip 3D2N low budget lihat orangutan di Bukit Lawang")).toEqual({
+      days: 3,
+      budget_style: "budget",
+      interests: ["adventure", "nature"],
+      confidence: { days: "high", budget_style: "high", interests: "high" },
+    });
+    expect(extractPlannerPreferences("Staycation seminggu yang eksklusif di tepi danau")).toEqual({
+      days: 7,
+      budget_style: "luxury",
+      interests: ["hotel", "lake"],
+      confidence: { days: "high", budget_style: "high", interests: "high" },
+    });
+  });
+
+  test("extracts optional starting point and travel pace from stories", () => {
+    expect(extractPlannerOptionalPreferences("Tiba di Bandara Silangit pagi, ingin trip santai ke Samosir")).toEqual({
+      starting_point: "silangit",
+      travel_pace: "relaxed",
+    });
+    expect(extractPlannerOptionalPreferences("Berangkat dari Kualanamu dengan jadwal padat")).toEqual({
+      starting_point: "kualanamu",
+      travel_pace: "packed",
+    });
   });
 });

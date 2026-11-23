@@ -225,6 +225,13 @@ async def get_my_partner_insights(
     return await service.insights(partner_id, days, user)
 
 
+@router.get("/partners/cities", response_model=List[str])
+async def list_partner_cities(
+    service: PartnerService = Depends(get_partner_service),
+):
+    return await service.public_cities()
+
+
 @router.get("/partners/{partner_id}/public", response_model=PartnerPublicDetailOut)
 async def get_public_partner(
     partner_id: str, service: PartnerService = Depends(get_partner_service)
@@ -236,9 +243,11 @@ async def get_public_partner(
 async def list_partners(
     destination_id: str | None = None,
     type: PartnerType | None = None,
+    q: str | None = None,
+    city: str | None = None,
     service: PartnerService = Depends(get_partner_service),
 ):
-    return await service.list_public(destination_id, type)
+    return await service.list_public(destination_id, type, query_text=q, city=city)
 
 
 @router.post("/analytics/partner-events")

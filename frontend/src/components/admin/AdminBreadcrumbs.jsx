@@ -15,6 +15,7 @@ export default function AdminBreadcrumbs() {
     users: copy.users,
     settings: copy.settings,
     general: copy.general,
+    affiliates: copy.affiliates,
     integrations: copy.integrations,
     llm: copy.llm,
     "email-templates": copy.emailTemplates,

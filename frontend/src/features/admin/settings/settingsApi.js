@@ -26,3 +26,8 @@ export const listBackups = (params, signal) => api.get("/admin/backups", { param
 export const createBackup = () => api.post("/admin/backups").then((r) => r.data);
 export const deleteBackup = (id) => api.delete(`/admin/backups/${id}`).then((r) => r.data);
 export const downloadBackup = (id) => api.get(`/admin/backups/${id}/download`, { responseType: "blob" }).then((r) => r.data);
+
+export const getTiketAffiliateConfig = (signal) => api.get("/admin/affiliates/tiket", { signal }).then((r) => r.data);
+export const updateTiketAffiliateConfig = (payload) => api.put("/admin/affiliates/tiket", payload).then((r) => r.data);
+export const previewTiketAffiliateConfig = (payload) => api.post("/admin/affiliates/tiket/preview", payload).then((r) => r.data);
+export const getAffiliateAnalytics = (days = 30, signal) => api.get("/admin/affiliates/analytics", { params: { days }, signal }).then((r) => r.data);

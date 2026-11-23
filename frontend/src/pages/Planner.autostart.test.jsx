@@ -26,6 +26,9 @@ jest.mock("../contexts/LanguageContext.jsx", () => ({
         startError: "Planner gagal dimulai",
         connectionInterrupted: "Koneksi terputus",
         generationCancelled: "Pembuatan dibatalkan",
+        freeTrial: "Anda memiliki 1 rencana gratis",
+        trialUsed: "Rencana gratis sudah digunakan",
+        continueLogin: "Masuk untuk lanjut",
       },
       categories: { nature: "Alam" },
       savedTrips: { loadError: "Rencana gagal dimuat", saveBtn: "Simpan", saved: "Tersimpan", titlePlaceholder: "Judul perjalanan" },
@@ -135,6 +138,23 @@ describe("Planner Home handoff auto-start", () => {
     const wizard = document.querySelector('[data-testid="planner-wizard-mock"]');
     expect(wizard.getAttribute("data-step")).toBe("story");
     expect(global.fetch).not.toHaveBeenCalled();
+  });
+
+  test("fetches guest quota proactively on mount and displays banner", async () => {
+    api.get.mockImplementation(async (url) => {
+      if (url === "/planner/quota") {
+        return { data: { authenticated: false, limit: 1, remaining: 1, login_required: false } };
+      }
+      return { data: {} };
+    });
+
+    await renderPlanner();
+    await finishTransitions();
+
+    expect(api.get).toHaveBeenCalledWith("/planner/quota");
+    const banner = document.querySelector('[data-testid="planner-guest-quota"]');
+    expect(banner).not.toBeNull();
+    expect(banner.textContent).toContain("Anda memiliki 1 rencana gratis");
   });
 
   test("shows one result action bar and returns to preferences without covering the mobile navigation", async () => {

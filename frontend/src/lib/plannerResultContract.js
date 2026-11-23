@@ -9,12 +9,15 @@ export const DEFAULT_PLANNER_RESULT_FEATURES = Object.freeze({
   planner_structured_results: { enabled: false, rollout_percentage: 0, reason: "default_off" },
   planner_culinary: { enabled: false, rollout_percentage: 0, reason: "default_off" },
   planner_partner_matches: { enabled: false, rollout_percentage: 0, reason: "default_off" },
+  affiliate_tiket: { enabled: false, rollout_percentage: 0, reason: "default_off" },
 });
 
 const TRAVEL_STYLES = new Set(["budget", "mid_range", "luxury"]);
+const STARTING_POINTS = new Set(["kualanamu", "medan", "silangit", "parapat", "flexible"]);
+const TRAVEL_PACES = new Set(["relaxed", "balanced", "packed"]);
 const LANGUAGES = new Set(["id", "en"]);
 const PERIODS = new Set(["morning", "afternoon", "evening", "flexible"]);
-const PARTNER_TYPES = new Set(["guide", "rental", "homestay", "culinary", "souvenir"]);
+const PARTNER_TYPES = new Set(["guide", "rental", "homestay", "culinary", "souvenir", "tour_operator", "activity"]);
 const PLACEMENTS = new Set(["organic", "featured"]);
 const MATCH_FACTOR_CODES = new Set(["destination_coverage", "requested_service_type", "service_tag_match", "multi_destination_coverage"]);
 
@@ -36,7 +39,9 @@ function validSnapshot(snapshot) {
     && snapshot.days <= 14
     && TRAVEL_STYLES.has(snapshot.budget_style)
     && isStringArray(snapshot.interests, 14)
-    && LANGUAGES.has(snapshot.lang);
+    && LANGUAGES.has(snapshot.lang)
+    && (snapshot.starting_point == null || STARTING_POINTS.has(snapshot.starting_point))
+    && (snapshot.travel_pace == null || TRAVEL_PACES.has(snapshot.travel_pace));
 }
 
 function validStop(stop) {
@@ -93,6 +98,13 @@ function validPartner(partner) {
     && (partner.accepting_contacts || partner.whatsapp == null);
 }
 
+function validOfferingSummary(offering) {
+  return isObject(offering)
+    && isString(offering.id, { required: true, max: 64 })
+    && isString(offering.name, { required: true, max: 120 })
+    && (offering.kind == null || offering.kind === "service" || offering.kind === "product");
+}
+
 function validPartnerMatch(match, destinationIds) {
   return isObject(match)
     && isString(match.partner_id, { required: true, max: 64 })
@@ -100,6 +112,7 @@ function validPartnerMatch(match, destinationIds) {
     && isStringArray(match.destination_ids, 20)
     && match.destination_ids.every((id) => destinationIds.has(id))
     && isStringArray(match.offering_ids, 20)
+    && (match.offerings == null || (Array.isArray(match.offerings) && match.offerings.length <= 6 && match.offerings.every(validOfferingSummary)))
     && isStringArray(match.match_reasons, 3)
     && (match.relevance_score == null || (Number.isInteger(match.relevance_score) && match.relevance_score >= 0 && match.relevance_score <= 100))
     && (match.match_factor_codes == null || (Array.isArray(match.match_factor_codes) && match.match_factor_codes.length <= 4 && match.match_factor_codes.every((code) => MATCH_FACTOR_CODES.has(code))))

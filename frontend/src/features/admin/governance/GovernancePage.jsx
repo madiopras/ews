@@ -47,6 +47,7 @@ function MetricGrid({ items, columns = "xl:grid-cols-4" }) {
 }
 
 function AnalyticsGovernanceSection({ analytics, copy }) {
+  const [gapTypeFilter, setGapTypeFilter] = useState("all");
   const funnel = analytics?.funnel || {};
   const plannerFunnel = analytics?.planner_funnel || {};
   const health = analytics?.planner_health || {};
@@ -54,6 +55,9 @@ function AnalyticsGovernanceSection({ analytics, copy }) {
   const imageExposure = fairness.image_exposure || {};
   const flaggedScores = (fairness.equal_score_concentration || []).filter((row) => row.flagged);
   const overexposed = fairness.overexposed_partners || [];
+  const allGaps = fairness.empty_results_by_area_type || [];
+  const filteredGaps = gapTypeFilter === "all" ? allGaps : allGaps.filter((row) => row.type === gapTypeFilter);
+  const maxGap = Math.max(1, ...filteredGaps.map((row) => row.empty_results || 0));
 
   return <section className="mt-8" data-testid="governance-fairness-analytics">
     <div className="flex items-center gap-2"><BarChart3 className="h-5 w-5 text-toba" /><h2 className="font-display text-2xl">{copy.analytics}</h2></div>
@@ -104,7 +108,49 @@ function AnalyticsGovernanceSection({ analytics, copy }) {
       {overexposed.slice(0, 5).map((row) => <p key={row.partner_id} className="mt-1">{row.business_name}: {row.ai_impressions} AI impressions (median {row.segment_median})</p>)}
     </div>
 
-    <h3 className="mt-6 text-sm font-semibold text-ink">{copy.gaps}</h3>
-    <div className="card-flat mt-3 overflow-x-auto"><table className="w-full min-w-[520px] text-left text-xs"><thead className="border-b border-line text-inkSoft"><tr><th className="p-3">{copy.area}</th><th className="p-3">{copy.type}</th><th className="p-3">{copy.emptyResults}</th></tr></thead><tbody className="divide-y divide-line">{(fairness.empty_results_by_area_type || []).slice(0, 30).map((row) => <tr key={`${row.area}-${row.type}`}><td className="p-3 font-semibold">{row.area}</td><td className="p-3">{row.type}</td><td className="p-3">{row.empty_results}</td></tr>)}</tbody></table></div>
+    <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
+      <h3 className="text-sm font-semibold text-ink">{copy.gaps}</h3>
+      <div className="flex flex-wrap gap-1.5">
+        {["all", "rental", "homestay", "guide", "tour_operator", "activity", "culinary", "souvenir"].map((typeKey) => (
+          <button
+            key={typeKey}
+            type="button"
+            onClick={() => setGapTypeFilter(typeKey)}
+            className={`chip min-h-0 px-2.5 py-1 text-[10px] ${gapTypeFilter === typeKey ? "chip-active" : ""}`}
+          >
+            {typeKey === "all" ? "All" : typeKey}
+          </button>
+        ))}
+      </div>
+    </div>
+    <div className="card-flat mt-3 overflow-x-auto" data-testid="governance-supply-gaps">
+      <table className="w-full min-w-[560px] text-left text-xs">
+        <thead className="border-b border-line text-inkSoft">
+          <tr>
+            <th className="p-3">{copy.area}</th>
+            <th className="p-3">{copy.type}</th>
+            <th className="p-3">{copy.emptyResults}</th>
+            <th className="p-3 w-44">Prioritas Akuisisi</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-line">
+          {filteredGaps.slice(0, 30).map((row) => (
+            <tr key={`${row.area}-${row.type}`}>
+              <td className="p-3 font-semibold">{row.area}</td>
+              <td className="p-3">{row.type}</td>
+              <td className="p-3">{row.empty_results}</td>
+              <td className="p-3">
+                <div className="h-2 w-full rounded-full bg-line overflow-hidden">
+                  <div
+                    className="h-full bg-toba rounded-full"
+                    style={{ width: `${Math.max(8, Math.round((row.empty_results / maxGap) * 100))}%` }}
+                  />
+                </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   </section>;
 }

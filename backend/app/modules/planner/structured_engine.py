@@ -10,11 +10,19 @@ from __future__ import annotations
 import json
 import re
 from json import JSONDecodeError, JSONDecoder
-from typing import Iterable, List, Literal, Sequence
+from typing import Iterable, List, Literal, Optional, Sequence
 
 from pydantic import Field, ValidationError, model_validator
 
 from app.modules.planner.contract import BudgetStyle
+from app.modules.planner.geo import (
+    StartingPoint,
+    TravelPace,
+    classify_sumut_zone,
+    starting_point_instruction,
+    sumut_geo_prompt_rules,
+    travel_pace_instruction,
+)
 from app.shared.planner_result import (
     PlannerContractModel,
     PlannerDay,
@@ -26,7 +34,7 @@ from app.shared.planner_result import (
     planner_destination_card_from_doc,
 )
 
-MAX_STRUCTURED_CATALOG_ITEMS = 150
+MAX_STRUCTURED_CATALOG_ITEMS = 60
 
 
 class PlannerStructuredParseError(ValueError):
@@ -78,26 +86,33 @@ def select_structured_catalog(
         not in {"yang", "untuk", "dengan", "saya", "ingin", "the", "and", "for", "with"}
     }
 
-    def score(row: dict) -> tuple[int, int, int, str]:
+    def score(row: dict) -> tuple[int, int, int, int, str]:
         destination_id = str(row.get("_id") or row.get("id") or "")
         category = str(row.get("category") or "").replace("_", " ").lower()
         tags = {str(tag).replace("_", " ").lower() for tag in row.get("tags", [])}
-        searchable = " ".join(
+        identity_text = " ".join(
             [
                 str(row.get("name") or ""),
                 str(row.get("name_en") or ""),
                 str(row.get("location") or ""),
+            ]
+        ).lower()
+        searchable = " ".join(
+            [
+                identity_text,
                 category,
                 " ".join(tags),
                 str(row.get("description") or "")[:220],
             ]
         ).lower()
+        location_name_score = sum(term in identity_text for term in context_terms)
         interest_score = sum(
             term == category or term in tags for term in interest_terms
         )
         context_score = sum(term in searchable for term in context_terms)
         return (
             1 if destination_id in preferred else 0,
+            location_name_score,
             interest_score,
             context_score,
             destination_id,
@@ -116,21 +131,42 @@ def select_structured_catalog(
     return selected
 
 
-def destination_catalog_payload(destinations: Iterable[dict]) -> List[dict]:
-    """Return the compact, privacy-safe catalog sent to the model."""
-    return [
-        {
+def destination_catalog_payload(
+    destinations: Iterable[dict], lang: Literal["id", "en"] = "id"
+) -> List[dict]:
+    """Return the compact, single-language, geo-tagged catalog sent to the model."""
+    is_en = lang == "en"
+    items: List[dict] = []
+    for row in destinations:
+        name_id = str(row.get("name") or "")
+        name_en = str(row.get("name_en") or "")
+        desc_id = str(row.get("description") or "")
+        desc_en = str(row.get("description_en") or "")
+        location = str(row.get("location") or "")[:160]
+        raw_lat = row.get("latitude")
+        raw_lng = row.get("longitude")
+        item: dict = {
             "id": str(row.get("_id") or row.get("id") or ""),
-            "name": str(row.get("name") or "")[:150],
-            "name_en": str(row.get("name_en") or "")[:150],
-            "location": str(row.get("location") or "")[:160],
+            "name": (name_en or name_id if is_en else name_id or name_en)[:150],
+            "location": location,
+            "zone": classify_sumut_zone(location, raw_lat, raw_lng),
             "category": str(row.get("category") or "")[:50],
             "tags": [str(tag)[:50] for tag in row.get("tags", []) if tag][:12],
-            "description": str(row.get("description") or "")[:220],
-            "description_en": str(row.get("description_en") or "")[:220],
+            "description": (desc_en or desc_id if is_en else desc_id or desc_en)[:220],
         }
-        for row in destinations
-    ]
+        try:
+            if (
+                raw_lat is not None
+                and raw_lng is not None
+                and not isinstance(raw_lat, bool)
+                and not isinstance(raw_lng, bool)
+            ):
+                item["lat"] = round(float(raw_lat), 2)
+                item["lng"] = round(float(raw_lng), 2)
+        except (TypeError, ValueError):
+            pass
+        items.append(item)
+    return items
 
 
 def build_structured_planner_messages(
@@ -144,6 +180,10 @@ def build_structured_planner_messages(
     preferred_ids: Sequence[str],
     previous_destination_names: Sequence[str],
     catalog: Sequence[dict],
+    starting_point: Optional[StartingPoint] = None,
+    travel_pace: Optional[TravelPace] = None,
+    refinement_instruction: str = "",
+    target_day: Optional[int] = None,
 ) -> List[dict]:
     """Build a provider-agnostic JSON prompt; native JSON mode is optional."""
     schema_example = {
@@ -209,13 +249,31 @@ def build_structured_planner_messages(
         "avoid_or_vary_from_previous": list(previous_destination_names)[:20],
         "regenerate": bool(previous_destination_names),
     }
+    hub_instruction = starting_point_instruction(starting_point, lang)
+    if starting_point and hub_instruction:
+        request_data["starting_point"] = starting_point
+        request_data["starting_point_instruction"] = hub_instruction
+    pace_instruction = travel_pace_instruction(travel_pace, lang)
+    if travel_pace and pace_instruction:
+        request_data["travel_pace"] = travel_pace
+        request_data["travel_pace_instruction"] = pace_instruction
+    if refinement_instruction:
+        request_data["refinement_instruction"] = refinement_instruction
+        if target_day is not None and 1 <= target_day <= days:
+            request_data["target_day"] = target_day
+            request_data["refinement_scope"] = (
+                f"Keep other days largely coherent and focus changes on Day {target_day}."
+                if lang == "en"
+                else f"Pertahankan hari lain agar tetap koheren dan fokuskan perubahan pada Hari {target_day}."
+            )
     user_payload = {
         "OUTPUT_SCHEMA": schema_example,
         "USER_INPUT": request_data,
         "DESTINATION_CATALOG": list(catalog),
     }
+    geo_rules = sumut_geo_prompt_rules(lang)
     return [
-        {"role": "system", "content": scope + common_rules},
+        {"role": "system", "content": f"{scope}{common_rules} {geo_rules}"},
         {
             "role": "user",
             "content": json.dumps(
@@ -298,6 +356,9 @@ def hydrate_structured_planner_result(
     lang: Literal["id", "en"],
     destinations: Sequence[dict],
     partner_matches: Sequence[dict],
+    starting_point: Optional[StartingPoint] = None,
+    travel_pace: Optional[TravelPace] = None,
+    extra_travel_notes: Sequence[str] = (),
 ) -> PlannerResultV2:
     """Build the public contract exclusively from validated provider prose and DB DTOs."""
     destination_ids = list(
@@ -321,6 +382,7 @@ def hydrate_structured_planner_result(
         "type",
         "destination_ids",
         "offering_ids",
+        "offerings",
         "match_reasons",
         "placement",
         "partner",
@@ -340,6 +402,10 @@ def hydrate_structured_planner_result(
         except (ValidationError, TypeError, ValueError):
             continue
 
+    merged_notes = list(
+        dict.fromkeys([*provider_result.travel_notes, *extra_travel_notes])
+    )[:10]
+
     try:
         return PlannerResultV2(
             request_snapshot=PlannerRequestSnapshot(
@@ -347,13 +413,15 @@ def hydrate_structured_planner_result(
                 budget_style=budget_style,
                 interests=list(interests),
                 lang=lang,
+                starting_point=starting_point,
+                travel_pace=travel_pace,
             ),
             summary=provider_result.summary,
             days=provider_result.days,
             destination_ids=destination_ids,
             destinations=cards,
             partner_matches=matches,
-            travel_notes=provider_result.travel_notes,
+            travel_notes=merged_notes,
             travel_tips=provider_result.travel_tips,
         )
     except ValidationError as exc:

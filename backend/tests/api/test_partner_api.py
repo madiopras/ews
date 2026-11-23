@@ -41,10 +41,16 @@ class FakePartnerService:
     async def list_mine(self, _user):
         return [partner_payload()]
 
-    async def list_public(self, _destination_id, _partner_type):
+    async def list_public(
+        self, _destination_id, _partner_type, *, query_text=None, city=None
+    ):
+        del query_text, city
         public = partner_payload(status="approved", is_active=True)
         public.pop("membership_role")
         return [public]
+
+    async def public_cities(self):
+        return ["Medan", "Samosir"]
 
     async def public_detail(self, _partner_id):
         public = partner_payload(status="approved", is_active=True)

@@ -147,6 +147,7 @@ class PlannerCatalogRepository:
 class PlannerAnalyticsRepository:
     def __init__(self, database: Any):
         self.collection = database.planner_analytics
+        self.feedback_collection = database.planner_feedback
 
     async def insert_once(self, document: dict) -> bool:
         try:
@@ -154,6 +155,15 @@ class PlannerAnalyticsRepository:
             return True
         except DuplicateKeyError:
             return False
+
+    async def upsert_feedback(
+        self, generation_id: str, voter_hash: str, document: dict
+    ) -> None:
+        await self.feedback_collection.update_one(
+            {"generation_id": generation_id, "voter_hash": voter_hash},
+            {"$set": document},
+            upsert=True,
+        )
 
 
 class PlannerLogRepository:

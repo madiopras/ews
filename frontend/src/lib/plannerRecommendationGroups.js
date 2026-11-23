@@ -1,9 +1,11 @@
 export const PLANNER_PARTNER_GROUP_ORDER = Object.freeze([
-  "guide",
   "homestay",
+  "rental",
+  "guide",
+  "tour_operator",
+  "activity",
   "culinary",
   "souvenir",
-  "rental",
 ]);
 
 const stableUnique = (values) => [...new Set(values.filter(Boolean))];

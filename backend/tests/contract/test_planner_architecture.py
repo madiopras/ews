@@ -53,10 +53,11 @@ def test_planner_repositories_are_split_by_operational_boundary():
     }
 
 
-def test_planner_router_owns_exactly_the_three_frozen_operations():
+def test_planner_router_owns_exactly_the_frozen_operations():
     routes = [route for route in router.routes if isinstance(route, APIRoute)]
     assert {(next(iter(route.methods)), route.path) for route in routes} == {
         ("POST", "/api/analytics/planner-events"),
+        ("POST", "/api/planner/feedback"),
         ("GET", "/api/planner/quota"),
         ("POST", "/api/trip-planner/stream"),
     }

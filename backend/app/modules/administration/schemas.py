@@ -50,6 +50,8 @@ class GeneralSettingsIn(BaseModel):
     planner_culinary_rollout_percentage: int = Field(0, ge=0, le=100)
     planner_partner_matches_enabled: bool = False
     planner_partner_matches_rollout_percentage: int = Field(0, ge=0, le=100)
+    affiliate_tiket_enabled: bool = False
+    affiliate_tiket_rollout_percentage: int = Field(0, ge=0, le=100)
     mitra_onboarding_enabled: bool = True
     mitra_onboarding_rollout_percentage: int = Field(100, ge=0, le=100)
     mitra_dashboard_enabled: bool = True
@@ -73,6 +75,10 @@ class LlmProfileCreateIn(BaseModel):
     model_name: str = Field(..., min_length=1, max_length=200)
     api_key: str | None = Field(default=None, max_length=1000)
     enabled: bool = True
+    supports_json_mode: bool = False
+    temperature: float | None = Field(default=None, ge=0.0, le=2.0)
+    max_tokens: int | None = Field(default=None, ge=256, le=32768)
+    fallback_profile_id: str | None = Field(default=None, max_length=64)
 
 
 class LlmProfileUpdateIn(BaseModel):
@@ -82,6 +88,10 @@ class LlmProfileUpdateIn(BaseModel):
     enabled: bool = True
     api_key_action: Literal["preserve", "replace", "remove"] = "preserve"
     api_key: str | None = Field(default=None, max_length=1000)
+    supports_json_mode: bool = False
+    temperature: float | None = Field(default=None, ge=0.0, le=2.0)
+    max_tokens: int | None = Field(default=None, ge=256, le=32768)
+    fallback_profile_id: str | None = Field(default=None, max_length=64)
 
 
 class EditorialWorkflowIn(BaseModel):
