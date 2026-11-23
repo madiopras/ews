@@ -11,6 +11,7 @@ from typing import Any
 from app.modules.partners.domain import (
     EDITABLE_APPLICATION_STATUSES,
     normalize_partner_list,
+    normalize_partner_type_fields,
     normalize_service_tags,
     normalize_whatsapp,
     partner_completeness,
@@ -29,6 +30,7 @@ from app.modules.partners.mapper import (
     partner_to_admin_response,
     partner_to_public_response,
     partner_to_response,
+    public_external_url,
     public_type_details,
     workspace_response,
 )
@@ -162,20 +164,11 @@ class PartnerService:
 
     @staticmethod
     def _input_changes(payload: PartnerIn) -> dict:
-        changes = payload.model_dump(mode="json")
+        changes = normalize_partner_type_fields(payload)
         for field in ("business_name", "description", "city"):
             changes[field] = getattr(payload, field).strip()
         changes["address"] = (payload.address or "").strip()
         changes["service_tags"] = normalize_service_tags(payload.service_tags)
-        for field, length in (
-            ("culinary_categories", 80),
-            ("culinary_specialties", 120),
-            ("culinary_service_modes", 50),
-            ("culinary_dietary_tags", 50),
-        ):
-            changes[field] = normalize_partner_list(getattr(payload, field), length)
-        changes["culinary_opening_info"] = payload.culinary_opening_info.strip()
-        changes["culinary_reservation_note"] = payload.culinary_reservation_note.strip()
         return changes
 
     @classmethod
@@ -419,6 +412,9 @@ class PartnerService:
                 "ai_tags": normalize_service_tags(payload.ai_tags),
                 "service_areas": normalize_partner_list(payload.service_areas, 100),
                 "availability_note": payload.availability_note.strip(),
+                "capacity_info": payload.capacity_info.strip(),
+                "duration_info": payload.duration_info.strip(),
+                "highlights": normalize_partner_list(payload.highlights, 60)[:8],
                 "updated_at": PartnerService._now(),
                 "updated_by": user_id,
             }
@@ -511,11 +507,34 @@ class PartnerService:
                 result.append(regular.pop(0))
         return result
 
-    async def list_public(self, destination_id: str | None, partner_type: str | None):
-        documents = await self.repository.list_public(destination_id, partner_type)
+    async def list_public(
+        self,
+        destination_id: str | None,
+        partner_type: str | None,
+        query_text: str | None = None,
+        city: str | None = None,
+    ):
+        escaped_q = (
+            re.escape(query_text.strip()[:80])
+            if query_text and query_text.strip()
+            else None
+        )
+        escaped_city = re.escape(city.strip()[:80]) if city and city.strip() else None
+        if escaped_q is None and escaped_city is None:
+            documents = await self.repository.list_public(destination_id, partner_type)
+        else:
+            documents = await self.repository.list_public(
+                destination_id,
+                partner_type,
+                query_text=escaped_q,
+                city=escaped_city,
+            )
         return [
             partner_to_public_response(item) for item in self._sort_public(documents)
         ]
+
+    async def public_cities(self) -> list[str]:
+        return await self.repository.public_cities()
 
     async def public_detail(self, partner_id: str):
         partner = await self.repository.get_public(partner_id)
@@ -539,8 +558,8 @@ class PartnerService:
                 for item in destinations
             ],
             type_details=public_type_details(partner),
-            last_profile_reviewed_at=partner.get("last_profile_reviewed_at")
-            or partner.get("updated_at"),
+            instagram_url=public_external_url(partner.get("instagram_url")),
+            google_maps_url=public_external_url(partner.get("google_maps_url")),
         )
 
     async def track_event(

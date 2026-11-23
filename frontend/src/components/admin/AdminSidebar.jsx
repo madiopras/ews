@@ -17,6 +17,7 @@ import {
   Scale,
   Settings2,
   SlidersHorizontal,
+  Ticket,
   UsersRound,
   X,
 } from "lucide-react";
@@ -121,6 +122,7 @@ export default function AdminSidebar({ mobile = false, collapsed = false, onClos
       prefix: "/admin/settings",
       children: [
         { to: "/admin/settings/general", label: copy.general, icon: SlidersHorizontal },
+        { to: "/admin/settings/affiliates", label: copy.affiliates, icon: Ticket },
         { to: "/admin/settings/integrations", label: copy.integrations, icon: PlugZap },
         { to: "/admin/settings/llm", label: copy.llm, icon: Bot },
         { to: "/admin/settings/email-templates", label: copy.emailTemplates, icon: Mail },

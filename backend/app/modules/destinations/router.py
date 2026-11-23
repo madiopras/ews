@@ -199,6 +199,17 @@ async def trending(
     return await service.trending(days=days, limit=limit)
 
 
+@router.get("/destinations/{dest_id}/alternatives", response_model=List[DestinationOut])
+async def get_destination_alternatives(
+    dest_id: str,
+    exclude: str = "",
+    limit: int = 4,
+    service: DestinationService = Depends(get_destination_service),
+):
+    exclude_ids = [item.strip() for item in exclude.split(",") if item.strip()][:50]
+    return await service.alternatives(dest_id, exclude_ids=exclude_ids, limit=limit)
+
+
 @router.get("/destinations/{dest_id}", response_model=DestinationOut)
 async def get_destination(
     dest_id: str,

@@ -4,14 +4,75 @@ from typing import List, Literal, Optional
 
 from pydantic import BaseModel, EmailStr, Field
 
-PartnerType = Literal["guide", "rental", "homestay", "culinary", "souvenir"]
+PartnerType = Literal[
+    "guide",
+    "rental",
+    "homestay",
+    "culinary",
+    "souvenir",
+    "tour_operator",
+    "activity",
+]
+AccommodationSubtype = Literal["", "homestay", "hotel", "villa", "resort", "glamping"]
+ActivityDifficulty = Literal["", "beginner", "moderate", "challenging"]
 PartnerMembershipRole = Literal["owner", "staff"]
 PartnerWorkflowStatus = Literal[
     "draft", "pending", "needs_revision", "approved", "rejected"
 ]
 
 
-class PartnerIn(BaseModel):
+class PartnerTypeFieldsMixin(BaseModel):
+    instagram_url: str = Field(default="", max_length=300)
+    google_maps_url: str = Field(default="", max_length=500)
+    # Guide
+    guide_languages: List[str] = Field(default_factory=list, max_length=20)
+    guide_specialties: List[str] = Field(default_factory=list, max_length=20)
+    guide_license_number: str = Field(default="", max_length=100)
+    guide_experience_years: int = Field(default=0, ge=0, le=80)
+    guide_max_group_size: int = Field(default=0, ge=0, le=500)
+    # Rental & Transport
+    rental_vehicle_types: List[str] = Field(default_factory=list, max_length=30)
+    rental_service_options: List[str] = Field(default_factory=list, max_length=15)
+    rental_pickup_areas: List[str] = Field(default_factory=list, max_length=30)
+    rental_driver_available: bool = False
+    rental_fleet_size: int = Field(default=0, ge=0, le=10000)
+    # Homestay / Accommodation
+    accommodation_subtype: AccommodationSubtype = ""
+    homestay_room_types: List[str] = Field(default_factory=list, max_length=30)
+    homestay_room_count: int = Field(default=0, ge=0, le=10000)
+    homestay_max_guests: int = Field(default=0, ge=0, le=500)
+    homestay_facilities: List[str] = Field(default_factory=list, max_length=30)
+    homestay_checkin_info: str = Field(default="", max_length=300)
+    # Souvenir
+    souvenir_categories: List[str] = Field(default_factory=list, max_length=20)
+    souvenir_products: List[str] = Field(default_factory=list, max_length=50)
+    souvenir_delivery_available: bool = False
+    souvenir_packaging_note: str = Field(default="", max_length=300)
+    souvenir_shop_hours: str = Field(default="", max_length=200)
+    # Culinary
+    culinary_categories: List[str] = Field(default_factory=list, max_length=20)
+    culinary_specialties: List[str] = Field(default_factory=list, max_length=50)
+    culinary_service_modes: List[str] = Field(default_factory=list, max_length=10)
+    culinary_dietary_tags: List[str] = Field(default_factory=list, max_length=20)
+    culinary_opening_info: str = Field(default="", max_length=300)
+    culinary_reservation_note: str = Field(default="", max_length=300)
+    # Tour Operator
+    tour_trip_types: List[str] = Field(default_factory=list, max_length=20)
+    tour_inclusions: List[str] = Field(default_factory=list, max_length=30)
+    tour_min_pax: int = Field(default=0, ge=0, le=500)
+    tour_max_pax: int = Field(default=0, ge=0, le=1000)
+    tour_departure_hubs: List[str] = Field(default_factory=list, max_length=20)
+    tour_license_number: str = Field(default="", max_length=100)
+    # Activity & Adventure
+    activity_categories: List[str] = Field(default_factory=list, max_length=20)
+    activity_difficulty: ActivityDifficulty = ""
+    activity_duration_info: str = Field(default="", max_length=200)
+    activity_equipment_included: bool = False
+    activity_min_age: int = Field(default=0, ge=0, le=100)
+    activity_safety_note: str = Field(default="", max_length=300)
+
+
+class PartnerIn(PartnerTypeFieldsMixin):
     business_name: str = Field(..., min_length=2, max_length=120)
     type: PartnerType
     whatsapp: str = Field(
@@ -24,19 +85,13 @@ class PartnerIn(BaseModel):
     destination_ids: List[str] = Field(default_factory=list, max_length=100)
     service_tags: List[str] = Field(default_factory=list, max_length=20)
     image: Optional[str] = Field(default="", max_length=1000)
-    culinary_categories: List[str] = Field(default_factory=list, max_length=20)
-    culinary_specialties: List[str] = Field(default_factory=list, max_length=50)
-    culinary_service_modes: List[str] = Field(default_factory=list, max_length=10)
-    culinary_dietary_tags: List[str] = Field(default_factory=list, max_length=20)
-    culinary_opening_info: str = Field(default="", max_length=300)
-    culinary_reservation_note: str = Field(default="", max_length=300)
 
 
 class PartnerOnboardingStartIn(BaseModel):
     type: PartnerType
 
 
-class PartnerDraftIn(BaseModel):
+class PartnerDraftIn(PartnerTypeFieldsMixin):
     business_name: str = Field(default="", max_length=120)
     type: PartnerType = "guide"
     whatsapp: str = Field(default="", max_length=30)
@@ -47,24 +102,6 @@ class PartnerDraftIn(BaseModel):
     destination_ids: List[str] = Field(default_factory=list, max_length=100)
     service_tags: List[str] = Field(default_factory=list, max_length=20)
     current_step: int = Field(default=1, ge=1, le=4)
-    guide_languages: List[str] = Field(default_factory=list, max_length=20)
-    guide_license_number: str = Field(default="", max_length=100)
-    guide_experience_years: int = Field(default=0, ge=0, le=80)
-    rental_vehicle_types: List[str] = Field(default_factory=list, max_length=30)
-    rental_driver_available: bool = False
-    rental_fleet_size: int = Field(default=0, ge=0, le=10000)
-    homestay_room_count: int = Field(default=0, ge=0, le=10000)
-    homestay_facilities: List[str] = Field(default_factory=list, max_length=30)
-    homestay_checkin_info: str = Field(default="", max_length=300)
-    souvenir_products: List[str] = Field(default_factory=list, max_length=50)
-    souvenir_delivery_available: bool = False
-    souvenir_shop_hours: str = Field(default="", max_length=200)
-    culinary_categories: List[str] = Field(default_factory=list, max_length=20)
-    culinary_specialties: List[str] = Field(default_factory=list, max_length=50)
-    culinary_service_modes: List[str] = Field(default_factory=list, max_length=10)
-    culinary_dietary_tags: List[str] = Field(default_factory=list, max_length=20)
-    culinary_opening_info: str = Field(default="", max_length=300)
-    culinary_reservation_note: str = Field(default="", max_length=300)
 
 
 class PartnerSelfServiceIn(PartnerDraftIn):
@@ -86,6 +123,9 @@ class PartnerOfferingIn(BaseModel):
     service_areas: List[str] = Field(default_factory=list, max_length=30)
     destination_ids: List[str] = Field(default_factory=list, max_length=100)
     availability_note: str = Field(default="", max_length=240)
+    capacity_info: str = Field(default="", max_length=120)
+    duration_info: str = Field(default="", max_length=120)
+    highlights: List[str] = Field(default_factory=list, max_length=8)
     is_active: bool = True
 
 
@@ -159,6 +199,7 @@ class PartnerPublicOut(BaseModel):
     is_premium: bool = False
     promotional_disclosure: Optional[str] = None
     accepting_contacts: bool = True
+    last_profile_reviewed_at: Optional[str] = None
 
 
 class PartnerPublicDetailOut(PartnerPublicOut):
@@ -166,7 +207,8 @@ class PartnerPublicDetailOut(PartnerPublicOut):
     offerings: List[PartnerOfferingOut] = Field(default_factory=list)
     destinations: List[dict] = Field(default_factory=list)
     type_details: dict = Field(default_factory=dict)
-    last_profile_reviewed_at: Optional[str] = None
+    instagram_url: str = ""
+    google_maps_url: str = ""
 
 
 class VerificationDocumentOut(BaseModel):
@@ -179,7 +221,7 @@ class VerificationDocumentOut(BaseModel):
     uploaded_by: str
 
 
-class PartnerAdminOut(PartnerOut):
+class PartnerAdminOut(PartnerOut, PartnerTypeFieldsMixin):
     verification_documents: List[VerificationDocumentOut] = Field(default_factory=list)
     approval_history: List[dict] = Field(default_factory=list)
     reviewed_by: Optional[str] = None
@@ -191,24 +233,6 @@ class PartnerAdminOut(PartnerOut):
     review_due_at: Optional[str] = None
     revision_note: str = ""
     current_step: int = 1
-    guide_languages: List[str] = Field(default_factory=list)
-    guide_license_number: str = ""
-    guide_experience_years: int = 0
-    rental_vehicle_types: List[str] = Field(default_factory=list)
-    rental_driver_available: bool = False
-    rental_fleet_size: int = 0
-    homestay_room_count: int = 0
-    homestay_facilities: List[str] = Field(default_factory=list)
-    homestay_checkin_info: str = ""
-    souvenir_products: List[str] = Field(default_factory=list)
-    souvenir_delivery_available: bool = False
-    souvenir_shop_hours: str = ""
-    culinary_categories: List[str] = Field(default_factory=list)
-    culinary_specialties: List[str] = Field(default_factory=list)
-    culinary_service_modes: List[str] = Field(default_factory=list)
-    culinary_dietary_tags: List[str] = Field(default_factory=list)
-    culinary_opening_info: str = ""
-    culinary_reservation_note: str = ""
     contact_status_note: str = ""
     profile_completeness: int = 0
     completeness_missing: List[str] = Field(default_factory=list)

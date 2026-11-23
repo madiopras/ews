@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { ArrowLeft, Heart, MapPin, Tag, Sparkles, Navigation, Share2, ExternalLink, CalendarDays, ShieldCheck, RefreshCw } from "lucide-react";
 import Reviews from "../components/Reviews.jsx";
 import DestinationPartners from "../components/DestinationPartners.jsx";
+import AffiliateBookingSection from "../components/AffiliateBookingSection.jsx";
 import OfflineBanner from "../components/OfflineBanner.jsx";
 import VideoLightbox from "../components/VideoLightbox.jsx";
 import { cacheGet, cacheSet, isOffline } from "../lib/offline.js";
@@ -314,6 +315,11 @@ export default function DestinationDetail() {
 
       <Reviews destinationId={dest.id} />
       <DestinationPartners destinationId={dest.id} />
+      <AffiliateBookingSection
+        destinationIds={[dest.id]}
+        source="destination"
+        heading={lang === "en" ? `Flights & Stays for ${name}` : `Pesan Pesawat & Penginapan ke ${name}`}
+      />
     </div>
   );
 }

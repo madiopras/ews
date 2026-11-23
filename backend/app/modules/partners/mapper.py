@@ -13,7 +13,7 @@ from app.modules.partners.schemas import (
     PartnerPublicOut,
     PartnerWorkspaceOut,
 )
-from app.shared.urls import safe_public_media_url
+from app.shared.urls import safe_public_http_url, safe_public_media_url
 
 
 def parse_profile_datetime(value: str | None) -> datetime | None:
@@ -53,6 +53,9 @@ def offering_to_response(document: dict) -> PartnerOfferingOut:
         service_areas=document.get("service_areas", []),
         destination_ids=document.get("destination_ids", []),
         availability_note=document.get("availability_note", ""),
+        capacity_info=document.get("capacity_info", ""),
+        duration_info=document.get("duration_info", ""),
+        highlights=document.get("highlights", []),
         is_active=document.get("is_active", True),
         created_at=document.get("created_at", ""),
         updated_at=document.get("updated_at", ""),
@@ -99,19 +102,32 @@ def partner_to_public_response(document: dict) -> PartnerPublicOut:
             "unggulan_berbayar" if premium_active(document) else None
         ),
         accepting_contacts=accepts,
+        last_profile_reviewed_at=document.get("last_profile_reviewed_at")
+        or document.get("updated_at"),
     )
 
 
 def public_type_details(document: dict) -> dict:
+    partner_type = document.get("type")
     fields = {
-        "guide": ["guide_languages", "guide_experience_years"],
+        "guide": [
+            "guide_languages",
+            "guide_specialties",
+            "guide_experience_years",
+            "guide_max_group_size",
+        ],
         "rental": [
             "rental_vehicle_types",
+            "rental_service_options",
+            "rental_pickup_areas",
             "rental_driver_available",
             "rental_fleet_size",
         ],
         "homestay": [
+            "accommodation_subtype",
+            "homestay_room_types",
             "homestay_room_count",
+            "homestay_max_guests",
             "homestay_facilities",
             "homestay_checkin_info",
         ],
@@ -124,12 +140,38 @@ def public_type_details(document: dict) -> dict:
             "culinary_reservation_note",
         ],
         "souvenir": [
+            "souvenir_categories",
             "souvenir_products",
             "souvenir_delivery_available",
+            "souvenir_packaging_note",
             "souvenir_shop_hours",
         ],
-    }.get(document.get("type"), [])
-    return {field: document.get(field) for field in fields}
+        "tour_operator": [
+            "tour_trip_types",
+            "tour_inclusions",
+            "tour_min_pax",
+            "tour_max_pax",
+            "tour_departure_hubs",
+        ],
+        "activity": [
+            "activity_categories",
+            "activity_difficulty",
+            "activity_duration_info",
+            "activity_equipment_included",
+            "activity_min_age",
+            "activity_safety_note",
+        ],
+    }.get(partner_type, [])
+    details = {field: document.get(field) for field in fields}
+    if partner_type == "guide":
+        details["has_license"] = bool(
+            (document.get("guide_license_number") or "").strip()
+        )
+    elif partner_type == "tour_operator":
+        details["has_license"] = bool(
+            (document.get("tour_license_number") or "").strip()
+        )
+    return details
 
 
 def partner_to_admin_response(
@@ -146,17 +188,28 @@ def partner_to_admin_response(
             "owner_user_id": "",
             "revision_note": "",
             "current_step": 1,
+            "instagram_url": "",
+            "google_maps_url": "",
             "guide_languages": [],
+            "guide_specialties": [],
             "guide_license_number": "",
             "guide_experience_years": 0,
+            "guide_max_group_size": 0,
             "rental_vehicle_types": [],
+            "rental_service_options": [],
+            "rental_pickup_areas": [],
             "rental_driver_available": False,
             "rental_fleet_size": 0,
+            "accommodation_subtype": "",
+            "homestay_room_types": [],
             "homestay_room_count": 0,
+            "homestay_max_guests": 0,
             "homestay_facilities": [],
             "homestay_checkin_info": "",
+            "souvenir_categories": [],
             "souvenir_products": [],
             "souvenir_delivery_available": False,
+            "souvenir_packaging_note": "",
             "souvenir_shop_hours": "",
             "culinary_categories": [],
             "culinary_specialties": [],
@@ -164,6 +217,18 @@ def partner_to_admin_response(
             "culinary_dietary_tags": [],
             "culinary_opening_info": "",
             "culinary_reservation_note": "",
+            "tour_trip_types": [],
+            "tour_inclusions": [],
+            "tour_min_pax": 0,
+            "tour_max_pax": 0,
+            "tour_departure_hubs": [],
+            "tour_license_number": "",
+            "activity_categories": [],
+            "activity_difficulty": "",
+            "activity_duration_info": "",
+            "activity_equipment_included": False,
+            "activity_min_age": 0,
+            "activity_safety_note": "",
             "contact_status_note": "",
         }.items()
     }
@@ -220,3 +285,7 @@ def workspace_response(
         membership_role=membership_role,
         members=members,
     )
+
+
+def public_external_url(value: str | None) -> str:
+    return safe_public_http_url((value or "").strip())

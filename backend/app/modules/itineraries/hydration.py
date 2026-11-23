@@ -110,6 +110,16 @@ class PlannerResultHydrator:
         partner_ids = [match.partner_id for match in sanitized.partner_matches]
         partners = await self.repository.eligible_partners(partner_ids)
         partners_by_id = {str(row["_id"]): row for row in partners}
+        active_offerings = await self.repository.active_offerings(list(partners_by_id))
+        offerings_by_id = {
+            str(offering["_id"]): {
+                "id": str(offering["_id"]),
+                "name": str(offering.get("name") or "").strip()[:120],
+                "kind": "product" if offering.get("kind") == "product" else "service",
+            }
+            for offering in active_offerings
+            if offering.get("_id") and str(offering.get("name") or "").strip()
+        }
         partner_matches = []
         for match in sanitized.partner_matches:
             partner = partners_by_id.get(match.partner_id)
@@ -121,6 +131,11 @@ class PlannerResultHydrator:
                         partner,
                         destination_ids=match.destination_ids,
                         offering_ids=match.offering_ids,
+                        offerings=[
+                            offerings_by_id[oid]
+                            for oid in match.offering_ids
+                            if oid in offerings_by_id
+                        ],
                         match_reasons=match.match_reasons,
                         relevance_score=match.relevance_score,
                         match_factor_codes=match.match_factor_codes,

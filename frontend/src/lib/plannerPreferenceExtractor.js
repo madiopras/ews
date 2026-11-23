@@ -10,28 +10,39 @@ export const PLANNER_NEXT_STEP = Object.freeze({
 const DAY_PATTERNS = [
   /\b(\d{1,2})\s*(?:hari|days?)\b/giu,
   /\b(\d{1,2})\s*-\s*(?:hari|day)\b/giu,
+  /\b(\d{1,2})\s*[dh]\s*\d{1,2}\s*[nm]\b/giu,
+];
+
+const WORD_DAY_TERMS = [
+  { value: 1, terms: ["sehari", "satu hari", "one day", "day trip", "daytrip"] },
+  { value: 2, terms: ["dua hari", "two days"] },
+  { value: 3, terms: ["tiga hari", "three days"] },
+  { value: 4, terms: ["empat hari", "four days"] },
+  { value: 5, terms: ["lima hari", "five days"] },
+  { value: 6, terms: ["enam hari", "six days"] },
+  { value: 7, terms: ["tujuh hari", "seminggu", "satu minggu", "seven days", "one week", "a week"] },
 ];
 
 const STYLE_TERMS = {
-  budget: ["hemat", "irit", "ekonomis", "backpacker", "budget"],
-  mid_range: ["nyaman", "sedang", "seimbang", "mid range", "midrange"],
-  luxury: ["mewah", "premium", "luxury", "eksklusif"],
+  budget: ["hemat", "irit", "ekonomis", "backpacker", "budget", "low budget", "terjangkau"],
+  mid_range: ["nyaman", "sedang", "seimbang", "mid range", "midrange", "menengah"],
+  luxury: ["mewah", "premium", "luxury", "eksklusif", "exclusive", "vip"],
 };
 
 const INTEREST_TERMS = {
-  adventure: ["petualangan", "adventure", "rafting", "arung jeram"],
+  adventure: ["petualangan", "adventure", "rafting", "arung jeram", "orangutan", "surfing", "snorkeling", "diving", "trekking"],
   beach: ["pantai", "beach", "beaches", "laut", "seaside"],
   camping: ["berkemah", "camping", "camp"],
-  culinary: ["kuliner", "makanan", "makan", "kopi", "coffee", "food", "cuisine"],
-  culture: ["budaya", "adat", "sejarah", "museum", "culture", "heritage"],
-  hotel: ["hotel"],
-  hotspring: ["air panas", "pemandian panas", "hot spring", "hotspring"],
+  culinary: ["kuliner", "kulineran", "makanan", "makan", "kopi", "coffee", "food", "cuisine", "cafe", "kafe", "restoran", "restaurant"],
+  culture: ["budaya", "adat", "sejarah", "museum", "culture", "heritage", "batak", "ulos", "desa adat"],
+  hotel: ["hotel", "staycation", "resort", "penginapan", "homestay", "villa"],
+  hotspring: ["air panas", "pemandian panas", "pemandian air panas", "hot spring", "hotspring"],
   island: ["pulau", "island"],
   lake: ["danau", "lake"],
   mountain: ["gunung", "pendakian", "mendaki", "hiking", "mountain"],
-  nature: ["alam", "hutan", "pemandangan", "nature", "scenery"],
+  nature: ["alam", "hutan", "pemandangan", "nature", "scenery", "rainforest", "bukit", "lembah"],
   tea: ["perkebunan teh", "kebun teh", "tea plantation", "tea garden"],
-  viewpoint: ["titik pandang", "viewpoint", "sunrise", "sunset"],
+  viewpoint: ["titik pandang", "viewpoint", "sunrise", "sunset", "panorama"],
   waterfall: ["air terjun", "waterfall"],
 };
 
@@ -53,6 +64,9 @@ function explicitDays(text) {
   DAY_PATTERNS.forEach((pattern) => {
     pattern.lastIndex = 0;
     for (const match of text.matchAll(pattern)) matches.push(Number(match[1]));
+  });
+  WORD_DAY_TERMS.forEach(({ value, terms }) => {
+    if (terms.some((term) => hasTerm(text, term))) matches.push(value);
   });
   const valid = [...new Set(matches.filter((value) => value >= 1 && value <= 14))];
   if (valid.length === 1) return { value: valid[0], confidence: "high" };
@@ -91,6 +105,33 @@ export function extractPlannerPreferences(story) {
       budget_style: budgetStyle.confidence,
       interests: interests.length ? "high" : "none",
     },
+  };
+}
+
+const STARTING_POINT_TERMS = {
+  kualanamu: ["kualanamu", "kno"],
+  silangit: ["silangit", "dtb"],
+  parapat: ["dari parapat", "mulai parapat", "start parapat", "from parapat"],
+  medan: ["dari medan", "mulai medan", "mulai dari medan", "start medan", "from medan"],
+};
+
+const TRAVEL_PACE_TERMS = {
+  relaxed: ["santai", "relaxed", "slow pace", "tidak buru buru", "tanpa buru buru", "pelan"],
+  packed: ["padat", "packed", "maksimal", "banyak tempat", "full itinerary"],
+};
+
+export function extractPlannerOptionalPreferences(story) {
+  const text = normalizedText(story);
+  const startingMatches = Object.entries(STARTING_POINT_TERMS)
+    .filter(([, terms]) => terms.some((term) => hasTerm(text, term)))
+    .map(([hub]) => hub);
+  const paceMatches = Object.entries(TRAVEL_PACE_TERMS)
+    .filter(([, terms]) => terms.some((term) => hasTerm(text, term)))
+    .map(([pace]) => pace);
+
+  return {
+    starting_point: startingMatches.length === 1 ? startingMatches[0] : null,
+    travel_pace: paceMatches.length === 1 ? paceMatches[0] : null,
   };
 }
 

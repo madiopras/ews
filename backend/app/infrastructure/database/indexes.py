@@ -98,6 +98,11 @@ INDEX_DEFINITIONS = (
     IndexDefinition("premium_plans", "active"),
     IndexDefinition("premium_plans", "order"),
     IndexDefinition("premium_plans", "price"),
+    IndexDefinition("affiliate_clicks", "expires_at", {"expireAfterSeconds": 0}),
+    IndexDefinition(
+        "affiliate_clicks", [("provider", 1), ("product", 1), ("created_at", -1)]
+    ),
+    IndexDefinition("affiliate_clicks", [("zone", 1), ("created_at", -1)]),
 )
 
 

@@ -66,6 +66,7 @@ next-env.d.ts
 .env.test.local
 .env.production.local
 *.env*.local
+/prodfile.txt
 
 # PYTHON APPLICATIONS
 __pycache__/
@@ -122,6 +123,7 @@ kubernetes/secrets.yaml
 dataews/assets/
 uploads/
 downloads/
+/backups/
 
 # PROJECT SPECIFIC
 skills-lock.json

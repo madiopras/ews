@@ -1,6 +1,98 @@
 [
   {
     "dependencies": [
+      "app.api.dependencies.get_app_settings",
+      "app.api.dependencies.get_database",
+      "app.modules.administration.dependencies.get_audit_service",
+      "app.modules.affiliates.dependencies.get_affiliate_analytics_repository",
+      "app.modules.affiliates.dependencies.get_affiliate_config_repository",
+      "app.modules.affiliates.dependencies.get_affiliate_crypto_gateway",
+      "app.modules.affiliates.dependencies.get_affiliate_destination_repository",
+      "app.modules.affiliates.dependencies.get_affiliate_service",
+      "app.modules.affiliates.dependencies.get_affiliate_settings_reader",
+      "app.modules.affiliates.dependencies.get_tiket_partner_api_gateway",
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.auth.dependencies.require_admin"
+    ],
+    "domain": "admin",
+    "method": "GET",
+    "name": "read_admin_affiliate_analytics",
+    "operation_id": null,
+    "path": "/api/admin/affiliates/analytics",
+    "response_model": "app.modules.affiliates.schemas.AffiliateAnalyticsOut",
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_app_settings",
+      "app.api.dependencies.get_database",
+      "app.modules.administration.dependencies.get_audit_service",
+      "app.modules.affiliates.dependencies.get_affiliate_analytics_repository",
+      "app.modules.affiliates.dependencies.get_affiliate_config_repository",
+      "app.modules.affiliates.dependencies.get_affiliate_crypto_gateway",
+      "app.modules.affiliates.dependencies.get_affiliate_destination_repository",
+      "app.modules.affiliates.dependencies.get_affiliate_service",
+      "app.modules.affiliates.dependencies.get_affiliate_settings_reader",
+      "app.modules.affiliates.dependencies.get_tiket_partner_api_gateway",
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.auth.dependencies.require_admin"
+    ],
+    "domain": "admin",
+    "method": "GET",
+    "name": "read_admin_tiket_affiliate_config",
+    "operation_id": null,
+    "path": "/api/admin/affiliates/tiket",
+    "response_model": "app.modules.affiliates.schemas.TiketAffiliateConfigOut",
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_app_settings",
+      "app.api.dependencies.get_database",
+      "app.modules.administration.dependencies.get_audit_service",
+      "app.modules.affiliates.dependencies.get_affiliate_analytics_repository",
+      "app.modules.affiliates.dependencies.get_affiliate_config_repository",
+      "app.modules.affiliates.dependencies.get_affiliate_crypto_gateway",
+      "app.modules.affiliates.dependencies.get_affiliate_destination_repository",
+      "app.modules.affiliates.dependencies.get_affiliate_service",
+      "app.modules.affiliates.dependencies.get_affiliate_settings_reader",
+      "app.modules.affiliates.dependencies.get_tiket_partner_api_gateway",
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.auth.dependencies.require_admin"
+    ],
+    "domain": "admin",
+    "method": "PUT",
+    "name": "update_admin_tiket_affiliate_config",
+    "operation_id": null,
+    "path": "/api/admin/affiliates/tiket",
+    "response_model": "app.modules.affiliates.schemas.TiketAffiliateConfigOut",
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_app_settings",
+      "app.api.dependencies.get_database",
+      "app.modules.administration.dependencies.get_audit_service",
+      "app.modules.affiliates.dependencies.get_affiliate_analytics_repository",
+      "app.modules.affiliates.dependencies.get_affiliate_config_repository",
+      "app.modules.affiliates.dependencies.get_affiliate_crypto_gateway",
+      "app.modules.affiliates.dependencies.get_affiliate_destination_repository",
+      "app.modules.affiliates.dependencies.get_affiliate_service",
+      "app.modules.affiliates.dependencies.get_affiliate_settings_reader",
+      "app.modules.affiliates.dependencies.get_tiket_partner_api_gateway",
+      "app.modules.auth.dependencies.get_current_user",
+      "app.modules.auth.dependencies.require_admin"
+    ],
+    "domain": "admin",
+    "method": "POST",
+    "name": "preview_admin_tiket_affiliate_config",
+    "operation_id": null,
+    "path": "/api/admin/affiliates/tiket/preview",
+    "response_model": "app.modules.affiliates.schemas.TiketAffiliatePreviewOut",
+    "status_code": 200
+  },
+  {
+    "dependencies": [
       "app.api.dependencies.get_database",
       "app.modules.administration.dependencies.get_log_service",
       "app.modules.auth.dependencies.get_current_user",
@@ -1202,6 +1294,20 @@
   {
     "dependencies": [
       "app.api.dependencies.get_database",
+      "app.api.dependencies.get_destination_repository",
+      "app.api.dependencies.get_destination_service"
+    ],
+    "domain": "destinations",
+    "method": "GET",
+    "name": "get_destination_alternatives",
+    "operation_id": null,
+    "path": "/api/destinations/{dest_id}/alternatives",
+    "response_model": "typing.List",
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_database",
       "app.api.dependencies.get_destination_admin_service",
       "app.api.dependencies.get_destination_repository",
       "app.modules.auth.dependencies.get_current_user",
@@ -1453,6 +1559,72 @@
     "operation_id": null,
     "path": "/api/upload",
     "response_model": null,
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_app_settings",
+      "app.api.dependencies.get_database",
+      "app.modules.administration.dependencies.get_audit_service",
+      "app.modules.affiliates.dependencies.get_affiliate_analytics_repository",
+      "app.modules.affiliates.dependencies.get_affiliate_config_repository",
+      "app.modules.affiliates.dependencies.get_affiliate_crypto_gateway",
+      "app.modules.affiliates.dependencies.get_affiliate_destination_repository",
+      "app.modules.affiliates.dependencies.get_affiliate_service",
+      "app.modules.affiliates.dependencies.get_affiliate_settings_reader",
+      "app.modules.affiliates.dependencies.get_tiket_partner_api_gateway",
+      "app.modules.auth.dependencies.get_optional_user"
+    ],
+    "domain": "other",
+    "method": "GET",
+    "name": "redirect_affiliate_link",
+    "operation_id": null,
+    "path": "/api/affiliates/go",
+    "response_model": null,
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_app_settings",
+      "app.api.dependencies.get_database",
+      "app.modules.administration.dependencies.get_audit_service",
+      "app.modules.affiliates.dependencies.get_affiliate_analytics_repository",
+      "app.modules.affiliates.dependencies.get_affiliate_config_repository",
+      "app.modules.affiliates.dependencies.get_affiliate_crypto_gateway",
+      "app.modules.affiliates.dependencies.get_affiliate_destination_repository",
+      "app.modules.affiliates.dependencies.get_affiliate_service",
+      "app.modules.affiliates.dependencies.get_affiliate_settings_reader",
+      "app.modules.affiliates.dependencies.get_tiket_partner_api_gateway",
+      "app.modules.auth.dependencies.get_optional_user"
+    ],
+    "domain": "other",
+    "method": "GET",
+    "name": "list_affiliate_recommendations",
+    "operation_id": null,
+    "path": "/api/affiliates/recommendations",
+    "response_model": "app.modules.affiliates.schemas.AffiliateRecommendationsOut",
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_app_settings",
+      "app.api.dependencies.get_database",
+      "app.modules.administration.dependencies.get_audit_service",
+      "app.modules.affiliates.dependencies.get_affiliate_analytics_repository",
+      "app.modules.affiliates.dependencies.get_affiliate_config_repository",
+      "app.modules.affiliates.dependencies.get_affiliate_crypto_gateway",
+      "app.modules.affiliates.dependencies.get_affiliate_destination_repository",
+      "app.modules.affiliates.dependencies.get_affiliate_service",
+      "app.modules.affiliates.dependencies.get_affiliate_settings_reader",
+      "app.modules.affiliates.dependencies.get_tiket_partner_api_gateway",
+      "app.modules.auth.dependencies.get_optional_user"
+    ],
+    "domain": "other",
+    "method": "POST",
+    "name": "create_tiket_miniapp_session",
+    "operation_id": null,
+    "path": "/api/affiliates/tiket/miniapp-session",
+    "response_model": "app.modules.affiliates.schemas.MiniAppSessionOut",
     "status_code": 200
   },
   {
@@ -1878,6 +2050,21 @@
   },
   {
     "dependencies": [
+      "app.modules.partners.dependencies.get_partner_notifications",
+      "app.modules.partners.dependencies.get_partner_repository",
+      "app.modules.partners.dependencies.get_partner_service",
+      "app.modules.partners.dependencies.get_partner_storage"
+    ],
+    "domain": "partners",
+    "method": "GET",
+    "name": "list_partner_cities",
+    "operation_id": null,
+    "path": "/api/partners/cities",
+    "response_model": "typing.List",
+    "status_code": 200
+  },
+  {
+    "dependencies": [
       "app.modules.auth.dependencies.get_current_user",
       "app.modules.auth.dependencies.require_admin",
       "app.modules.partners.dependencies.get_partner_notifications",
@@ -2089,6 +2276,22 @@
     "name": "track_planner_event",
     "operation_id": null,
     "path": "/api/analytics/planner-events",
+    "response_model": null,
+    "status_code": 200
+  },
+  {
+    "dependencies": [
+      "app.api.dependencies.get_app_settings",
+      "app.api.dependencies.get_database",
+      "app.modules.auth.dependencies.get_optional_user",
+      "app.modules.planner.dependencies.get_planner_analytics_service",
+      "app.modules.planner.dependencies.get_planner_identity"
+    ],
+    "domain": "planner",
+    "method": "POST",
+    "name": "submit_planner_feedback",
+    "operation_id": null,
+    "path": "/api/planner/feedback",
     "response_model": null,
     "status_code": 200
   },

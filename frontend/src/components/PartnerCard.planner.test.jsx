@@ -39,9 +39,9 @@ describe("PartnerCard Planner safety", () => {
     jest.clearAllMocks();
   });
 
-  const renderCard = async (value) => {
+  const renderCard = async (value, extraProps = {}) => {
     await act(async () => {
-      root.render(<MemoryRouter><LanguageProvider><PartnerCard partner={value} source="planner" destinationId="dest-1" /></LanguageProvider></MemoryRouter>);
+      root.render(<MemoryRouter><LanguageProvider><PartnerCard partner={value} source="planner" destinationId="dest-1" {...extraProps} /></LanguageProvider></MemoryRouter>);
     });
   };
 
@@ -58,5 +58,16 @@ describe("PartnerCard Planner safety", () => {
 
     await act(async () => button.click());
     expect(trackPartnerEvent).toHaveBeenCalledWith("whatsapp_click", "partner-1", "planner", "dest-1", {});
+  });
+
+  test("pre-fills contextual itinerary details in WhatsApp message when tripContext is provided", async () => {
+    await renderCard(partner(), {
+      tripContext: { days: 3, budgetStyle: "mid_range", destinationNames: ["Danau Toba", "Bukit Holbung"] },
+    });
+    const button = document.querySelector('[data-testid="partner-wa-btn-partner-1"]');
+    const decoded = decodeURIComponent(button.href);
+    expect(decoded).toContain("3 hari");
+    expect(decoded).toContain("Danau Toba, Bukit Holbung");
+    expect(decoded).toContain("Nyaman");
   });
 });

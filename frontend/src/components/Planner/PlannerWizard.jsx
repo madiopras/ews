@@ -49,6 +49,34 @@ const COPY = {
 
 const QUICK_DAYS = [1, 2, 3, 4, 5, 7];
 
+const STARTING_POINT_OPTIONS = {
+  id: [
+    { value: "kualanamu", label: "Kualanamu (KNO)" },
+    { value: "medan", label: "Kota Medan" },
+    { value: "silangit", label: "Silangit (DTB)" },
+    { value: "parapat", label: "Parapat / Toba" },
+  ],
+  en: [
+    { value: "kualanamu", label: "Kualanamu (KNO)" },
+    { value: "medan", label: "Medan City" },
+    { value: "silangit", label: "Silangit (DTB)" },
+    { value: "parapat", label: "Parapat / Toba" },
+  ],
+};
+
+const PACE_OPTIONS = {
+  id: [
+    { value: "relaxed", label: "Santai" },
+    { value: "balanced", label: "Seimbang" },
+    { value: "packed", label: "Padat" },
+  ],
+  en: [
+    { value: "relaxed", label: "Relaxed" },
+    { value: "balanced", label: "Balanced" },
+    { value: "packed", label: "Packed" },
+  ],
+};
+
 export default function PlannerWizard({
   step,
   transitioning,
@@ -61,6 +89,8 @@ export default function PlannerWizard({
   onStorySubmit,
   onDaysChange,
   onStyleChange,
+  onStartingPointChange = () => {},
+  onPaceChange = () => {},
   onInterestToggle,
   onBasicsSubmit,
   onInterestsSubmit,
@@ -144,6 +174,52 @@ export default function PlannerWizard({
               })}
             </div>
           </fieldset>
+          <div className="mt-5 grid gap-4 sm:grid-cols-2">
+            <fieldset data-testid="planner-starting-point">
+              <legend className="text-[12px] font-semibold text-inkSoft">
+                {t.planner?.startingPoint || (lang === "en" ? "Starting point (optional)" : "Titik mulai (opsional)")}
+              </legend>
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {STARTING_POINT_OPTIONS[lang === "en" ? "en" : "id"].map((hub) => {
+                  const selected = form.starting_point === hub.value;
+                  return (
+                    <button
+                      key={hub.value}
+                      type="button"
+                      onClick={() => onStartingPointChange(selected ? null : hub.value)}
+                      aria-pressed={selected}
+                      data-testid={`planner-hub-${hub.value}`}
+                      className={`min-h-[38px] rounded-full border px-3 text-[11px] font-semibold transition ${selected ? "border-toba bg-toba text-cream" : "border-line bg-surface text-inkSoft hover:border-toba/60"}`}
+                    >
+                      {hub.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </fieldset>
+            <fieldset data-testid="planner-travel-pace">
+              <legend className="text-[12px] font-semibold text-inkSoft">
+                {t.planner?.travelPace || (lang === "en" ? "Travel pace (optional)" : "Tempo perjalanan (opsional)")}
+              </legend>
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {PACE_OPTIONS[lang === "en" ? "en" : "id"].map((pace) => {
+                  const selected = form.travel_pace === pace.value;
+                  return (
+                    <button
+                      key={pace.value}
+                      type="button"
+                      onClick={() => onPaceChange(selected ? null : pace.value)}
+                      aria-pressed={selected}
+                      data-testid={`planner-pace-${pace.value}`}
+                      className={`min-h-[38px] rounded-full border px-3 text-[11px] font-semibold transition ${selected ? "border-toba bg-toba text-cream" : "border-line bg-surface text-inkSoft hover:border-toba/60"}`}
+                    >
+                      {pace.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </fieldset>
+          </div>
           <WizardActions backLabel={copy.backToStory} onBack={onBack} submitLabel={copy.continue} disabled={!validDays || !validStyle} />
         </form>
       )}

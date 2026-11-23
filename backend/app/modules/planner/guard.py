@@ -47,11 +47,18 @@ _NON_PLANNER_CREATION = re.compile(
 
 _TRAVEL_TERMS = re.compile(
     r"\b(?:wisata|liburan|perjalanan|jalan-jalan|trip|travel|tour|holiday|vacation|journey|"
-    r"itinerary|destinasi|kunjung|tempat|sumut|sumatera utara|toba|samosir|medan|berastagi|"
-    r"danau|pantai|gunung|air terjun|alam|budaya|kuliner|hotel|homestay|penginapan|rental|"
-    r"pemandu|oleh-oleh|honeymoon|keluarga|anak|lansia|kursi roda|aksesibel|halal|vegetarian|"
-    r"romantis|santai|adventure|beach|lake|waterfall|mountain|nature|culture|food|family|"
-    r"children|elderly|wheelchair|accessible|accommodation|guide|souvenir)\b"
+    r"itinerary|itinerari|destinasi|kunjung|tempat|rute|route|keliling|malam|night|weekend|"
+    r"akhir pekan|staycation|roadtrip|road trip|healing|sumut|sumatera utara|north sumatra|"
+    r"toba|samosir|medan|berastagi|bukit lawang|tangkahan|nias|sibolga|parapat|tongging|"
+    r"kabanjahe|sidikalang|binjai|tebing tinggi|padang sidimpuan|mandailing|balige|tarutung|"
+    r"sibeabea|sipiso-piso|sipiso piso|holbung|kaldera|kualanamu|silangit|karo|langkat|"
+    r"dairi|asahan|simalungun|danau|pantai|gunung|air terjun|alam|budaya|kuliner|kopi|"
+    r"coffee|hotel|homestay|penginapan|rental|sewa|mobil|driver|transport|ferry|kapal|"
+    r"bandara|airport|pemandu|oleh-oleh|honeymoon|keluarga|anak|balita|bayi|orang tua|ortu|"
+    r"lansia|kursi roda|aksesibel|halal|vegetarian|romantis|santai|adventure|beach|lake|"
+    r"waterfall|mountain|nature|culture|food|family|children|toddler|baby|elderly|"
+    r"wheelchair|accessible|accommodation|guide|souvenir|orangutan|surfing|snorkeling|"
+    r"diving|rafting|trekking|hiking|camping|sunrise|sunset)\b"
 )
 
 _OFF_TOPIC_TERMS = re.compile(

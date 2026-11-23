@@ -72,6 +72,8 @@ def create_application(settings: Settings | None = None) -> FastAPI:
         EXCEPTION_HANDLERS as ADMINISTRATION_HANDLERS,
     )
     from app.modules.administration.router import router as administration_router
+    from app.modules.affiliates.router import EXCEPTION_HANDLERS as AFFILIATE_HANDLERS
+    from app.modules.affiliates.router import router as affiliate_router
     from app.modules.auth.router import EXCEPTION_HANDLERS as AUTH_HANDLERS
     from app.modules.auth.router import router as auth_router
     from app.modules.backups.router import EXCEPTION_HANDLERS as BACKUP_HANDLERS
@@ -108,6 +110,7 @@ def create_application(settings: Settings | None = None) -> FastAPI:
             itinerary_router,
             partner_router,
             administration_router,
+            affiliate_router,
             planner_router,
             backup_router,
             billing_router,
@@ -123,6 +126,7 @@ def create_application(settings: Settings | None = None) -> FastAPI:
             **ITINERARY_HANDLERS,
             **PARTNER_HANDLERS,
             **ADMINISTRATION_HANDLERS,
+            **AFFILIATE_HANDLERS,
             **PLANNER_HANDLERS,
             **BACKUP_HANDLERS,
             **BILLING_HANDLERS,

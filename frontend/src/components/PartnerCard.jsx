@@ -1,8 +1,9 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { useLang } from "../contexts/LanguageContext.jsx";
-import { MessageCircle, MapPin, User, Car, Home, Crown, ShoppingBag, ArrowRight, Utensils } from "lucide-react";
+import { MessageCircle, MapPin, User, Car, Home, Crown, ShoppingBag, ArrowRight, Utensils, Briefcase, Mountain, ShieldCheck } from "lucide-react";
 import { trackPartnerEvent } from "../lib/partnerAnalytics.js";
+import { travelStyleLabel } from "../lib/travelStyle.js";
 import usePartnerImpression from "../hooks/usePartnerImpression.js";
 
 const ICONS = {
@@ -11,16 +12,59 @@ const ICONS = {
   homestay: Home,
   culinary: Utensils,
   souvenir: ShoppingBag,
+  tour_operator: Briefcase,
+  activity: Mountain,
 };
 
-export default function PartnerCard({ partner, showBadge = false, onUpgrade, source = "directory", destinationId = null, analyticsContext = {} }) {
+function isRecentlyReviewed(isoString) {
+  if (!isoString) return false;
+  const parsed = Date.parse(isoString);
+  return !Number.isNaN(parsed) && Date.now() - parsed <= 90 * 24 * 60 * 60 * 1000;
+}
+
+function buildPartnerWhatsappMessage(partner, lang, source, tripContext, t) {
+  const isEn = lang === "en";
+  const hasContext = source === "planner" && tripContext && (
+    Number.isInteger(tripContext.days) || (Array.isArray(tripContext.destinationNames) && tripContext.destinationNames.length > 0)
+  );
+  if (!hasContext) {
+    return isEn
+      ? `Hi ${partner.business_name}, I found you on Explore Wisata Sumut and am interested in your services.`
+      : `Halo ${partner.business_name}, saya menemukan Anda di Explore Sumut dan tertarik dengan layanan Anda.`;
+  }
+
+  const destinations = (tripContext.destinationNames || []).filter(Boolean).slice(0, 3);
+  const serviceLabel = t?.partners?.types?.[partner.type] || partner.type;
+  const styleText = tripContext.budgetStyle ? travelStyleLabel(tripContext.budgetStyle, lang) : "";
+
+  if (isEn) {
+    const daysPart = Number.isInteger(tripContext.days) ? ` ${tripContext.days}-day` : "";
+    const destPart = destinations.length ? ` to ${destinations.join(", ")}` : " in North Sumatra";
+    const stylePart = styleText ? ` (${styleText})` : "";
+    return `Hi ${partner.business_name}, I'm planning a${daysPart} trip${destPart}${stylePart} via Explore Wisata Sumut. Could you share availability for your ${serviceLabel} service?`;
+  }
+
+  const daysPart = Number.isInteger(tripContext.days) ? ` ${tripContext.days} hari` : "";
+  const destPart = destinations.length ? ` ke ${destinations.join(", ")}` : " di Sumatera Utara";
+  const stylePart = styleText ? ` (gaya ${styleText})` : "";
+  return `Halo ${partner.business_name}, saya sedang merencanakan perjalanan${daysPart}${destPart}${stylePart} lewat Explore Wisata Sumut. Boleh tanya ketersediaan layanan ${serviceLabel} Anda?`;
+}
+
+export default function PartnerCard({
+  partner,
+  showBadge = false,
+  onUpgrade,
+  source = "directory",
+  destinationId = null,
+  analyticsContext = {},
+  tripContext = null,
+}) {
   const { t, lang } = useLang();
   const Icon = ICONS[partner.type] || User;
   const impressionRef = usePartnerImpression({ partnerId: partner.id, source, destinationId, analyticsContext });
 
-  const waUrl = `https://wa.me/${partner.whatsapp}?text=${encodeURIComponent(
-    `Halo ${partner.business_name}, saya menemukan Anda di Explore Sumut dan tertarik dengan layanan Anda.`
-  )}`;
+  const waMessage = buildPartnerWhatsappMessage(partner, lang, source, tripContext, t);
+  const waUrl = `https://wa.me/${partner.whatsapp}?text=${encodeURIComponent(waMessage)}`;
 
   const badge = {
     pending: { label: t.partners.pendingBadge, cls: "bg-amber-100 text-amber-800" },
@@ -74,10 +118,16 @@ export default function PartnerCard({ partner, showBadge = false, onUpgrade, sou
           )}
         </div>
         <div className="mt-1.5 flex items-center gap-2 flex-wrap">
-          <span className="badge-moss">{t.partners.types[partner.type]}</span>
+          <span className="badge-moss">{t.partners.types[partner.type] || partner.type}</span>
           <span className="flex items-center gap-1 text-[13px] text-inkSoft">
             <MapPin className="w-3.5 h-3.5" /> {partner.city}
           </span>
+          {isRecentlyReviewed(partner.last_profile_reviewed_at) && (
+            <span className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-800" data-testid={`partner-fresh-${partner.id}`}>
+              <ShieldCheck className="w-3.5 h-3.5" />
+              {lang === "en" ? "Verified <90d" : "Terverifikasi <90h"}
+            </span>
+          )}
         </div>
         <p className="mt-3 text-[13px] text-inkSoft leading-relaxed line-clamp-3">
           {partner.description}

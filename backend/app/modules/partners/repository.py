@@ -43,17 +43,68 @@ class MongoPartnerRepository:
         )
 
     async def list_public(
-        self, destination_id: str | None, partner_type: str | None
+        self,
+        destination_id: str | None,
+        partner_type: str | None,
+        *,
+        query_text: str | None = None,
+        city: str | None = None,
     ) -> list[dict]:
-        query: dict[str, Any] = {
-            "is_active": {"$ne": False},
-            "status": "approved",
-        }
+        clauses: list[dict[str, Any]] = [
+            {"is_active": {"$ne": False}, "status": "approved"}
+        ]
         if destination_id:
-            query["destination_ids"] = destination_id
+            clauses.append({"destination_ids": destination_id})
         if partner_type:
-            query["type"] = partner_type
+            clauses.append({"type": partner_type})
+        if city and city.strip():
+            clauses.append({"city": {"$regex": city.strip(), "$options": "i"}})
+        if query_text and query_text.strip():
+            pattern = query_text.strip()
+            clauses.append(
+                {
+                    "$or": [
+                        {field: {"$regex": pattern, "$options": "i"}}
+                        for field in (
+                            "business_name",
+                            "description",
+                            "city",
+                            "service_tags",
+                            "rental_vehicle_types",
+                            "rental_service_options",
+                            "rental_pickup_areas",
+                            "homestay_room_types",
+                            "homestay_facilities",
+                            "accommodation_subtype",
+                            "guide_languages",
+                            "guide_specialties",
+                            "souvenir_categories",
+                            "souvenir_products",
+                            "culinary_categories",
+                            "culinary_specialties",
+                            "tour_trip_types",
+                            "tour_inclusions",
+                            "tour_departure_hubs",
+                            "activity_categories",
+                        )
+                    ]
+                }
+            )
+        query: dict[str, Any] = clauses[0] if len(clauses) == 1 else {"$and": clauses}
         return await self.partners.find(query).sort("created_at", -1).to_list(500)
+
+    async def public_cities(self) -> list[str]:
+        rows = await self.partners.find(
+            {"is_active": {"$ne": False}, "status": "approved"},
+            {"city": 1},
+        ).to_list(500)
+        return sorted(
+            {
+                str(row.get("city") or "").strip()
+                for row in rows
+                if str(row.get("city") or "").strip()
+            }
+        )
 
     async def list_all(self, limit: int = 1000) -> list[dict]:
         return await self.partners.find({}).sort("created_at", -1).to_list(limit)

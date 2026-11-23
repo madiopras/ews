@@ -88,7 +88,7 @@ export default function TripPromptComposer({
   animatedPlaceholders = EMPTY_PLACEHOLDERS,
   submitLabel,
   lang = "id",
-  maxLength = 200,
+  maxLength = 500,
   testIdPrefix = "trip-prompt",
   className = "",
   autoFocus = false,
@@ -171,14 +171,25 @@ export default function TripPromptComposer({
         >
           {listening ? <MicOff className="h-[18px] w-[18px]" /> : <Mic className="h-[18px] w-[18px]" />}
         </button>
-        <button
-          type="submit"
-          disabled={!value.trim()}
-          className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-brick px-5 text-xs font-bold text-cream shadow-[0_8px_18px_rgba(185,65,39,0.24)] transition-colors duration-200 hover:bg-[#A93A21] disabled:cursor-not-allowed disabled:opacity-45 sm:px-6 sm:text-sm"
-          data-testid={`${testIdPrefix}-submit`}
-        >
-          {submitLabel}<Send className="h-4 w-4" aria-hidden="true" />
-        </button>
+        <div className="flex items-center gap-3">
+          {value.length >= Math.floor(maxLength * 0.8) && (
+            <span
+              className={`text-[11px] tabular-nums ${value.length >= maxLength ? "font-semibold text-brick" : "text-inkSoft"}`}
+              aria-live="polite"
+              data-testid={`${testIdPrefix}-counter`}
+            >
+              {value.length}/{maxLength}
+            </span>
+          )}
+          <button
+            type="submit"
+            disabled={!value.trim()}
+            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-brick px-5 text-xs font-bold text-cream shadow-[0_8px_18px_rgba(185,65,39,0.24)] transition-colors duration-200 hover:bg-[#A93A21] disabled:cursor-not-allowed disabled:opacity-45 sm:px-6 sm:text-sm"
+            data-testid={`${testIdPrefix}-submit`}
+          >
+            {submitLabel}<Send className="h-4 w-4" aria-hidden="true" />
+          </button>
+        </div>
       </div>
     </div>
   );

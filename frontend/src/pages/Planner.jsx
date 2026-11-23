@@ -12,10 +12,16 @@ import GoogleButton from "../components/GoogleButton.jsx";
 import { authUrl } from "../lib/authNavigation.js";
 import { trackPlannerEvent } from "../lib/partnerAnalytics.js";
 import { isTravelStyle, travelStyleFromLegacyBudget, travelStyleLabel } from "../lib/travelStyle.js";
-import { extractPlannerPreferences, nextPlannerStep, PLANNER_NEXT_STEP } from "../lib/plannerPreferenceExtractor.js";
+import {
+  extractPlannerOptionalPreferences,
+  extractPlannerPreferences,
+  nextPlannerStep,
+  PLANNER_NEXT_STEP,
+} from "../lib/plannerPreferenceExtractor.js";
 import PlannerWizard from "../components/Planner/PlannerWizard.jsx";
 import PlannerResultGate from "../components/Planner/PlannerResultGate.jsx";
 import PlannerResultCards from "../components/Planner/PlannerResultCards.jsx";
+import AffiliateBookingSection from "../components/AffiliateBookingSection.jsx";
 import StructuredPlannerResult, { PlannerGenerationError, PlannerResultProgress } from "../components/Planner/StructuredPlannerResult.jsx";
 import Seo from "../components/Seo.jsx";
 import {
@@ -26,6 +32,7 @@ import {
   plannerResultForStorage,
 } from "../lib/plannerResultContract.js";
 import { applyPlannerStreamEvent, consumePlannerSseStream, createPlannerStreamState } from "../lib/plannerStreamContract.js";
+import { structuredResultToPlainMarkdown } from "../lib/plannerResultEditor.js";
 import usePlannerResultFocus from "../hooks/usePlannerResultFocus.js";
 import {
   clearPlannerDraft,
@@ -49,6 +56,8 @@ function plannerForm(value = {}) {
     interests: Array.isArray(value.interests) ? value.interests : [],
     extra_context: value.extra_context || "",
     preferred_destination_ids: value.preferred_destination_ids || [],
+    starting_point: value.starting_point || null,
+    travel_pace: value.travel_pace || null,
   };
 }
 
@@ -81,6 +90,9 @@ export default function Planner() {
   const [transitionMessage, setTransitionMessage] = useState("");
   const [analyticsConsentRevision, setAnalyticsConsentRevision] = useState(0);
   const [progressPhase, setProgressPhase] = useState("generating");
+  const [progressDay, setProgressDay] = useState(0);
+  const [progressTotalDays, setProgressTotalDays] = useState(0);
+  const [generationId, setGenerationId] = useState("");
   const [focusResultRevision, setFocusResultRevision] = useState(0);
   const plannerAbortRef = useRef(null);
   const resultHeadingRef = useRef(null);
@@ -92,6 +104,7 @@ export default function Planner() {
   const enhancedPartnerCardsEnabled = resultCardsEnabled
     && plannerResultFeatures.planner_partner_matches?.enabled === true;
   const culinaryCardsEnabled = plannerResultFeatures.planner_culinary?.enabled === true;
+  const affiliateTiketEnabled = plannerResultFeatures.affiliate_tiket?.enabled === true;
 
   useEffect(() => {
     let active = true;
@@ -102,6 +115,18 @@ export default function Planner() {
       .catch(() => {
         if (active) setPlannerResultFeatures(DEFAULT_PLANNER_RESULT_FEATURES);
       });
+    return () => { active = false; };
+  }, [user?.id]);
+
+  useEffect(() => {
+    let active = true;
+    api.get("/planner/quota")
+      .then(({ data }) => {
+        if (active && data && typeof data === "object" && "remaining" in data) {
+          setQuota(data);
+        }
+      })
+      .catch(() => {});
     return () => { active = false; };
   }, [user?.id]);
 
@@ -268,11 +293,18 @@ export default function Planner() {
       await waitForWizardTransition();
     }
     const extracted = extractPlannerPreferences(storyForm.extra_context);
+    const optionalPrefs = extractPlannerOptionalPreferences(storyForm.extra_context);
     const values = {
       ...storyForm,
-      days: extracted.days,
-      budget_style: extracted.budget_style,
-      interests: extracted.interests,
+      days: extracted.confidence.days === "none" ? (storyForm.days ?? null) : extracted.days,
+      budget_style: extracted.confidence.budget_style === "none"
+        ? (storyForm.budget_style ?? null)
+        : extracted.budget_style,
+      interests: extracted.interests.length > 0
+        ? extracted.interests
+        : (Array.isArray(storyForm.interests) ? storyForm.interests : []),
+      starting_point: optionalPrefs.starting_point ?? storyForm.starting_point ?? null,
+      travel_pace: optionalPrefs.travel_pace ?? storyForm.travel_pace ?? null,
       extra_context: storyForm.extra_context.trim(),
     };
     setForm(values);
@@ -365,6 +397,9 @@ export default function Planner() {
     setRerolling(regenerate);
     setStreaming(true);
     setProgressPhase("generating");
+    setProgressDay(0);
+    setProgressTotalDays(Number(requestForm?.days) || 0);
+    setGenerationId("");
     plannerAbortRef.current?.abort();
     const controller = new AbortController();
     plannerAbortRef.current = controller;
@@ -400,7 +435,12 @@ export default function Planner() {
         if (typeof evt.text === "string") setOutput(streamState.output);
         if (evt.recommendations) setRecommendations(streamState.recommendations);
         if (evt.destination_ids) setDestinationIds(streamState.destinationIds);
-        if (evt.progress) setProgressPhase(streamState.progressPhase);
+        if (evt.progress) {
+          setProgressPhase(streamState.progressPhase);
+          if (streamState.progressDay > 0) setProgressDay(streamState.progressDay);
+          if (streamState.progressTotalDays > 0) setProgressTotalDays(streamState.progressTotalDays);
+        }
+        if (streamState.generationId) setGenerationId(streamState.generationId);
         if (streamState.result && isPlannerResultV2(evt.result)) {
           setPlannerResult(streamState.result);
           setResultFormat(streamState.resultFormat);
@@ -447,7 +487,14 @@ export default function Planner() {
           streamState.result,
           streamState.resultFormat,
         );
-        if (streamState.completed) trackPlannerEvent("planner_generated", "result");
+        if (streamState.completed) {
+          trackPlannerEvent("planner_generated", "result");
+          api.get("/planner/quota")
+            .then(({ data }) => {
+              if (data && typeof data === "object" && "remaining" in data) setQuota(data);
+            })
+            .catch(() => {});
+        }
       }
     }
   };
@@ -506,6 +553,32 @@ export default function Planner() {
     setStepTrail([]);
   };
 
+  const refinePlan = (instruction, targetDay = null) => {
+    generate(null, true, {
+      ...form,
+      refinement_instruction: instruction,
+      target_day: targetDay,
+    });
+  };
+
+  const handleStructuredResultChange = (updatedResult) => {
+    const updatedOutput = structuredResultToPlainMarkdown(updatedResult, lang) || output;
+    setPlannerResult(updatedResult);
+    setDestinationIds(updatedResult.destination_ids || []);
+    setRecommendations(updatedResult.partner_matches || []);
+    setOutput(updatedOutput);
+    setSavedId(null);
+    persistDraft(
+      updatedOutput,
+      updatedResult.partner_matches || [],
+      updatedResult.destination_ids || [],
+      form,
+      { step: "result", trail: [] },
+      updatedResult,
+      PLANNER_RESULT_FORMAT.STRUCTURED,
+    );
+  };
+
   const resultReady = !showSearchCard && !streaming && Boolean(output);
 
   return (
@@ -550,6 +623,8 @@ export default function Planner() {
               onStorySubmit={submitStory}
               onDaysChange={updateDays}
               onStyleChange={selectBudgetTier}
+              onStartingPointChange={(starting_point) => setForm((current) => ({ ...current, starting_point }))}
+              onPaceChange={(travel_pace) => setForm((current) => ({ ...current, travel_pace }))}
               onInterestToggle={toggleInterest}
               onBasicsSubmit={submitBasics}
               onInterestsSubmit={submitInterests}
@@ -620,7 +695,13 @@ export default function Planner() {
             </div>
             <div className="px-4 pb-44 pt-4 sm:px-7 sm:pt-7 md:pb-8">
             {streaming && (
-              <PlannerResultProgress phase={progressPhase} t={t} onCancel={cancelGeneration} />
+              <PlannerResultProgress
+                phase={progressPhase}
+                currentDay={progressDay}
+                totalDays={progressTotalDays}
+                t={t}
+                onCancel={cancelGeneration}
+              />
             )}
             {!streaming && output && <PlannerResultGate
               features={plannerResultFeatures}
@@ -632,6 +713,11 @@ export default function Planner() {
                 destinationCardsEnabled={resultCardsEnabled}
                 partnerMatchesEnabled={enhancedPartnerCardsEnabled}
                 culinaryEnabled={culinaryCardsEnabled}
+                affiliateEnabled={affiliateTiketEnabled}
+                onRefine={refinePlan}
+                onResultChange={handleStructuredResultChange}
+                generationId={generationId}
+                feedbackEnabled
               />}
             >
               <div className="max-w-none">{renderMarkdown(output)}</div>
@@ -643,7 +729,15 @@ export default function Planner() {
                 culinaryEnabled={culinaryCardsEnabled}
                 destinationIds={destinationIds}
                 recommendations={recommendations}
+                tripContext={{ days: form.days, budgetStyle: form.budget_style }}
                 t={t}
+              />
+
+              <AffiliateBookingSection
+                enabled={affiliateTiketEnabled}
+                destinationIds={destinationIds}
+                startingPoint={form.starting_point}
+                source="planner"
               />
 
               {recommendations.length > 0 && !enhancedPartnerCardsEnabled && (
@@ -659,7 +753,17 @@ export default function Planner() {
                           {t.planner.matches} <span className="font-semibold text-ink">{recommendation.destination_name}</span>
                           {recommendation.partner?.is_premium ? ` · ${t.planner.featuredDisclosure}` : ""}
                         </p>
-                        <PartnerCard partner={recommendation.partner} source="planner" destinationId={recommendation.destination_id} analyticsContext={recommendation} />
+                        <PartnerCard
+                          partner={recommendation.partner}
+                          source="planner"
+                          destinationId={recommendation.destination_id}
+                          analyticsContext={recommendation}
+                          tripContext={{
+                            days: form.days,
+                            budgetStyle: form.budget_style,
+                            destinationNames: recommendation.destination_names || [recommendation.destination_name].filter(Boolean),
+                          }}
+                        />
                       </div>
                     ))}
                   </div>

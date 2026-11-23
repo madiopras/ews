@@ -43,6 +43,7 @@ const PlanListPage = React.lazy(() => import("./features/admin/plans/PlanListPag
 const DashboardPage = React.lazy(() => import("./features/admin/dashboard/DashboardPage.jsx"));
 const GovernancePage = React.lazy(() => import("./features/admin/governance/GovernancePage.jsx"));
 const GeneralSettingsPage = React.lazy(() => import("./features/admin/settings/GeneralSettingsPage.jsx"));
+const AffiliateSettingsPage = React.lazy(() => import("./features/admin/settings/AffiliateSettingsPage.jsx"));
 const IntegrationStatusPage = React.lazy(() => import("./features/admin/settings/IntegrationStatusPage.jsx"));
 const LlmProfileListPage = React.lazy(() => import("./features/admin/settings/LlmProfileListPage.jsx"));
 const LlmProfileFormPage = React.lazy(() => import("./features/admin/settings/LlmProfileFormPage.jsx"));
@@ -152,6 +153,7 @@ function AppShell() {
             <Route path="membership" element={<Navigate to="/admin/users" replace />} />
             <Route path="settings" element={<Navigate to="/admin/settings/general" replace />} />
             <Route path="settings/general" element={<GeneralSettingsPage />} />
+            <Route path="settings/affiliates" element={<AffiliateSettingsPage />} />
             <Route path="settings/integrations" element={<IntegrationStatusPage />} />
             <Route path="settings/llm" element={<LlmProfileListPage />} />
             <Route path="settings/llm/new" element={<LlmProfileFormPage />} />

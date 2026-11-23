@@ -24,20 +24,47 @@ class LocalLLMClient:
     """Small OpenAI-compatible client shared with the Phase 8 planner."""
 
     def __init__(
-        self, base_url: str, api_key: str, model_name: str, enabled: bool = True
+        self,
+        base_url: str,
+        api_key: str,
+        model_name: str,
+        enabled: bool = True,
+        *,
+        supports_json_mode: bool = False,
+        temperature: float | None = None,
+        max_tokens: int | None = None,
     ):
         self.url = f"{base_url}/chat/completions"
         self.api_key = api_key
         self.model_name = model_name
         self.enabled = enabled
+        self.supports_json_mode = supports_json_mode
+        self.temperature = temperature
+        self.max_tokens = max_tokens
 
-    async def stream(self, messages: list[dict]):
+    def _build_stream_body(
+        self, messages: list[dict], *, json_mode: bool = False
+    ) -> dict:
+        body: dict = {
+            "model": self.model_name,
+            "messages": messages,
+            "stream": True,
+        }
+        if json_mode and self.supports_json_mode:
+            body["response_format"] = {"type": "json_object"}
+        if self.temperature is not None:
+            body["temperature"] = self.temperature
+        if self.max_tokens is not None:
+            body["max_tokens"] = self.max_tokens
+        return body
+
+    async def stream(self, messages: list[dict], *, json_mode: bool = False):
         if not self.enabled:
             raise RuntimeError("LLM is disabled")
         headers = {"Content-Type": "application/json"}
         if self.api_key:
             headers["Authorization"] = f"Bearer {self.api_key}"
-        body = {"model": self.model_name, "messages": messages, "stream": True}
+        body = self._build_stream_body(messages, json_mode=json_mode)
         timeout = httpx.Timeout(120.0, connect=10.0)
         async with httpx.AsyncClient(timeout=timeout) as http:
             async with http.stream(
@@ -167,6 +194,9 @@ class LlmProfileGateway:
             self.decrypt(document),
             document["model_name"],
             enabled=True,
+            supports_json_mode=bool(document.get("supports_json_mode", False)),
+            temperature=document.get("temperature"),
+            max_tokens=document.get("max_tokens"),
         )
 
     async def probe(self, document: dict) -> tuple[bool, str]:

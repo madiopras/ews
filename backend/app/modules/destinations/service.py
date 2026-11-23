@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 import re
 from datetime import datetime, timedelta, timezone
 from typing import Any
@@ -135,6 +136,70 @@ class DestinationService:
         if document is None:
             raise DestinationNotFound("Not found")
         return destination_document_to_response(document)
+
+    async def alternatives(
+        self,
+        destination_id: str,
+        *,
+        exclude_ids: list[str] | None = None,
+        limit: int = 4,
+    ) -> list[DestinationOut]:
+        target = await self.repository.get_public(destination_id)
+        if target is None:
+            raise DestinationNotFound("Not found")
+        effective_limit = max(1, min(limit, 8))
+        excluded = {destination_id, *(value for value in (exclude_ids or []) if value)}
+        candidates = await self.repository.list_public(
+            category=None, search=None, featured=None, limit=500
+        )
+        target_lat = target.get("latitude")
+        target_lng = target.get("longitude")
+        target_category = str(target.get("category") or "").lower()
+        target_location = str(target.get("location") or "").lower()
+
+        def _distance_km(doc: dict[str, Any]) -> float:
+            lat = doc.get("latitude")
+            lng = doc.get("longitude")
+            if target_lat is None or target_lng is None or lat is None or lng is None:
+                return 9999.0
+            try:
+                p1, p2 = math.radians(float(target_lat)), math.radians(float(lat))
+                dp = math.radians(float(lat) - float(target_lat))
+                dl = math.radians(float(lng) - float(target_lng))
+                a = (
+                    math.sin(dp / 2.0) ** 2
+                    + math.cos(p1) * math.cos(p2) * math.sin(dl / 2.0) ** 2
+                )
+                return (
+                    2.0
+                    * 6371.0
+                    * math.atan2(math.sqrt(a), math.sqrt(max(0.0, 1.0 - a)))
+                )
+            except (TypeError, ValueError):
+                return 9999.0
+
+        scored: list[tuple[float, str, dict[str, Any]]] = []
+        for doc in candidates:
+            doc_id = str(doc.get("_id") or doc.get("id") or "")
+            if not doc_id or doc_id in excluded:
+                continue
+            dist = _distance_km(doc)
+            same_category = str(doc.get("category") or "").lower() == target_category
+            same_area = bool(
+                target_location
+                and target_location.split(",")[0].strip()
+                in str(doc.get("location") or "").lower()
+            )
+            score = (
+                dist - (18.0 if same_category else 0.0) - (12.0 if same_area else 0.0)
+            )
+            scored.append((score, doc_id, doc))
+
+        scored.sort(key=lambda item: (item[0], item[1]))
+        return [
+            destination_document_to_response(doc)
+            for _score, _doc_id, doc in scored[:effective_limit]
+        ]
 
 
 class DestinationAdminService:

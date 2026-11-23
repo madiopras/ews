@@ -3,7 +3,13 @@ import { renderMarkdown } from "../../lib/markdown.jsx";
 import { isPlannerResultV2 } from "../../lib/plannerResultContract.js";
 import StructuredPlannerResult from "./StructuredPlannerResult.jsx";
 
-export default function ItineraryResult({ trip, t, lang, testId = "itinerary-result" }) {
+export default function ItineraryResult({
+  trip,
+  t,
+  lang,
+  testId = "itinerary-result",
+  onResultChange = null,
+}) {
   const result = isPlannerResultV2(trip?.structured_result) ? trip.structured_result : null;
   const invalidStructuredResult = !result && (trip?.result_version === 2 || trip?.structured_result?.version === 2);
   const resultLanguage = result?.request_snapshot?.lang || trip?.lang || lang;
@@ -21,6 +27,7 @@ export default function ItineraryResult({ trip, t, lang, testId = "itinerary-res
       destinationCardsEnabled
       partnerMatchesEnabled
       culinaryEnabled
+      onResultChange={onResultChange}
     /> : renderMarkdown(trip?.content || "")}
   </article>;
 }

@@ -4,24 +4,25 @@
 
 ## Summary
 
-- OpenAPI operations: **140**.
-- Domain groups: **14**.
+- OpenAPI operations: **150**.
+- Domain groups: **15**.
 - Inventory includes method, path, handler, status code, response model, and resolved FastAPI dependencies.
 - FastAPI documentation routes (`/docs`, `/redoc`, and `/openapi.json`) are intentionally excluded.
 
 | Domain | Operations |
 |---|---:|
-| `admin` | 49 |
+| `admin` | 53 |
 | `auth-users` | 13 |
-| `destinations` | 12 |
+| `destinations` | 13 |
 | `experience` | 1 |
 | `governance-notifications` | 3 |
 | `health` | 2 |
 | `itineraries` | 8 |
 | `media` | 2 |
-| `partners` | 33 |
+| `other` | 3 |
+| `partners` | 34 |
 | `payments` | 5 |
-| `planner` | 3 |
+| `planner` | 4 |
 | `reviews` | 4 |
 | `sharing` | 2 |
 | `wishlist` | 3 |
@@ -30,6 +31,10 @@
 
 | Method | Path | Handler | Status | Response model | Dependencies |
 |---|---|---|---:|---|---|
+| GET | `/api/admin/affiliates/analytics` | `read_admin_affiliate_analytics` | 200 | `app.modules.affiliates.schemas.AffiliateAnalyticsOut` | `app.api.dependencies.get_app_settings`, `app.api.dependencies.get_database`, `app.modules.administration.dependencies.get_audit_service`, `app.modules.affiliates.dependencies.get_affiliate_analytics_repository`, `app.modules.affiliates.dependencies.get_affiliate_config_repository`, `app.modules.affiliates.dependencies.get_affiliate_crypto_gateway`, `app.modules.affiliates.dependencies.get_affiliate_destination_repository`, `app.modules.affiliates.dependencies.get_affiliate_service`, `app.modules.affiliates.dependencies.get_affiliate_settings_reader`, `app.modules.affiliates.dependencies.get_tiket_partner_api_gateway`, `app.modules.auth.dependencies.get_current_user`, `app.modules.auth.dependencies.require_admin` |
+| GET | `/api/admin/affiliates/tiket` | `read_admin_tiket_affiliate_config` | 200 | `app.modules.affiliates.schemas.TiketAffiliateConfigOut` | `app.api.dependencies.get_app_settings`, `app.api.dependencies.get_database`, `app.modules.administration.dependencies.get_audit_service`, `app.modules.affiliates.dependencies.get_affiliate_analytics_repository`, `app.modules.affiliates.dependencies.get_affiliate_config_repository`, `app.modules.affiliates.dependencies.get_affiliate_crypto_gateway`, `app.modules.affiliates.dependencies.get_affiliate_destination_repository`, `app.modules.affiliates.dependencies.get_affiliate_service`, `app.modules.affiliates.dependencies.get_affiliate_settings_reader`, `app.modules.affiliates.dependencies.get_tiket_partner_api_gateway`, `app.modules.auth.dependencies.get_current_user`, `app.modules.auth.dependencies.require_admin` |
+| PUT | `/api/admin/affiliates/tiket` | `update_admin_tiket_affiliate_config` | 200 | `app.modules.affiliates.schemas.TiketAffiliateConfigOut` | `app.api.dependencies.get_app_settings`, `app.api.dependencies.get_database`, `app.modules.administration.dependencies.get_audit_service`, `app.modules.affiliates.dependencies.get_affiliate_analytics_repository`, `app.modules.affiliates.dependencies.get_affiliate_config_repository`, `app.modules.affiliates.dependencies.get_affiliate_crypto_gateway`, `app.modules.affiliates.dependencies.get_affiliate_destination_repository`, `app.modules.affiliates.dependencies.get_affiliate_service`, `app.modules.affiliates.dependencies.get_affiliate_settings_reader`, `app.modules.affiliates.dependencies.get_tiket_partner_api_gateway`, `app.modules.auth.dependencies.get_current_user`, `app.modules.auth.dependencies.require_admin` |
+| POST | `/api/admin/affiliates/tiket/preview` | `preview_admin_tiket_affiliate_config` | 200 | `app.modules.affiliates.schemas.TiketAffiliatePreviewOut` | `app.api.dependencies.get_app_settings`, `app.api.dependencies.get_database`, `app.modules.administration.dependencies.get_audit_service`, `app.modules.affiliates.dependencies.get_affiliate_analytics_repository`, `app.modules.affiliates.dependencies.get_affiliate_config_repository`, `app.modules.affiliates.dependencies.get_affiliate_crypto_gateway`, `app.modules.affiliates.dependencies.get_affiliate_destination_repository`, `app.modules.affiliates.dependencies.get_affiliate_service`, `app.modules.affiliates.dependencies.get_affiliate_settings_reader`, `app.modules.affiliates.dependencies.get_tiket_partner_api_gateway`, `app.modules.auth.dependencies.get_current_user`, `app.modules.auth.dependencies.require_admin` |
 | GET | `/api/admin/ai-logs` | `list_ai_logs` | 200 | — | `app.api.dependencies.get_database`, `app.modules.administration.dependencies.get_log_service`, `app.modules.auth.dependencies.get_current_user`, `app.modules.auth.dependencies.require_admin` |
 | GET | `/api/admin/audit-logs` | `list_audit_logs` | 200 | — | `app.api.dependencies.get_database`, `app.modules.administration.dependencies.get_log_service`, `app.modules.auth.dependencies.get_current_user`, `app.modules.auth.dependencies.require_admin` |
 | GET | `/api/admin/backups` | `list_backups` | 200 | — | `app.api.dependencies.get_app_settings`, `app.api.dependencies.get_database`, `app.modules.administration.dependencies.get_audit_service`, `app.modules.auth.dependencies.get_current_user`, `app.modules.auth.dependencies.require_admin`, `app.modules.backups.dependencies.get_backup_files`, `app.modules.backups.dependencies.get_backup_repository`, `app.modules.backups.dependencies.get_backup_service` |
@@ -113,6 +118,7 @@
 | DELETE | `/api/destinations/{dest_id}` | `delete_destination` | 200 | — | `app.api.dependencies.get_database`, `app.api.dependencies.get_destination_admin_service`, `app.api.dependencies.get_destination_repository`, `app.modules.auth.dependencies.get_current_user`, `app.modules.auth.dependencies.require_admin` |
 | GET | `/api/destinations/{dest_id}` | `get_destination` | 200 | `app.modules.destinations.schemas.DestinationOut` | `app.api.dependencies.get_database`, `app.api.dependencies.get_destination_repository`, `app.api.dependencies.get_destination_service` |
 | PUT | `/api/destinations/{dest_id}` | `update_destination` | 200 | `app.modules.destinations.schemas.DestinationOut` | `app.api.dependencies.get_database`, `app.api.dependencies.get_destination_admin_service`, `app.api.dependencies.get_destination_repository`, `app.modules.auth.dependencies.get_current_user`, `app.modules.auth.dependencies.require_admin` |
+| GET | `/api/destinations/{dest_id}/alternatives` | `get_destination_alternatives` | 200 | `typing.List` | `app.api.dependencies.get_database`, `app.api.dependencies.get_destination_repository`, `app.api.dependencies.get_destination_service` |
 | PATCH | `/api/destinations/{dest_id}/toggle-active` | `toggle_destination_active` | 200 | `app.modules.destinations.schemas.DestinationOut` | `app.api.dependencies.get_database`, `app.api.dependencies.get_destination_admin_service`, `app.api.dependencies.get_destination_repository`, `app.modules.auth.dependencies.get_current_user`, `app.modules.auth.dependencies.require_admin` |
 
 ## experience
@@ -156,6 +162,14 @@
 | GET | `/api/files/{path:path}` | `serve_file` | 200 | — | `app.api.dependencies.get_app_settings`, `app.api.dependencies.get_database`, `app.modules.administration.dependencies.get_audit_service`, `app.modules.media.dependencies.get_media_repository`, `app.modules.media.dependencies.get_media_service`, `app.modules.media.dependencies.get_object_storage` |
 | POST | `/api/upload` | `upload_file` | 200 | — | `app.api.dependencies.get_app_settings`, `app.api.dependencies.get_database`, `app.modules.administration.dependencies.get_audit_service`, `app.modules.auth.dependencies.get_current_user`, `app.modules.auth.dependencies.require_admin`, `app.modules.media.dependencies.get_media_repository`, `app.modules.media.dependencies.get_media_service`, `app.modules.media.dependencies.get_object_storage` |
 
+## other
+
+| Method | Path | Handler | Status | Response model | Dependencies |
+|---|---|---|---:|---|---|
+| GET | `/api/affiliates/go` | `redirect_affiliate_link` | 200 | — | `app.api.dependencies.get_app_settings`, `app.api.dependencies.get_database`, `app.modules.administration.dependencies.get_audit_service`, `app.modules.affiliates.dependencies.get_affiliate_analytics_repository`, `app.modules.affiliates.dependencies.get_affiliate_config_repository`, `app.modules.affiliates.dependencies.get_affiliate_crypto_gateway`, `app.modules.affiliates.dependencies.get_affiliate_destination_repository`, `app.modules.affiliates.dependencies.get_affiliate_service`, `app.modules.affiliates.dependencies.get_affiliate_settings_reader`, `app.modules.affiliates.dependencies.get_tiket_partner_api_gateway`, `app.modules.auth.dependencies.get_optional_user` |
+| GET | `/api/affiliates/recommendations` | `list_affiliate_recommendations` | 200 | `app.modules.affiliates.schemas.AffiliateRecommendationsOut` | `app.api.dependencies.get_app_settings`, `app.api.dependencies.get_database`, `app.modules.administration.dependencies.get_audit_service`, `app.modules.affiliates.dependencies.get_affiliate_analytics_repository`, `app.modules.affiliates.dependencies.get_affiliate_config_repository`, `app.modules.affiliates.dependencies.get_affiliate_crypto_gateway`, `app.modules.affiliates.dependencies.get_affiliate_destination_repository`, `app.modules.affiliates.dependencies.get_affiliate_service`, `app.modules.affiliates.dependencies.get_affiliate_settings_reader`, `app.modules.affiliates.dependencies.get_tiket_partner_api_gateway`, `app.modules.auth.dependencies.get_optional_user` |
+| POST | `/api/affiliates/tiket/miniapp-session` | `create_tiket_miniapp_session` | 200 | `app.modules.affiliates.schemas.MiniAppSessionOut` | `app.api.dependencies.get_app_settings`, `app.api.dependencies.get_database`, `app.modules.administration.dependencies.get_audit_service`, `app.modules.affiliates.dependencies.get_affiliate_analytics_repository`, `app.modules.affiliates.dependencies.get_affiliate_config_repository`, `app.modules.affiliates.dependencies.get_affiliate_crypto_gateway`, `app.modules.affiliates.dependencies.get_affiliate_destination_repository`, `app.modules.affiliates.dependencies.get_affiliate_service`, `app.modules.affiliates.dependencies.get_affiliate_settings_reader`, `app.modules.affiliates.dependencies.get_tiket_partner_api_gateway`, `app.modules.auth.dependencies.get_optional_user` |
+
 ## partners
 
 | Method | Path | Handler | Status | Response model | Dependencies |
@@ -186,6 +200,7 @@
 | POST | `/api/partners` | `register_partner` | 200 | `app.modules.partners.schemas.PartnerOut` | `app.modules.auth.dependencies.get_current_user`, `app.modules.partners.dependencies.get_partner_notifications`, `app.modules.partners.dependencies.get_partner_repository`, `app.modules.partners.dependencies.get_partner_service`, `app.modules.partners.dependencies.get_partner_storage` |
 | GET | `/api/partners/admin` | `list_partners_admin` | 200 | `typing.List` | `app.modules.auth.dependencies.get_current_user`, `app.modules.auth.dependencies.require_admin`, `app.modules.partners.dependencies.get_partner_notifications`, `app.modules.partners.dependencies.get_partner_repository`, `app.modules.partners.dependencies.get_partner_service`, `app.modules.partners.dependencies.get_partner_storage` |
 | POST | `/api/partners/admin` | `create_partner_admin` | 200 | `app.modules.partners.schemas.PartnerAdminOut` | `app.modules.auth.dependencies.get_current_user`, `app.modules.auth.dependencies.require_admin`, `app.modules.partners.dependencies.get_partner_notifications`, `app.modules.partners.dependencies.get_partner_repository`, `app.modules.partners.dependencies.get_partner_service`, `app.modules.partners.dependencies.get_partner_storage` |
+| GET | `/api/partners/cities` | `list_partner_cities` | 200 | `typing.List` | `app.modules.partners.dependencies.get_partner_notifications`, `app.modules.partners.dependencies.get_partner_repository`, `app.modules.partners.dependencies.get_partner_service`, `app.modules.partners.dependencies.get_partner_storage` |
 | DELETE | `/api/partners/{partner_id}` | `delete_partner` | 200 | — | `app.modules.auth.dependencies.get_current_user`, `app.modules.auth.dependencies.require_admin`, `app.modules.partners.dependencies.get_partner_notifications`, `app.modules.partners.dependencies.get_partner_repository`, `app.modules.partners.dependencies.get_partner_service`, `app.modules.partners.dependencies.get_partner_storage` |
 | PUT | `/api/partners/{partner_id}` | `update_partner_admin` | 200 | `app.modules.partners.schemas.PartnerAdminOut` | `app.modules.auth.dependencies.get_current_user`, `app.modules.auth.dependencies.require_admin`, `app.modules.partners.dependencies.get_partner_notifications`, `app.modules.partners.dependencies.get_partner_repository`, `app.modules.partners.dependencies.get_partner_service`, `app.modules.partners.dependencies.get_partner_storage` |
 | DELETE | `/api/partners/{partner_id}/documents/{document_id}` | `delete_partner_document` | 200 | `app.modules.partners.schemas.PartnerAdminOut` | `app.modules.auth.dependencies.get_current_user`, `app.modules.partners.dependencies.get_partner_notifications`, `app.modules.partners.dependencies.get_partner_repository`, `app.modules.partners.dependencies.get_partner_service`, `app.modules.partners.dependencies.get_partner_storage` |
@@ -209,6 +224,7 @@
 | Method | Path | Handler | Status | Response model | Dependencies |
 |---|---|---|---:|---|---|
 | POST | `/api/analytics/planner-events` | `track_planner_event` | 200 | — | `app.api.dependencies.get_app_settings`, `app.api.dependencies.get_database`, `app.modules.planner.dependencies.get_planner_analytics_service`, `app.modules.planner.dependencies.get_planner_identity` |
+| POST | `/api/planner/feedback` | `submit_planner_feedback` | 200 | — | `app.api.dependencies.get_app_settings`, `app.api.dependencies.get_database`, `app.modules.auth.dependencies.get_optional_user`, `app.modules.planner.dependencies.get_planner_analytics_service`, `app.modules.planner.dependencies.get_planner_identity` |
 | GET | `/api/planner/quota` | `planner_quota` | 200 | — | `app.api.dependencies.get_app_settings`, `app.api.dependencies.get_database`, `app.modules.auth.dependencies.get_optional_user`, `app.modules.planner.dependencies.get_mongo_client`, `app.modules.planner.dependencies.get_planner_identity`, `app.modules.planner.dependencies.get_planner_quota_service`, `app.modules.planner.dependencies.get_planner_settings` |
 | POST | `/api/trip-planner/stream` | `trip_planner_stream` | 200 | — | `app.api.dependencies.get_app_settings`, `app.api.dependencies.get_database`, `app.modules.administration.dependencies.get_audit_service`, `app.modules.auth.dependencies.get_optional_user`, `app.modules.planner.dependencies.get_mongo_client`, `app.modules.planner.dependencies.get_planner_generation_service`, `app.modules.planner.dependencies.get_planner_identity`, `app.modules.planner.dependencies.get_planner_llm_gateway`, `app.modules.planner.dependencies.get_planner_quota_service`, `app.modules.planner.dependencies.get_planner_settings` |
 

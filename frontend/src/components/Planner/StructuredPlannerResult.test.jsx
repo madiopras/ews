@@ -1,12 +1,15 @@
 import React, { act } from "react";
 import { createRoot } from "react-dom/client";
 import StructuredPlannerResult, { PlannerGenerationError, PlannerResultProgress } from "./StructuredPlannerResult.jsx";
+import { api } from "../../lib/api.js";
 
 jest.mock("react-router-dom", () => ({
   Link: ({ children, to, ...props }) => <a href={to} {...props}>{children}</a>,
 }));
+jest.mock("../../lib/api.js", () => ({ api: { get: jest.fn(), post: jest.fn() } }));
 jest.mock("../DestinationCard.jsx", () => ({ dest, showPlannerAction }) => <div data-testid={`destination-${dest.id}`} data-planner-action={String(showPlannerAction)}>{dest.name}</div>);
 jest.mock("../PartnerCard.jsx", () => ({ partner }) => <div data-testid={`partner-${partner.id}`}>{partner.business_name}</div>);
+jest.mock("../TripMap.jsx", () => ({ activeDay, destinations }) => <div data-testid="trip-map-mock" data-active-day={String(activeDay)} data-count={String(destinations.length)} />);
 
 const t = {
   detail: { viewDetails: "Lihat detail" },
@@ -132,13 +135,16 @@ describe("StructuredPlannerResult", () => {
     expect(document.body.textContent).toContain("Periksa cuaca.");
   });
 
-  test("renders accessible progress phases and cancel action", async () => {
+  test("renders accessible progress phases, dynamic day progress, and cancel action", async () => {
     const onCancel = jest.fn();
     await act(async () => root.render(<PlannerResultProgress phase="validating" t={t} onCancel={onCancel} />));
     expect(document.querySelector('[role="status"]')).not.toBeNull();
     expect(document.body.textContent).toContain("Memeriksa destinasi");
     await act(async () => document.querySelector("button").click());
     expect(onCancel).toHaveBeenCalledTimes(1);
+
+    await act(async () => root.render(<PlannerResultProgress phase="generating" currentDay={2} totalDays={4} t={t} onCancel={onCancel} />));
+    expect(document.querySelector('[data-testid="structured-progress-message"]').textContent).toContain("Hari 2 dari 4");
   });
 
   test("renders a retryable timeout error", async () => {
@@ -147,5 +153,84 @@ describe("StructuredPlannerResult", () => {
     expect(document.querySelector('[role="alert"]')).not.toBeNull();
     await act(async () => document.querySelector('[data-testid="planner-retry-btn"]').click());
     expect(onRetry).toHaveBeenCalledTimes(1);
+  });
+
+  test("renders interactive route map, day filters, Google Maps link, and optional hub/pace badges", async () => {
+    const withCoords = result({
+      request_snapshot: {
+        days: 2,
+        budget_style: "mid_range",
+        interests: ["nature"],
+        lang: "id",
+        starting_point: "silangit",
+        travel_pace: "relaxed",
+      },
+      destinations: [
+        { ...destination("dest-1", "Danau Toba"), latitude: 2.66, longitude: 98.94 },
+        { ...destination("dest-2", "Bukit Holbung"), latitude: 2.53, longitude: 98.71 },
+      ],
+    });
+    await renderResult(withCoords);
+
+    expect(document.querySelector('[data-testid="structured-snapshot-hub"]')).not.toBeNull();
+    expect(document.querySelector('[data-testid="structured-snapshot-pace"]')).not.toBeNull();
+    expect(document.querySelector('[data-testid="structured-route-map"]')).not.toBeNull();
+    const gmapsLink = document.querySelector('[data-testid="structured-google-maps-link"]');
+    expect(gmapsLink.href).toContain("google.com/maps/dir/?");
+
+    await act(async () => document.querySelector('[data-testid="structured-map-day-2"]').click());
+    expect(document.querySelector('[data-testid="structured-google-maps-link"]').href).toContain("2.53%2C98.71");
+  });
+
+  test("supports quick refinement, offering chips, day partner teaser, stop swap, and feedback", async () => {
+    const onRefine = jest.fn();
+    const onResultChange = jest.fn();
+    api.get.mockResolvedValue({
+      data: [{ id: "dest-alt", name: "Bukit Sibea-bea", location: "Samosir", category: "viewpoint", images: [], description: "Panorama." }],
+    });
+    api.post.mockResolvedValue({ data: { accepted: true } });
+
+    const withOfferings = result({
+      partner_matches: [
+        {
+          partner_id: "partner-1",
+          type: "guide",
+          destination_ids: ["dest-1"],
+          offering_ids: ["off-1"],
+          offerings: [{ id: "off-1", name: "Tur Privat Danau Toba", kind: "service" }],
+          match_reasons: ["Melayani kawasan ini"],
+          placement: "featured",
+          partner: partner("partner-1", "guide", "Pemandu Toba", true),
+        },
+      ],
+    });
+
+    await renderResult(withOfferings, {
+      onRefine,
+      onResultChange,
+      generationId: "gen-log-123456",
+      feedbackEnabled: true,
+    });
+
+    expect(document.querySelector('[data-testid="partner-offerings-partner-1"]').textContent).toContain("Tur Privat Danau Toba");
+    expect(document.querySelector('[data-testid="day-partner-teaser-1"]')).not.toBeNull();
+    expect(document.querySelector('[data-testid="export-whatsapp-btn"]')).not.toBeNull();
+    expect(document.querySelector('[data-testid="export-ics-btn"]')).not.toBeNull();
+
+    await act(async () => document.querySelector('[data-testid="refine-chip-relaxed"]').click());
+    expect(onRefine).toHaveBeenCalledTimes(1);
+
+    await act(async () => document.querySelector('[data-testid="toggle-edit-stops-btn"]').click());
+    await act(async () => document.querySelector('[data-testid="stop-swap-btn-dest-1"]').click());
+    expect(api.get).toHaveBeenCalledWith("/destinations/dest-1/alternatives", expect.any(Object));
+    await act(async () => document.querySelector('[data-testid="swap-option-dest-alt"]').click());
+    expect(onResultChange).toHaveBeenCalledTimes(1);
+    expect(onResultChange.mock.calls[0][0].days[0].stops[0].destination_id).toBe("dest-alt");
+
+    await act(async () => document.querySelector('[data-testid="feedback-thumbs-up"]').click());
+    expect(api.post).toHaveBeenCalledWith("/planner/feedback", expect.objectContaining({
+      generation_id: "gen-log-123456",
+      rating: "up",
+    }));
   });
 });
